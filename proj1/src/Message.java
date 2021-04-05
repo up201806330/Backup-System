@@ -16,7 +16,7 @@ public class Message {
     private String version;
     private MessageType msgType;
     private int senderId;
-    private int fileId;
+    private String fileId;
     private int chunkNo;
     private int replicationDeg;
 
@@ -77,7 +77,7 @@ public class Message {
         else {
             version = splitHeader[0];
             senderId = Integer.parseInt(splitHeader[2]);
-            fileId = Integer.parseInt(splitHeader[3]);
+            fileId = splitHeader[3];
             chunkNo = Integer.parseInt(splitHeader[4]);
             replicationDeg = Integer.parseInt(splitHeader[5]);
 
@@ -90,7 +90,7 @@ public class Message {
         else {
             version = splitHeader[0];
             senderId = Integer.parseInt(splitHeader[2]);
-            fileId = Integer.parseInt(splitHeader[3]);
+            fileId = splitHeader[3];
 
             return true;
         }
@@ -101,7 +101,7 @@ public class Message {
         else {
             version = splitHeader[0];
             senderId = Integer.parseInt(splitHeader[2]);
-            fileId = Integer.parseInt(splitHeader[3]);
+            fileId = splitHeader[3];
             chunkNo = Integer.parseInt(splitHeader[4]);
 
             return true;
@@ -120,7 +120,7 @@ public class Message {
         return senderId;
     }
 
-    public int getFileId() {
+    public String getFileId() {
         return fileId;
     }
 
