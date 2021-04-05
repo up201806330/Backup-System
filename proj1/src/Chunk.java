@@ -1,5 +1,7 @@
 public class Chunk {
 
+    public int CHUNK_MAX_SIZE = 64 * 1000; // 64KB = 64*1000 B
+
     private int fileId;
     private int number;
     private int replicDegree;
