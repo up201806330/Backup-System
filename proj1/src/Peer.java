@@ -4,9 +4,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 public class Peer implements RemoteInterface {
 
     private int peerId;
-    private static Control MC;
-    private static Backup MDB;
-    private static Restore MDR;
+    private static Channel MC;
+    private static Channel MDB;
+    private static Channel MDR;
 
     private ScheduledThreadPoolExecutor executor;
 
