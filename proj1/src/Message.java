@@ -3,9 +3,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.DatagramPacket;
+import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Message {
+public class Message implements Runnable {
 
     enum MessageType { PUTCHUNK, STORED, GETCHUNK, CHUNK, DELETE, REMOVED }
 
@@ -39,6 +40,22 @@ public class Message {
         }
 
     }
+
+    public Message(MessageType type, String[] args) {
+        this.msgType = type;
+
+        // https://stackoverflow.com/questions/14256013/add-string-to-beginning-of-string-array
+        ArrayList<String> temp = new ArrayList<String>();
+        temp.add(this.msgType.toString()); temp.addAll(Arrays.asList(args));
+        String[] newArgs = temp.toArray(new String[temp.size()]);
+
+        switch (this.msgType.toString()) {
+            case "PUTCHUNK" -> putChunkCase(newArgs);
+            case "DELETE" -> deleteCase(newArgs);
+            case "STORED", "GETCHUNK", "CHUNK", "REMOVED" -> generalCase(newArgs);
+        }
+    }
+
 
     private void parseMessageHeader(byte[] header) throws IOException {
         ByteArrayInputStream headerStream = new ByteArrayInputStream(header);
@@ -138,6 +155,20 @@ public class Message {
 
     public byte[] getMessageBodyData() {
         return messageBodyData;
+    }
+
+
+    @Override
+    public void run() {
+
+        switch (this.msgType) {
+            case PUTCHUNK:
+                if (this.senderId != Peer.getPeerObject().getPeerId()) {
+                    new Backup(this);
+                }
+            case STORED:
+
+        }
     }
 
 }

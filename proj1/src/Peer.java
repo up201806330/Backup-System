@@ -91,7 +91,21 @@ public class Peer implements RemoteInterface {
     }
 
     @Override
-    public void retrieveState() throws RemoteException {
+    public String retrieveState() throws RemoteException {
         System.out.println("Entering Retrieve of State");
+
+        return "";
+    }
+
+    public static Peer getPeerObject() {
+        return peerObject;
+    }
+
+    public int getPeerId() {
+        return peerId;
+    }
+
+    public ScheduledThreadPoolExecutor getPool() {
+        return pool;
     }
 }

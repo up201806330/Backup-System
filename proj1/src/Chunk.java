@@ -2,13 +2,13 @@ public class Chunk {
 
     public static int CHUNK_MAX_SIZE = 64 * 1000; // 64KB = 64*1000 B
 
-    private int fileId;
+    private String fileId;
     private int number;
     private int replicDegree;
     private byte[] data;
 
 
-    public Chunk(int fileId, int number, int replicDegree, byte[] data) {
+    public Chunk(String fileId, int number, int replicDegree, byte[] data) {
         this.fileId = fileId;
         this.number = number;
         this.replicDegree = replicDegree;
@@ -16,7 +16,7 @@ public class Chunk {
     }
 
 
-    public int getFileId() {
+    public String getFileId() {
         return fileId;
     }
 

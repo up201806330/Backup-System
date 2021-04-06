@@ -7,5 +7,5 @@ public interface RemoteInterface extends Remote {
     void restore(String filePathname) throws RemoteException;
     void delete(String filePathname) throws RemoteException;
     void reclaimStorage(int maxDiskSpaceToStore) throws RemoteException;
-    void retrieveState() throws RemoteException;
+    String retrieveState() throws RemoteException;
 }

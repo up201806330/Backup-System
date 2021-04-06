@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 public class Channel implements Runnable {
 
@@ -24,15 +25,6 @@ public class Channel implements Runnable {
         this.multicastSocket.joinGroup(this.inetAddress);
     }
 
-    public void channelSendMessage(String content) {
-        DatagramPacket packetToSend = new DatagramPacket(content.getBytes(), content.getBytes().length, this.inetAddress, this.port);
-
-        try {
-            this.multicastSocket.send(packetToSend);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void run() {
@@ -40,9 +32,10 @@ public class Channel implements Runnable {
         DatagramPacket deliveredPacket = new DatagramPacket(deliveredData, deliveredData.length);
 
         while (true) {
-
             try {
                 this.multicastSocket.receive(deliveredPacket);
+                ScheduledThreadPoolExecutor peerPool =  Peer.getPeerObject().getPool();
+                peerPool.execute(new Message(deliveredPacket));
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -15,7 +15,7 @@ public class TestApp {
             String peerAccessPoint = args[0];
             String operation = args[1];
 
-            Registry registry = LocateRegistry.getRegistry("localhost");
+            Registry registry = LocateRegistry.getRegistry();
             RemoteInterface stub = (RemoteInterface) registry.lookup(peerAccessPoint);
 
             // ---- Check for "exceptions" ----
@@ -39,42 +39,33 @@ public class TestApp {
             }
 
 
-            switch(operation.toUpperCase()) {
-                case "BACKUP":
+            switch (operation.toUpperCase()) {
+                case "BACKUP" -> {
                     System.out.println("Backup");
                     stub.backup(args[2], Integer.parseInt(args[3]));
-                    break;
-
-                case "RESTORE":
+                }
+                case "RESTORE" -> {
                     System.out.println("Restore");
                     stub.restore(args[2]);
-                    break;
-
-                case "DELETE":
+                }
+                case "DELETE" -> {
                     System.out.println("Delete");
                     stub.delete(args[2]);
-                    break;
-
-                case "RECLAIM":
+                }
+                case "RECLAIM" -> {
                     System.out.println("Reclaim");
                     stub.reclaimStorage(Integer.parseInt(args[2]));
-                    break;
-
-                case "STATE":
+                }
+                case "STATE" -> {
                     System.out.println("State");
-                    stub.retrieveState();
-                    break;
-
-                default:
-                    System.out.println("Operation not recognized");
-                    break;
-
+                    System.out.println("Answer: " + stub.retrieveState());
+                }
+                default -> System.out.println("Operation not recognized");
             }
 
         } catch(Exception e) {
             e.printStackTrace();
         }
-
 
     }
 }
