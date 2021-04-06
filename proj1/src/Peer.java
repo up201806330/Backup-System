@@ -13,14 +13,14 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 public class Peer implements RemoteInterface {
 
 
-    private static Peer peerObject;
+    private static Peer singleton;
 
     private int peerId;
     private String protocolVersion;
     private static String accessPoint;
 
     private DatagramSocket socket;
-    private HashMap<Channel.ChannelType, Channel> channels;
+    private HashMap<ServiceChannel.ChannelType, ServiceChannel> channels;
 
     private ScheduledThreadPoolExecutor pool;
     private ScheduledExecutorService executor;
@@ -33,12 +33,10 @@ public class Peer implements RemoteInterface {
             return ;
         }
 
-        Peer.peerObject = new Peer(args);
-
-        Peer.connectRemoteInterface();
+        Peer.singleton = new Peer(args);
     }
 
-    public Peer(String args[]) throws IOException {
+    public Peer(String args[]) throws IOException, AlreadyBoundException {
 
         this.protocolVersion = args[0];
         this.peerId = Integer.parseInt(args[1]);
@@ -49,30 +47,36 @@ public class Peer implements RemoteInterface {
         this.executor = Executors.newScheduledThreadPool(1);
 
         configChannels(args);
+
+        connectRemoteInterface();
     }
 
 
     public static void connectRemoteInterface() throws RemoteException, AlreadyBoundException {
-        RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(Peer.peerObject, 0);
+        RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(Peer.singleton, 0);
 
         Registry registry = LocateRegistry.getRegistry();
         registry.bind(accessPoint, stub);
     }
 
     public void configChannels(String[] args) throws IOException {
-        Channel MC  = new Channel(args[3], Integer.parseInt(args[4]), Channel.ChannelType.MC, Chunk.CHUNK_MAX_SIZE);
+        ServiceChannel MC  = new ServiceChannel(args[3], Integer.parseInt(args[4]), ServiceChannel.ChannelType.MC, Chunk.CHUNK_MAX_SIZE);
         new Thread(MC).start();
 
-        Channel MDB = new Channel(args[5], Integer.parseInt(args[6]), Channel.ChannelType.MDB,Chunk.CHUNK_MAX_SIZE);
+        ServiceChannel MDB = new ServiceChannel(args[5], Integer.parseInt(args[6]), ServiceChannel.ChannelType.MDB,Chunk.CHUNK_MAX_SIZE);
         new Thread(MDB).start();
 
-        Channel MDR = new Channel(args[7], Integer.parseInt(args[8]), Channel.ChannelType.MDR, Chunk.CHUNK_MAX_SIZE);
+        ServiceChannel MDR = new ServiceChannel(args[7], Integer.parseInt(args[8]), ServiceChannel.ChannelType.MDR, Chunk.CHUNK_MAX_SIZE);
         new Thread(MDR).start();
     }
 
     @Override
     public void backup(String filePathname, int replicationDegree) throws RemoteException {
-        System.out.println("Entering Backup of " + filePathname + " with replic degree of " + replicationDegree);
+        System.out.println("Entering Backup of " + filePathname + " with repDegree of " + replicationDegree);
+
+        Backup backup = new Backup(filePathname, replicationDegree);
+
+        backup.run();
     }
 
     @Override
@@ -97,8 +101,8 @@ public class Peer implements RemoteInterface {
         return "";
     }
 
-    public static Peer getPeerObject() {
-        return peerObject;
+    public static Peer getPeer() {
+        return singleton;
     }
 
     public int getPeerId() {
@@ -108,4 +112,5 @@ public class Peer implements RemoteInterface {
     public ScheduledThreadPoolExecutor getPool() {
         return pool;
     }
+
 }

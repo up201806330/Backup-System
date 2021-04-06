@@ -163,10 +163,13 @@ public class Message implements Runnable {
 
         switch (this.msgType) {
             case PUTCHUNK:
-                if (this.senderId != Peer.getPeerObject().getPeerId()) {
+                if (this.senderId != Peer.getPeer().getPeerId()) {
                     new Backup(this);
                 }
             case STORED:
+                if (this.senderId != Peer.getPeer().getPeerId()) {
+                    // TODO
+                }
 
         }
     }

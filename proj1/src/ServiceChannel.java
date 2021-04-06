@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-public class Channel implements Runnable {
+public class ServiceChannel implements Runnable {
 
     enum ChannelType { MC, MDB, MDR }
 
@@ -14,7 +14,7 @@ public class Channel implements Runnable {
     private int BUF_SIZE;
     private int port;
 
-    public Channel(String addressString, int port, ChannelType type, int chunkSize) throws IOException {
+    public ServiceChannel(String addressString, int port, ChannelType type, int chunkSize) throws IOException {
         this.inetAddress = InetAddress.getByName(addressString);
         this.port = port;
         this.type = type;
@@ -34,7 +34,7 @@ public class Channel implements Runnable {
         while (true) {
             try {
                 this.multicastSocket.receive(deliveredPacket);
-                ScheduledThreadPoolExecutor peerPool =  Peer.getPeerObject().getPool();
+                ScheduledThreadPoolExecutor peerPool =  Peer.getPeer().getPool();
                 peerPool.execute(new Message(deliveredPacket));
             } catch (IOException e) {
                 e.printStackTrace();
