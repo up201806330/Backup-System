@@ -34,7 +34,7 @@ public class Message {
 
         if (msgType == MessageType.PUTCHUNK || msgType == MessageType.CHUNK) {
             // Source: https://stackoverflow.com/questions/18367539/slicing-byte-arrays-in-java/18367574
-            this.messageBodyData = Arrays.copyOfRange(packet.getData(), headerLength + 2 * CRLF.length(), packet.getLength());
+            messageBodyData = Arrays.copyOfRange(packet.getData(), headerLength + 2 * CRLF.length(), packet.getLength());
             // lower limit = headerLength + 2 * CRLF.length() because header ends with 2 CRLFs
         }
 
@@ -45,7 +45,7 @@ public class Message {
         BufferedReader reader = new BufferedReader(new InputStreamReader(headerStream));
 
         String headerLine = reader.readLine();
-        this.headerLength = headerLine.getBytes().length; // TODO not sure if it is correct
+        headerLength = headerLine.getBytes().length; // TODO not sure if it is correct
 
         if (!headerArgsParsing(headerLine)) {
             System.out.println("Unsuccessful Header Parsing");
