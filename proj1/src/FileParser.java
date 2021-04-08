@@ -51,22 +51,6 @@ public class FileParser {
                 this.chunks.add(chunk);
             }
 
-//            BufferedInputStream bufferedIS = new BufferedInputStream(new FileInputStream(this.file));
-//
-//            int nBytesReadFromStream;
-//            System.out.println("before while");
-//            while ( (nBytesReadFromStream = bufferedIS.read(chunkBuffer)) > 0 ) {
-//                System.out.println(Arrays.toString(chunkBuffer));
-//                Chunk createdChunk = new Chunk(++currentChunkNumber, Arrays.copyOf(chunkBuffer, nBytesReadFromStream), nBytesReadFromStream);
-//                this.chunks.add(createdChunk);
-//
-//                chunkBuffer = new byte[MAX_CHUNK_SIZE]; // resetting buffer just in case even though nBytesReadFromStream should be enough
-//            }
-//            if (this.hasExtraEmptyChunk) {
-//                Chunk chunk = new Chunk(++currentChunkNumber, null, 0);
-//                this.chunks.add(chunk);
-//            }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

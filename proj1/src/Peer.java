@@ -60,9 +60,9 @@ public class Peer implements RemoteInterface {
 
         this.socket = new DatagramSocket();
 
-        this.MC = new Channel(this, args[3], Integer.parseInt(args[4]), Channel.ChannelType.MC);
-        this.MDB = new Channel(this, args[5], Integer.parseInt(args[6]), Channel.ChannelType.MDB);
-        this.MDR = new Channel(this, args[7], Integer.parseInt(args[8]), Channel.ChannelType.MDR);
+        this.MC = new Channel(args[3], Integer.parseInt(args[4]), Channel.ChannelType.MC);
+        this.MDB = new Channel(args[5], Integer.parseInt(args[6]), Channel.ChannelType.MDB);
+        this.MDR = new Channel(args[7], Integer.parseInt(args[8]), Channel.ChannelType.MDR);
 
         exec.execute(this.MC);
         exec.execute(this.MDB);
@@ -90,7 +90,7 @@ public class Peer implements RemoteInterface {
 
         for (Chunk c : fileParser.getChunks()) {
 
-            String dataHeader = this.protocolVersion + " PUTCHUNK " + this.peerID + " " + fileParser.getId() + " " + c.getNr() + " " + replicationDegree + " " + "\r\n" + "\r\n";
+            String dataHeader = this.protocolVersion + " PUTCHUNK " + peerID + " " + fileParser.getId() + " " + c.getNr() + " " + replicationDegree + " " + "\r\n" + "\r\n";
             System.out.println(dataHeader);
 
             // System.out.println(Arrays.toString(c.getContent()));
@@ -104,45 +104,6 @@ public class Peer implements RemoteInterface {
 
             Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, fileParser.getId(), c.getNr(), replicationDegree), 1, TimeUnit.SECONDS);
         }
-
-//        FileParser fileParser = new FileParser(new File(filepath));
-//
-//        int chunkNumber = 0;
-//
-//        byte CR = 0xD;
-//        byte LF = 0xA;
-//        String CRLF = "" + (char) CR + (char) LF;
-//
-//        System.out.println("Entering While Loop");
-//
-//        while (true) {
-//            byte[] chunk = fileParser.getNextChunk();
-//
-//            String data = this.protocolVersion + " PUTCHUNK " + this.peerID + " " + fileParser.getFileId() + " " + (chunkNumber++) + " " + replicationDegree + " " + CRLF + CRLF + " data + data + data";
-//            System.out.println(data);
-//
-//            byte[] dataBytes = data.getBytes();
-//
-//            DatagramPacket packet = new DatagramPacket(dataBytes, dataBytes.length, MDB);
-//
-//            try {
-//                this.socket.send(packet);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            try {
-//                Thread.sleep(1000); // tempo de timeout que vai multiplicando se nao recebeu todos os storeds
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            // verificar se recebeu stored's -> perguntar ao mchandler se recebeu todos os stored que precisa
-//            //
-//
-//            if (chunk.length < FileParser.CHUNKSIZE) break;
-//        }
-//
-//        System.out.println("After While Loop");
     }
 
     public void restore(String filepath) {
@@ -183,6 +144,9 @@ public class Peer implements RemoteInterface {
 
     public static Channel getMDB() {
         return MDB;
+    }
+    public static Channel getMC() {
+        return MC;
     }
 
     //    public void send(String[] args) {

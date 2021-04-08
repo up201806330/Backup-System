@@ -14,10 +14,9 @@ public class Channel implements Runnable {
     private int port;
     private ChannelType type;
     private MulticastSocket socket;
-    private Peer peer;
 
 
-    public Channel(Peer peer, String addressString, int port, ChannelType type) throws IOException {
+    public Channel(String addressString, int port, ChannelType type) throws IOException {
 
         try {
             this.inetAddress = InetAddress.getByName(addressString);
@@ -25,7 +24,6 @@ public class Channel implements Runnable {
             e.printStackTrace();
         }
 
-        this.peer = peer;
         this.port = port;
         this.type = type;
 
@@ -53,30 +51,48 @@ public class Channel implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            
-            processPacket(receivedPacket);
+
+            processPacket(receivedPacket, type);
 
         }
     }
 
-    private void processPacket(DatagramPacket receivedPacket) {
-        int size = receivedPacket.getLength();
+    private void processPacket(DatagramPacket receivedPacket, ChannelType type) {
 
+        int size = receivedPacket.getLength();
         byte[] data = Arrays.copyOf(receivedPacket.getData(), size);
 
         int i;
         for (i = 0; i < data.length; i++) {
-            if (data[i] == 0xD && data[i + 1] == 0xA && data[i + 2] == 0xD && data[i + 3] == 0xA) break;
+            if (data[i] == '\r' && data[i + 1] == '\n' && data[i + 2] == '\r' && data[i + 3] == '\n') break;
         }
 
         byte[] header = Arrays.copyOfRange(data, 0, i);
-        byte[] body = Arrays.copyOfRange(data, i + 4, data.length);
+        String[] splitHeader = new String(header).trim().split(" ");
 
-        String headerString = new String(header);
-        String bodyString = new String(body);
+        // splitHeader[1] -> PUTCHUNK / etc .....
+        switch (splitHeader[1]) {
+            case "PUTCHUNK":
+                byte[] body = Arrays.copyOfRange(data, i + 4, data.length);
+                String bodyString = new String(body);
+                processPacketPUTCHUNK(splitHeader, bodyString);
+                break;
+            case "STORED":
+                processPacketSTORED(splitHeader);
+                break;
+            default:
+                System.out.println("rip");
+        }
+    }
 
-        String[] splitHeader = headerString.trim().split(" ");
+    private void processPacketPUTCHUNK(String[] splitHeader, String bodyString) {
+        System.out.println("Processing PUTCHUNK Packet");
 
+        if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
+
+            System.out.println("SKIPPING PUTCHUNK");
+            return ;
+        }
         printSplitHeader(splitHeader);
 
         String name = splitHeader[3] + "-" + splitHeader[4];
@@ -86,10 +102,25 @@ public class Channel implements Runnable {
             fos.write(bodyString.getBytes());
             fos.close();
 
+            byte[] storedMessage = createSTORED(splitHeader);
+            Peer.getMC().sendMessage(storedMessage);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    private void processPacketSTORED(String[] splitHeader) {
+        System.out.println("Processing STORED Packet");
+        
+    }
+
+    private byte[] createSTORED(String[] splitHeader) {
+        String storedString = splitHeader[0] + " STORED " + splitHeader[2] + " " + splitHeader[3] + " " + splitHeader[4] + " " + "\r\n" + "\r\n";
+
+        return storedString.getBytes();
+    }
+
 
     private void printSplitHeader(String[] splitHeader) {
         System.out.println("Length of split Header: " + splitHeader.length);
