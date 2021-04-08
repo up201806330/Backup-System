@@ -2,12 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0171c53b-cf0b-4e65-b013-90f0f69d94ce" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/RepDegreeStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Backup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Backup.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Channel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ServiceChannel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Message.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Backup.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Chunk.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chunk.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Message.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Peer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Peer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/RemoteInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/RemoteInterface.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/RepDegreeStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Restore.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ServiceChannel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Channel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/TestApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TestApp.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,9 +56,16 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_package_manager_path" value="npm" />
   </component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
+      <recent name="" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\João António Sousa\Documents\Github\g01\proj1\src\oldCode" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="" />
     </key>
   </component>
@@ -82,7 +94,9 @@
       <workItem from="1616631963262" duration="55000" />
       <workItem from="1617569422088" duration="3359000" />
       <workItem from="1617620509689" duration="27673000" />
-      <workItem from="1617703384486" duration="9343000" />
+      <workItem from="1617703384486" duration="30500000" />
+      <workItem from="1617786266861" duration="39882000" />
+      <workItem from="1617870566994" duration="12728000" />
     </task>
     <servers />
   </component>

@@ -5,7 +5,7 @@ import java.rmi.registry.Registry;
 public class TestApp {
 
     public static void main(String[] args) {
-
+        System.out.println("Number of args: " + Integer.toString(args.length));
         if (args.length < 2 || args.length > 4) {
             System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>");
             return ;
@@ -33,11 +33,12 @@ public class TestApp {
             }
 
             // General case
-            else if (args.length != 3) {
+            else if (args.length != 3 && !operation.equalsIgnoreCase("STATE") && !operation.equalsIgnoreCase("BACKUP")) {
                 System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1>");
                 return;
             }
 
+            System.out.println("Passed All Checks!");
 
             switch (operation.toUpperCase()) {
                 case "BACKUP" -> {
@@ -54,11 +55,11 @@ public class TestApp {
                 }
                 case "RECLAIM" -> {
                     System.out.println("Reclaim");
-                    stub.reclaimStorage(Integer.parseInt(args[2]));
+                    stub.reclaim(Integer.parseInt(args[2]));
                 }
                 case "STATE" -> {
                     System.out.println("State");
-                    System.out.println("Answer: " + stub.retrieveState());
+                    System.out.println("Answer: " + stub.state());
                 }
                 default -> System.out.println("Operation not recognized");
             }

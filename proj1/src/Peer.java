@@ -1,116 +1,207 @@
-import java.io.IOException;
-import java.net.DatagramSocket;
+import java.io.*;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.rmi.AlreadyBoundException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.*;
 
 public class Peer implements RemoteInterface {
 
 
-    private static Peer singleton;
-
-    private int peerId;
     private String protocolVersion;
+    private static int peerID;
     private static String accessPoint;
 
+    private static Channel MC;
+    private static Channel MDB;
+    private static Channel MDR;
+
     private DatagramSocket socket;
-    private HashMap<ServiceChannel.ChannelType, ServiceChannel> channels;
 
-    private ScheduledThreadPoolExecutor pool;
-    private ScheduledExecutorService executor;
+    private static ScheduledThreadPoolExecutor exec;
+    private static FileStorage storage;
+//    private ScheduledExecutorService executor;
+
+    private static Peer instance;
 
 
-    public static void main(String[] args) throws IOException, AlreadyBoundException {
-
-        if (args.length != 9) {
-            System.out.println("Usage: Java Peer <protocol_version> <peer_id> <service_access_point> <MC_address> <MC_port> <MDB_address> <MDB_port> <MDR_address> <MDR_port>");
-            return ;
+    public static void main(String args[]) throws IOException, AlreadyBoundException {
+        if(args.length != 9) {
+            System.out.println("Usage: Java Peer <protocol version> <peer id> " +
+                    "<service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> " +
+                    "<MDBReceiver port> <MDRReceiver address> <MDRReceiver port>");
+            return;
         }
 
-        Peer.singleton = new Peer(args);
-    }
+        Peer instance = new Peer(args);
 
-    public Peer(String args[]) throws IOException, AlreadyBoundException {
-
-        this.protocolVersion = args[0];
-        this.peerId = Integer.parseInt(args[1]);
-        accessPoint = args[2];
-
-        this.socket = new DatagramSocket();
-        this.pool = new ScheduledThreadPoolExecutor(100);
-        this.executor = Executors.newScheduledThreadPool(1);
-
-        configChannels(args);
-
-        connectRemoteInterface();
-    }
-
-
-    public static void connectRemoteInterface() throws RemoteException, AlreadyBoundException {
-        RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(Peer.singleton, 0);
+        // RMI Connection
+        RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(instance, 0);
 
         Registry registry = LocateRegistry.getRegistry();
-        registry.bind(accessPoint, stub);
+        registry.bind(args[2], stub); // args[2] -> accessPoint
+
+        System.out.println("Peer ready");
     }
 
-    public void configChannels(String[] args) throws IOException {
-        ServiceChannel MC  = new ServiceChannel(args[3], Integer.parseInt(args[4]), ServiceChannel.ChannelType.MC, Chunk.CHUNK_MAX_SIZE);
-        new Thread(MC).start();
 
-        ServiceChannel MDB = new ServiceChannel(args[5], Integer.parseInt(args[6]), ServiceChannel.ChannelType.MDB,Chunk.CHUNK_MAX_SIZE);
-        new Thread(MDB).start();
+    public Peer(String args[]) throws IOException {
 
-        ServiceChannel MDR = new ServiceChannel(args[7], Integer.parseInt(args[8]), ServiceChannel.ChannelType.MDR, Chunk.CHUNK_MAX_SIZE);
-        new Thread(MDR).start();
+        this.protocolVersion = args[0];
+        this.peerID = Integer.parseInt(args[1]);
+        this.accessPoint = args[2];
+
+        this.exec = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(200);;
+//        this.executor = Executors.newScheduledThreadPool(1);
+
+        this.socket = new DatagramSocket();
+
+        this.MC = new Channel(this, args[3], Integer.parseInt(args[4]), Channel.ChannelType.MC);
+        this.MDB = new Channel(this, args[5], Integer.parseInt(args[6]), Channel.ChannelType.MDB);
+        this.MDR = new Channel(this, args[7], Integer.parseInt(args[8]), Channel.ChannelType.MDR);
+
+        exec.execute(this.MC);
+        exec.execute(this.MDB);
+        exec.execute(this.MDR);
+
+//        new Thread(this.MC).start();
+//        new Thread(this.MDB).start();
+//        new Thread(this.MDR).start();
+
+//        channels = new HashMap<>();
+//        channels.put(Channel.ChannelType.MC, MC);
+//        channels.put(Channel.ChannelType.MDB, MDB);
+//        channels.put(Channel.ChannelType.MDR, MDR);
     }
 
-    @Override
-    public void backup(String filePathname, int replicationDegree) throws RemoteException {
-        System.out.println("Entering Backup of " + filePathname + " with repDegree of " + replicationDegree);
 
-        Backup backup = new Backup(filePathname, replicationDegree);
 
-        backup.run();
+    public synchronized void backup(String filepath, int replicationDegree) {
+        System.out.println("\n---- BACKUP SERVICE ---- FILE PATH = " + filepath + " | REPLICATION DEGREEE = " + replicationDegree);
+
+        FileParser fileParser = new FileParser(filepath, replicationDegree);
+        // storage.addFile(fileParser);
+
+        System.out.println(fileParser.getChunks().size());
+
+        for (Chunk c : fileParser.getChunks()) {
+
+            String dataHeader = this.protocolVersion + " PUTCHUNK " + this.peerID + " " + fileParser.getId() + " " + c.getNr() + " " + replicationDegree + " " + "\r\n" + "\r\n";
+            System.out.println(dataHeader);
+
+            // System.out.println(Arrays.toString(c.getContent()));
+
+            byte[] fullMessage = new byte[dataHeader.length() + c.getContent().length];
+            System.arraycopy(dataHeader.getBytes(), 0, fullMessage,0, dataHeader.getBytes().length);
+            System.arraycopy(c.getContent(), 0, fullMessage, dataHeader.getBytes().length, c.getContent().length);
+
+            System.out.println("Sending Message to MDB");
+            MDB.sendMessage(fullMessage);
+
+            Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, fileParser.getId(), c.getNr(), replicationDegree), 1, TimeUnit.SECONDS);
+        }
+
+//        FileParser fileParser = new FileParser(new File(filepath));
+//
+//        int chunkNumber = 0;
+//
+//        byte CR = 0xD;
+//        byte LF = 0xA;
+//        String CRLF = "" + (char) CR + (char) LF;
+//
+//        System.out.println("Entering While Loop");
+//
+//        while (true) {
+//            byte[] chunk = fileParser.getNextChunk();
+//
+//            String data = this.protocolVersion + " PUTCHUNK " + this.peerID + " " + fileParser.getFileId() + " " + (chunkNumber++) + " " + replicationDegree + " " + CRLF + CRLF + " data + data + data";
+//            System.out.println(data);
+//
+//            byte[] dataBytes = data.getBytes();
+//
+//            DatagramPacket packet = new DatagramPacket(dataBytes, dataBytes.length, MDB);
+//
+//            try {
+//                this.socket.send(packet);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            try {
+//                Thread.sleep(1000); // tempo de timeout que vai multiplicando se nao recebeu todos os storeds
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            // verificar se recebeu stored's -> perguntar ao mchandler se recebeu todos os stored que precisa
+//            //
+//
+//            if (chunk.length < FileParser.CHUNKSIZE) break;
+//        }
+//
+//        System.out.println("After While Loop");
     }
 
-    @Override
-    public void restore(String filePathname) throws RemoteException {
-        System.out.println("Entering Restore of " + filePathname);
+    public void restore(String filepath) {
+        System.out.println("RESTORE SERVICE -> FILE PATH = " + filepath);
+        // TODO:
     }
 
-    @Override
-    public void delete(String filePathname) throws RemoteException {
-        System.out.println("Entering Delete of " + filePathname);
+    public void delete(String filepath) {
+        System.out.println("DELETE SERVICE -> FILE PATH = " + filepath);
+        // TODO:
     }
 
-    @Override
-    public void reclaimStorage(int maxDiskSpaceToStore) throws RemoteException {
-        System.out.println("Entering Reclaim with disk space reclaim of " + maxDiskSpaceToStore);
+    public void reclaim(long spaceReclaim) {
+        System.out.println("RECLAIM SERVICE -> DISK SPACE RECLAIM = " + spaceReclaim);
+        // TODO:
     }
 
-    @Override
-    public String retrieveState() throws RemoteException {
-        System.out.println("Entering Retrieve of State");
-
+    public String state() {
+        System.out.println("\n---- STATE SERVICE ----");
         return "";
     }
 
-    public static Peer getPeer() {
-        return singleton;
+    public static ScheduledThreadPoolExecutor getExec() {
+        return exec;
     }
 
-    public int getPeerId() {
-        return peerId;
+    public static int getId() {
+        return peerID;
     }
 
-    public ScheduledThreadPoolExecutor getPool() {
-        return pool;
+    public String getVersion() {
+        return protocolVersion;
     }
+
+    public static FileStorage getStorage() {
+        return storage;
+    }
+
+    public static Channel getMDB() {
+        return MDB;
+    }
+
+    //    public void send(String[] args) {
+//
+//        String answer;
+//
+//        if (args[1].equals("PUTCHUNK")) {
+//            answer = args[0] + " STORED " + args[2] + " " + args[3] + " " + args[4] + " " + "\r\n" + "\r\n";
+//            System.out.println("Answer: " + answer);
+//            byte[] answerBytes = answer.getBytes();
+//
+//            DatagramPacket packet = new DatagramPacket(answerBytes, answerBytes.length, MC);
+//
+//            try {
+//                this.socket.send(packet);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
 }
