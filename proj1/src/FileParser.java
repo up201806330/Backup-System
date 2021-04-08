@@ -20,10 +20,7 @@ public class FileParser {
         this.replicationDegree = replicationDegree;
         this.chunks = getFileChunks();
         this.hasExtraEmptyChunk = checkForEmptyEndingChunk();
-        System.out.println("pls");
         getFileIdHashed();
-
-        System.out.println("End of Constructor");
     }
 
     private ArrayList<Chunk> getFileChunks() {

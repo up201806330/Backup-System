@@ -1,3 +1,6 @@
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 public class Backup {
 
     public static void processPacketPUTCHUNK(Chunk chunk, String[] splitHeader) {
@@ -9,12 +12,16 @@ public class Backup {
             System.out.println("SKIPPING PUTCHUNK");
             return ;
         }
-        Utils.printSplitHeader(splitHeader);
+        // Utils.printSplitHeader(splitHeader);
 
         boolean storedSuccessfully = fileStorage.storeChunk(chunk);
         if (storedSuccessfully){
             byte[] storedMessage = createSTORED(splitHeader);
-            Peer.getMC().sendMessage(storedMessage);
+
+
+            int rand = new Random().nextInt(401);
+            System.out.println("Sending STORED in: " + rand + "ms");
+            Peer.getExec().schedule(() -> Peer.getMC().sendMessage(storedMessage), rand, TimeUnit.MILLISECONDS);
         }
     }
 

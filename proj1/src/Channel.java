@@ -71,9 +71,6 @@ public class Channel implements Runnable {
         byte[] body;
         Chunk newChunk;
         // splitHeader[1] -> PUTCHUNK / etc .....
-        System.out.println("-- Pre Switch in processPacket -- ");
-        System.out.println(splitHeader[1]);
-        System.out.println(" ---- ");
         switch (splitHeader[1]) {
             case "PUTCHUNK":
                 body = Arrays.copyOfRange(data, i + 4, data.length);
@@ -91,7 +88,6 @@ public class Channel implements Runnable {
     public synchronized void sendMessage(byte[] buf) {
 
         try {
-            System.out.println("-- Sending Message");
             this.socket.send(new DatagramPacket(buf, buf.length, this.inetAddress, this.port));
         } catch (IOException e) {
             e.printStackTrace();
