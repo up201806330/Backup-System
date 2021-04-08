@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.concurrent.*;
 
 public class Peer implements RemoteInterface {
-
+    public static Peer instance;
 
     private String protocolVersion;
     private static int peerID;
@@ -26,8 +26,6 @@ public class Peer implements RemoteInterface {
     private static FileStorage storage;
 //    private ScheduledExecutorService executor;
 
-    private static Peer instance;
-
     public static void main(String args[]) throws IOException, AlreadyBoundException {
         if(args.length != 9) {
             System.out.println("Usage: Java Peer <protocol version> <peer id> " +
@@ -36,7 +34,7 @@ public class Peer implements RemoteInterface {
             return;
         }
 
-        Peer instance = new Peer(args);
+        Peer.instance = new Peer(args);
 
         // RMI Connection
         RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(instance, 0);
@@ -49,6 +47,8 @@ public class Peer implements RemoteInterface {
 
 
     public Peer(String args[]) throws IOException {
+        if (Peer.instance != null) return;
+        else Peer.instance = this;
 
         this.protocolVersion = args[0];
         this.peerID = Integer.parseInt(args[1]);

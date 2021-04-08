@@ -5,8 +5,11 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Channel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Channel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/CheckReplicationDegree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/CheckReplicationDegree.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FileParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Message.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FileStorage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileStorage.java" afterDir="false" />
+    </list>
+    <list id="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" name="Changes by Rafael" comment="">
+      <change beforePath="$PROJECT_DIR$/src/Channel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Channel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Chunk.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chunk.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Peer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Peer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -33,6 +36,20 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/src/Channel.java">
+      <ranges>
+        <range start1="9" end1="10" start2="9" end2="9" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="13" end1="16" start2="12" end2="15" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="19" end1="20" start2="18" end2="18" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="60" end1="61" start2="58" end2="58" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="77" end1="78" start2="74" end2="75" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="80" end1="81" start2="77" end2="78" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="83" end1="84" start2="80" end2="81" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="86" end1="133" start2="83" end2="83" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+      </ranges>
+    </file>
+  </component>
   <component name="ProjectId" id="1qDVSYOwE87rrYhtESPthfz3Tdk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -44,6 +61,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="codeWithMe.voiceChat.enabledByDefault" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../feup-sdis-2020-2021/Lab3" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -52,6 +70,7 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
@@ -91,7 +110,9 @@
       <workItem from="1617620509689" duration="27673000" />
       <workItem from="1617703384486" duration="30500000" />
       <workItem from="1617786266861" duration="39882000" />
-      <workItem from="1617870566994" duration="18001000" />
+      <workItem from="1617870566994" duration="19271000" />
+      <workItem from="1617892294847" duration="504000" />
+      <workItem from="1617892813438" duration="7288000" />
     </task>
     <servers />
   </component>
