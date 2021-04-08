@@ -28,7 +28,6 @@ public class Peer implements RemoteInterface {
 
     private static Peer instance;
 
-
     public static void main(String args[]) throws IOException, AlreadyBoundException {
         if(args.length != 9) {
             System.out.println("Usage: Java Peer <protocol version> <peer id> " +
