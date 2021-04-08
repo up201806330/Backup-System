@@ -6,7 +6,7 @@ public class CheckReplicationDegree implements Runnable {
 
     public CheckReplicationDegree(byte[] fullMessage, String id, int nr, int replicationDegree) {
         this.messageSent = fullMessage;
-        this.delay = 1;
+        // this.delay = 1;
 
         this.replicationDegree = replicationDegree;
     }

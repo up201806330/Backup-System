@@ -101,7 +101,6 @@ public class FileParser {
         return ((this.file.length() % MAX_CHUNK_SIZE) == 0);
     }
 
-
     public String getId() {
         return id;
     }
