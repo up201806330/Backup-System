@@ -67,12 +67,18 @@ public class Channel implements Runnable {
         byte[] header = Arrays.copyOfRange(data, 0, i);
         String[] splitHeader = new String(header).trim().split(" ");
 
+
+        byte[] body;
+        Chunk newChunk;
         // splitHeader[1] -> PUTCHUNK / etc .....
+        System.out.println("-- Pre Switch in processPacket -- ");
+        System.out.println(splitHeader[1]);
+        System.out.println(" ---- ");
         switch (splitHeader[1]) {
             case "PUTCHUNK":
-                byte[] body = Arrays.copyOfRange(data, i + 4, data.length);
-                String bodyString = new String(body);
-                Backup.processPacketPUTCHUNK(splitHeader, bodyString);
+                body = Arrays.copyOfRange(data, i + 4, data.length);
+                newChunk = new Chunk(splitHeader, body);
+                Backup.processPacketPUTCHUNK(newChunk, splitHeader);
                 break;
             case "STORED":
                 Backup.processPacketSTORED(splitHeader);

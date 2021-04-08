@@ -20,16 +20,18 @@ public class CheckReplicationDegree implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("Entering Check Rep Degree");
+        System.out.println("Try: " + this.numberOfTries);
 
         String key = this.fileId + "-" + this.chunkNumber;
-        int currentReplicationDegree = Peer.getStorage().getStoredOccurences().get(key);
+        int currentReplicationDegree = FileStorage.instance.getChunkReplicationMap().get(key);
 
         if (currentReplicationDegree < replicationDegree) {
+            System.out.println("More Reps");
             Peer.getMDB().sendMessage(messageSent);
 
             this.delay *= 2;
-            if (++this.numberOfTries < 5) Peer.getExec().execute(this);
-
+            if (++this.numberOfTries < 5) Peer.getExec().schedule(this, this.delay, TimeUnit.SECONDS);
 
         }
     }

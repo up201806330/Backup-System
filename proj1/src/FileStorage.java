@@ -1,4 +1,3 @@
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,23 +6,24 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FileStorage {
     public static FileStorage instance;
 
-    private ArrayList<Chunk> storedChunks;
-    private ConcurrentHashMap<String, Integer> storedOccurences;
+    private final ArrayList<Chunk> storedChunkFiles = new ArrayList<>();
+    private final ConcurrentHashMap<String, Integer> chunkReplicationMap = new ConcurrentHashMap<>();
     // < key, perceivedReplicationDegree >
     // key = fileId-chunknr
 
-    public FileStorage(ArrayList<Chunk> storedChunks, ConcurrentHashMap<String, Integer> storedOccurences) {
+    public FileStorage() {
         if (FileStorage.instance != null) return;
         else FileStorage.instance = this;
-
-        this.storedChunks = storedChunks;
-        this.storedOccurences = storedOccurences;
     }
 
     public boolean storeChunk(Chunk c) {
+
+        // File already exists locally, won't store again
+        if (!addChunk(c)) return false;
+
         FileOutputStream fos;
         try {
-            fos = new FileOutputStream(c.getChunkFileName());
+            fos = new FileOutputStream(c.getChunkFullName());
             fos.write(c.getContent());
             fos.close();
         } catch (IOException e) {
@@ -31,23 +31,32 @@ public class FileStorage {
             return false;
         }
 
-        return addChunkToStored(c);
+        return true;
     }
 
-    public ConcurrentHashMap<String, Integer> getStoredOccurences() {
-        return storedOccurences;
+    public ConcurrentHashMap<String, Integer> getChunkReplicationMap() {
+        return chunkReplicationMap;
     }
 
-    public ArrayList<Chunk> getStoredChunks() {
-        return storedChunks;
+    public ArrayList<Chunk> getStoredChunkFiles() {
+        return storedChunkFiles;
     }
 
-    public synchronized boolean addChunkToStored(Chunk chunk) {
+    public synchronized boolean addChunk(Chunk chunk) {
 
-        if (!storedChunks.contains(chunk)) {
-            storedChunks.add(chunk);
+        if (!storedChunkFiles.contains(chunk)) {
+            // Mark chunk as stored locally
+            storedChunkFiles.add(chunk);
+
+            incrementReplicationDegree(chunk.getChunkFullName());
+
             return true;
         }
         return false;
+    }
+
+    public void incrementReplicationDegree(String chunkFileName) {
+        // if chunk doesnt exist in hashmap, adds it and put its replication value as 1. Otherwise sums 1.
+        chunkReplicationMap.merge(chunkFileName, 1, Integer::sum);
     }
 }

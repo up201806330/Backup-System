@@ -5,9 +5,12 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Channel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Channel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/CheckReplicationDegree.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/CheckReplicationDegree.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Chunk.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chunk.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/FileStorage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileStorage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Peer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Peer.java" afterDir="false" />
     </list>
     <list id="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" name="Changes by Rafael" comment="">
+      <change beforePath="$PROJECT_DIR$/src/Backup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Backup.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Channel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Channel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Chunk.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chunk.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Peer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Peer.java" afterDir="false" />
@@ -37,16 +40,36 @@
     </file-type-list>
   </component>
   <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/src/Chunk.java">
+      <ranges>
+        <range start1="2" end1="4" start2="2" end2="4" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="7" end1="8" start2="7" end2="8" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="9" end1="11" start2="9" end2="11" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="15" end1="20" start2="15" end2="20" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="22" end1="29" start2="22" end2="22" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="30" end1="32" start2="23" end2="25" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="42" end1="44" start2="35" end2="37" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="67" end1="67" start2="60" end2="65" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="76" end1="77" start2="74" end2="75" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+      </ranges>
+    </file>
+    <file path="$PROJECT_DIR$/src/Peer.java">
+      <ranges>
+        <range start1="2" end1="3" start2="2" end2="2" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="7" end1="9" start2="6" end2="6" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="25" end1="26" start2="22" end2="22" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="36" end1="37" start2="32" end2="34" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="91" end1="92" start2="88" end2="89" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="103" end1="104" start2="100" end2="101" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="138" end1="142" start2="135" end2="135" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="149" end1="169" start2="142" end2="142" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+      </ranges>
+    </file>
     <file path="$PROJECT_DIR$/src/Channel.java">
       <ranges>
-        <range start1="9" end1="10" start2="9" end2="9" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
-        <range start1="13" end1="16" start2="12" end2="15" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
-        <range start1="19" end1="20" start2="18" end2="18" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
-        <range start1="60" end1="61" start2="58" end2="58" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
-        <range start1="77" end1="78" start2="74" end2="75" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
-        <range start1="80" end1="81" start2="77" end2="78" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
-        <range start1="83" end1="84" start2="80" end2="81" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
-        <range start1="86" end1="133" start2="83" end2="83" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="69" end1="69" start2="69" end2="72" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="70" end1="70" start2="73" end2="76" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+        <range start1="72" end1="75" start2="78" end2="81" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
       </ranges>
     </file>
   </component>
@@ -112,7 +135,7 @@
       <workItem from="1617786266861" duration="39882000" />
       <workItem from="1617870566994" duration="19271000" />
       <workItem from="1617892294847" duration="504000" />
-      <workItem from="1617892813438" duration="7288000" />
+      <workItem from="1617892813438" duration="11307000" />
     </task>
     <servers />
   </component>

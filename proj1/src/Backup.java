@@ -1,10 +1,6 @@
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 public class Backup {
 
-    public static void processPacketPUTCHUNK(String[] splitHeader, String bodyString) {
+    public static void processPacketPUTCHUNK(Chunk chunk, String[] splitHeader) {
         System.out.println("Processing PUTCHUNK Packet");
 
         var fileStorage = FileStorage.instance;
@@ -15,21 +11,17 @@ public class Backup {
         }
         Utils.printSplitHeader(splitHeader);
 
-
-        Chunk newChunk = new Chunk(Integer.parseInt(splitHeader[4]), bodyString.getBytes(), splitHeader[3], bodyString.getBytes().length);
-
-        boolean storedSuccessfully = fileStorage.storeChunk(newChunk);
-
+        boolean storedSuccessfully = fileStorage.storeChunk(chunk);
         if (storedSuccessfully){
             byte[] storedMessage = createSTORED(splitHeader);
             Peer.getMC().sendMessage(storedMessage);
         }
-
     }
 
     public static void processPacketSTORED(String[] splitHeader) {
         System.out.println("Processing STORED Packet");
 
+        FileStorage.instance.incrementReplicationDegree(splitHeader[3] + "-" + splitHeader[4]);
     }
 
     private static byte[] createSTORED(String[] splitHeader) {

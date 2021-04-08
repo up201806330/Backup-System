@@ -1,12 +1,9 @@
 import java.io.*;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.concurrent.*;
 
 public class Peer implements RemoteInterface {
@@ -23,7 +20,6 @@ public class Peer implements RemoteInterface {
     private DatagramSocket socket;
 
     private static ScheduledThreadPoolExecutor exec;
-    private static FileStorage storage;
 //    private ScheduledExecutorService executor;
 
     public static void main(String args[]) throws IOException, AlreadyBoundException {
@@ -34,7 +30,8 @@ public class Peer implements RemoteInterface {
             return;
         }
 
-        Peer.instance = new Peer(args);
+        new Peer(args);
+        new FileStorage();
 
         // RMI Connection
         RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(instance, 0);
@@ -89,7 +86,7 @@ public class Peer implements RemoteInterface {
 
         for (Chunk c : fileParser.getChunks()) {
 
-            String dataHeader = this.protocolVersion + " PUTCHUNK " + peerID + " " + fileParser.getId() + " " + c.getNr() + " " + replicationDegree + " " + "\r\n" + "\r\n";
+            String dataHeader = this.protocolVersion + " PUTCHUNK " + peerID + " " + fileParser.getId() + " " + c.getChunkNumber() + " " + replicationDegree + " " + "\r\n" + "\r\n";
             System.out.println(dataHeader);
 
             // System.out.println(Arrays.toString(c.getContent()));
@@ -101,7 +98,7 @@ public class Peer implements RemoteInterface {
             System.out.println("Sending Message to MDB");
             MDB.sendMessage(fullMessage);
 
-            Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, fileParser.getId(), c.getNr(), replicationDegree), 1, TimeUnit.SECONDS);
+            Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, fileParser.getId(), c.getChunkNumber(), replicationDegree), 1, TimeUnit.SECONDS);
         }
     }
 
@@ -137,34 +134,10 @@ public class Peer implements RemoteInterface {
         return protocolVersion;
     }
 
-    public static FileStorage getStorage() {
-        return storage;
-    }
-
     public static Channel getMDB() {
         return MDB;
     }
     public static Channel getMC() {
         return MC;
     }
-
-    //    public void send(String[] args) {
-//
-//        String answer;
-//
-//        if (args[1].equals("PUTCHUNK")) {
-//            answer = args[0] + " STORED " + args[2] + " " + args[3] + " " + args[4] + " " + "\r\n" + "\r\n";
-//            System.out.println("Answer: " + answer);
-//            byte[] answerBytes = answer.getBytes();
-//
-//            DatagramPacket packet = new DatagramPacket(answerBytes, answerBytes.length, MC);
-//
-//            try {
-//                this.socket.send(packet);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
-
 }

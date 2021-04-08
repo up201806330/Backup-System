@@ -1,35 +1,28 @@
 public class Chunk {
 
-    private int nr;
-    private byte[] content;
+    private final int chunkNumber;
+    private final byte[] content;
     private String fileID;
     private int desiredReplicationDegree;
     private int currReplicationDegree = 0;
-    private int size;
+    private final int size;
 
-    public Chunk(int nr, byte[] content, int size) {
-        this.nr = nr;
+    public Chunk(int chunkNumber, byte[] content, int size) {
+        this.chunkNumber = chunkNumber;
         this.content = content;
         this.size = size;
     }
 
-    public Chunk(int nr, byte[] content, String fileID, int size) {
-        this.nr = nr;
-        this.content = content;
-        this.fileID = fileID;
-        this.size = size;
+    public Chunk(String[] splitHeader, byte[] body){
+        this.chunkNumber = Integer.parseInt(splitHeader[4]);
+        this.fileID = splitHeader[3];
+        this.size = body.length;
+        this.content = body;
     }
 
-//
-//    public Chunk(int nr, byte[] content, int desiredReplicationDegree, int size) {
-//        this.nr = nr;
-//        this.content = content;
-//        this.desiredReplicationDegree = desiredReplicationDegree;
-//        this.size = size;
-//    }
 
-    public int getNr() {
-        return nr;
+    public int getChunkNumber() {
+        return chunkNumber;
     }
 
     public byte[] getContent() {
@@ -40,8 +33,8 @@ public class Chunk {
         return fileID;
     }
 
-    public String getChunkFileName(){
-        return fileID + "-" + nr; // fileId (hash)
+    public String getChunkFullName(){
+        return fileID + "-" + chunkNumber; // fileId (hash)
     }
 
     public int getDesiredReplicationDegree() {
@@ -65,6 +58,11 @@ public class Chunk {
     }
 
     @Override
+    public int hashCode() {
+        return getChunkFullName().hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -74,6 +72,6 @@ public class Chunk {
             return false;
 
         Chunk other = (Chunk) obj;
-        return getChunkFileName().equals(other.getChunkFileName());
+        return getChunkFullName().equals(other.getChunkFullName());
     }
 }
