@@ -87,18 +87,18 @@ public class Peer implements RemoteInterface {
             throw new Exception("File size bigger than 64GB ; Aborting...");
         }
 
-        for (Chunk c : fileParser.getChunks()) {
+        for (Chunk chunk : fileParser.getChunks()) {
 
-            String dataHeader = this.protocolVersion + " PUTCHUNK " + peerID + " " + fileParser.getFileID() + " " + c.getChunkNumber() + " " + replicationDegree + " " + "\r\n" + "\r\n";
+            String dataHeader = this.protocolVersion + " PUTCHUNK " + peerID + " " + fileParser.getFileID() + " " + chunk.getChunkNumber() + " " + replicationDegree + " " + "\r\n" + "\r\n";
             System.out.println(dataHeader);
 
-            byte[] fullMessage = new byte[dataHeader.length() + c.getContent().length];
+            byte[] fullMessage = new byte[dataHeader.length() + chunk.getContent().length];
             System.arraycopy(dataHeader.getBytes(), 0, fullMessage,0, dataHeader.getBytes().length);
-            System.arraycopy(c.getContent(), 0, fullMessage, dataHeader.getBytes().length, c.getContent().length);
+            System.arraycopy(chunk.getContent(), 0, fullMessage, dataHeader.getBytes().length, chunk.getContent().length);
 
             MDB.sendMessage(fullMessage);
 
-            Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, fileParser.getFileID(), c.getChunkNumber(), replicationDegree), 1, TimeUnit.SECONDS);
+            Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
         }
 
         FileStorage.instance.backupFile(fileParser);
