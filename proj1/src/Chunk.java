@@ -3,15 +3,8 @@ public class Chunk {
     private final String fileID;
     private final int chunkNumber;
     private int perceivedReplicationDegree;
-    private final byte[] content;
+    private byte[] content;
 
-    public Chunk(String[] splitHeader, byte[] body){
-        this.fileID = splitHeader[3];
-        this.chunkNumber = Integer.parseInt(splitHeader[4]);
-        this.perceivedReplicationDegree = 1;
-        this.content = body;
-    }
-    
     public Chunk(String fileID, int chunkNumber, byte[] content){
         this.fileID = fileID;
         this.chunkNumber = chunkNumber;
@@ -41,13 +34,17 @@ public class Chunk {
     public int getPerceivedReplicationDegree() {
         return perceivedReplicationDegree;
     }
-    
-    public void incrementPerceivedReplicationDegree(){
-        perceivedReplicationDegree++;
-    }
 
     public String getChunkID(){
         return fileID + "-" + chunkNumber; // fileId (hash)
+    }
+
+    public void setContent(byte[] content) {
+        this.content = content;
+    }
+
+    public void incrementPerceivedReplicationDegree(){
+        perceivedReplicationDegree++;
     }
 
     @Override

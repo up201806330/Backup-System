@@ -67,18 +67,18 @@ public class Channel implements Runnable {
         byte[] header = Arrays.copyOfRange(data, 0, i);
         String[] splitHeader = new String(header).trim().split(" ");
 
+        String command = splitHeader[1];
+        String fileID = splitHeader[3];
+        int chunkNr = Integer.parseInt(splitHeader[4]);
 
-        byte[] body;
-        Chunk newChunk;
-        // splitHeader[1] -> PUTCHUNK / etc .....
-        switch (splitHeader[1]) {
+        Chunk newChunk = new Chunk(fileID, chunkNr);
+        switch (command) {
             case "PUTCHUNK":
-                body = Arrays.copyOfRange(data, i + 4, data.length);
-                newChunk = new Chunk(splitHeader, body);
+                byte[] body = Arrays.copyOfRange(data, i + 4, data.length);
+                newChunk.setContent(body);
                 Backup.processPacketPUTCHUNK(newChunk, splitHeader);
                 break;
             case "STORED":
-                newChunk = new Chunk(splitHeader[3], Integer.parseInt(splitHeader[4]));
                 Backup.processPacketSTORED(newChunk);
                 break;
             default:
