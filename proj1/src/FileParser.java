@@ -99,4 +99,31 @@ public class FileParser {
     public ArrayList<Chunk> getChunks() {
         return chunks;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder(
+                "Pathname: " + filePath + "\n" +
+                "File ID: " + fileID + "\n" +
+                "Rep degree: " + replicationDegree + "\n" +
+                "Chunks: " + "\n");
+        for (Chunk chunk : chunks){
+            result.append(chunk.toSimpleString()).append("\n");
+        }
+
+        return result.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+
+        FileParser other = (FileParser) obj;
+        return file.equals(other.file);
+    }
 }

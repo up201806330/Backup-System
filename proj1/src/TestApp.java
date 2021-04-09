@@ -5,7 +5,7 @@ import java.rmi.registry.Registry;
 public class TestApp {
 
     public static void main(String[] args) {
-        System.out.println("Number of args: " + Integer.toString(args.length));
+        System.out.println("Number of args: " + args.length);
         if (args.length < 2 || args.length > 4) {
             System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>");
             return ;
@@ -37,8 +37,6 @@ public class TestApp {
                 System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1>");
                 return;
             }
-
-            System.out.println("Passed All Checks!");
 
             switch (operation.toUpperCase()) {
                 case "BACKUP" -> {

@@ -11,9 +11,14 @@ public class FileStorage {
     public static FileStorage instance;
 
     /**
-     * List of all chunks stored locally by peer
+     * Concurrent set of all files whose backup was initiated by this peer
      */
-    private final ArrayList<Chunk> storedChunkFiles = new ArrayList<>();
+    private final Set<FileParser> backedUpFiles = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Concurrent set of all chunks stored locally by peer
+     */
+    private final Set<Chunk> storedChunkFiles = ConcurrentHashMap.newKeySet();
 
     /**
      * Concurrent map of backed up chunks and fileId
@@ -42,10 +47,6 @@ public class FileStorage {
         return true;
     }
 
-    public ConcurrentHashMap<Chunk, String> getChunkMap() {
-        return chunkMap;
-    }
-
     public int getPerceivedReplicationDegree(Chunk chunk){
         for (Chunk key : chunkMap.keySet()){
             if (key.equals(chunk)) return key.getPerceivedReplicationDegree();
@@ -53,19 +54,12 @@ public class FileStorage {
         return -1;
     }
 
-    public ArrayList<Chunk> getStoredChunkFiles() {
-        return storedChunkFiles;
-    }
-
     public synchronized boolean addChunk(Chunk chunk) {
-
-        if (!storedChunkFiles.contains(chunk)) {
-            // Mark chunk as stored locally
-            storedChunkFiles.add(chunk);
+        if (storedChunkFiles.add(chunk)) {
             incrementReplicationDegree(chunk);
             return true;
         }
-        return false;
+        else return false;
     }
 
     public void incrementReplicationDegree(Chunk chunk) {
@@ -75,5 +69,28 @@ public class FileStorage {
                 if (key.equals(chunk)) key.incrementPerceivedReplicationDegree();
             }
         }
+    }
+
+    public void backupFile(FileParser file) {
+        backedUpFiles.add(file);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder("Backed up files:\n");
+
+        for (FileParser file : backedUpFiles){
+            result.append("\t").append(file.toString()).append("\n");
+        }
+        result.append("----------------------\n");
+
+        result.append("Stored Chunks");
+
+        for (Chunk chunk : storedChunkFiles){
+            result.append("\t").append(chunk.toString()).append("\n");
+        }
+        result.append("----------------------\n");
+
+        return result.toString();
     }
 }

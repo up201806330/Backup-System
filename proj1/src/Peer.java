@@ -74,15 +74,18 @@ public class Peer implements RemoteInterface {
 //        channels.put(Channel.ChannelType.MDR, MDR);
     }
 
+    public synchronized void backup(String filepath, int replicationDegree) throws Exception {
+        if (replicationDegree > 9) {
+            replicationDegree = 9;
+            System.out.println("Replication degree capped to 9");
+        }
 
-
-    public synchronized void backup(String filepath, int replicationDegree) {
         System.out.println("\n---- BACKUP SERVICE ---- FILE PATH = " + filepath + " | REPLICATION DEGREEE = " + replicationDegree);
 
         FileParser fileParser = new FileParser(filepath, replicationDegree);
-        // storage.addFile(fileParser);
-
-        System.out.println(fileParser.getChunks().size());
+        if (fileParser.getFile().length() > 64000000){
+            throw new Exception("File size bigger than 64GB ; Aborting...");
+        }
 
         for (Chunk c : fileParser.getChunks()) {
 
@@ -93,11 +96,12 @@ public class Peer implements RemoteInterface {
             System.arraycopy(dataHeader.getBytes(), 0, fullMessage,0, dataHeader.getBytes().length);
             System.arraycopy(c.getContent(), 0, fullMessage, dataHeader.getBytes().length, c.getContent().length);
 
-            System.out.println("Sending Message to MDB");
             MDB.sendMessage(fullMessage);
 
             Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, fileParser.getFileID(), c.getChunkNumber(), replicationDegree), 1, TimeUnit.SECONDS);
         }
+
+        FileStorage.instance.backupFile(fileParser);
     }
 
     public void restore(String filepath) {
@@ -116,8 +120,7 @@ public class Peer implements RemoteInterface {
     }
 
     public String state() {
-        System.out.println("\n---- STATE SERVICE ----");
-        return "";
+        return FileStorage.instance.toString();
     }
 
     public static ScheduledThreadPoolExecutor getExec() {

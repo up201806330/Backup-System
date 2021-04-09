@@ -4,15 +4,16 @@ import java.util.concurrent.TimeUnit;
 public class Backup {
 
     public static void processPacketPUTCHUNK(Chunk chunk, String[] splitHeader) {
-        System.out.println("Processing PUTCHUNK Packet");
-
         var fileStorage = FileStorage.instance;
 
         if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
-            System.out.println("SKIPPING PUTCHUNK");
+            // System.out.println("SKIPPING PUTCHUNK");
             return ;
         }
+
         // Utils.printSplitHeader(splitHeader);
+
+        System.out.println("Processing PUTCHUNK Packet");
 
         boolean storedSuccessfully = fileStorage.storeChunk(chunk);
         if (storedSuccessfully){

@@ -33,12 +33,11 @@ public class CheckReplicationDegree implements Runnable {
         int currentReplicationDegree = FileStorage.instance.getPerceivedReplicationDegree(key);
 
         if (currentReplicationDegree < replicationDegree) {
-            System.out.println("More Reps");
             Peer.getMDB().sendMessage(tryAgainMessage);
 
             this.delay *= 2;
             if (++this.numberOfTries < 5) Peer.getExec().schedule(this, this.delay, TimeUnit.SECONDS);
-
+            else System.out.println("Chunk nr. " + chunkNumber + " timed out");
         }
         else System.out.println("Chunk nr. " + chunkNumber + " Passed!");
     }

@@ -72,9 +72,6 @@ public class Channel implements Runnable {
 
         Chunk newChunk = new Chunk(fileID, chunkNr, desiredRepDegree);
         switch (command) {
-            case "STATE":
-                System.out.println(FileStorage.instance);
-                break;
             case "PUTCHUNK":
                 byte[] body = Arrays.copyOfRange(data, i + 4, data.length);
                 newChunk.setContent(body);
@@ -89,7 +86,6 @@ public class Channel implements Runnable {
     }
 
     public synchronized void sendMessage(byte[] buf) {
-
         try {
             this.socket.send(new DatagramPacket(buf, buf.length, this.inetAddress, this.port));
         } catch (IOException e) {
