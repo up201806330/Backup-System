@@ -49,27 +49,14 @@ public class Delete {
             }
 
         }
-
-        // isChunkOfFileId(fileIdToDelete, fileIdToDelete-chunkNr)
-
     }
 
     private static void deleteFileParser(FileStorage fileStorage, String fileID) {
-//        System.out.println("Looking for |" + fileID + "|");
-
-        for (FileParser f : fileStorage.getBackedUpFiles()) {
-//            System.out.println("Found |" + f.getFileID() + "|");
-            if (f.getFileID().equals(fileID)) {
-//                System.out.println("ITS A MATCH");
-                fileStorage.removeFileParserFromBackedUpFiles(f);
-            }
-        }
+        fileStorage.findBackedUpFile(fileID).ifPresent(fileStorage::removeFileParserFromBackedUpFiles);
     }
 
     private static void deleteChunkFromSet(FileStorage fileStorage, Chunk chunk) {
-
         for (Chunk c : fileStorage.getStoredChunkFiles()) {
-
             if (c.equals(chunk)) {
                 System.out.println("Found chunk to delete from set");
                 fileStorage.removeChunkFromStoredChunkFiles(c);
@@ -78,7 +65,6 @@ public class Delete {
     }
 
     private static void deleteFileViaName(String filepath) {
-
         File file = new File(filepath);
 
         if (file.delete()) {

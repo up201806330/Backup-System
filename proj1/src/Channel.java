@@ -78,7 +78,7 @@ public class Channel implements Runnable {
                 Backup.processPacketPUTCHUNK(newChunk, splitHeader);
                 break;
             case "STORED":
-                Backup.processPacketSTORED(newChunk);
+                Backup.processPacketSTORED(newChunk, splitHeader);
                 break;
             case "DELETE":
                 Delete.processPacketDELETE(splitHeader[3]);

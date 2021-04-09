@@ -56,7 +56,6 @@ public class TestApp {
                 }
                 case "STATE" -> {
                     System.out.println("State");
-                    System.out.println("Answer:");
                     System.out.println(stub.state());
                 }
                 default -> System.out.println("Operation not recognized");

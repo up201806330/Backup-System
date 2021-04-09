@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -88,23 +89,21 @@ public class FileStorage {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("Backed up files: ");
+        StringBuilder result = new StringBuilder("BACKED UP FILES: ");
 
         if (backedUpFiles.size() > 0){
             for (FileParser file : backedUpFiles){
                 result.append("\n").append(file.toString());
             }
-            result.append("\n----------------------\n");
         }
         else result.append("None\n");
 
-        result.append("Stored Chunks: ");
+        result.append("STORED CHUNKS: ");
 
         if (storedChunkFiles.size() > 0){
             for (Chunk chunk : storedChunkFiles){
                 result.append("\n").append(chunk.toString());
             }
-            result.append("\n----------------------\n");
         }
         else result.append("None\n");
 
@@ -117,6 +116,15 @@ public class FileStorage {
 
     public Set<FileParser> getBackedUpFiles() {
         return backedUpFiles;
+    }
+
+    public Optional<FileParser> findBackedUpFile(String fileID){
+        for (FileParser f : backedUpFiles) {
+            if (f.getFileID().equals(fileID)) {
+                return Optional.of(f);
+            }
+        }
+        return Optional.empty();
     }
 
     public void removeFileParserFromBackedUpFiles(FileParser fileParser) {

@@ -59,18 +59,23 @@ public class Chunk {
      */
     @Override
     public String toString() {
-        return  "ID                  : " + getChunkID() + "\n" +
-                "Size (KB)           : " + (getContent().length > 1000 ? getContent().length/ 1000 : getContent().length) + "\n" +
-                "Desired Rep Degree  : " + getDesiredReplicationDegree() + "\n" +
-                "Perceived Rep Degree: " + getPerceivedReplicationDegree();
+        String sizeUnit = getContent().length > 1000 ? "(KB)" : "(B) ";
+        return  "--------\n" +
+                "\tID                  : " + getChunkID() + "\n" +
+                "\tSize " + sizeUnit + "           : " + (getContent().length > 1000 ? getContent().length/ 1000 : getContent().length) + "\n" +
+                "\tDesired Rep Degree  : " + getDesiredReplicationDegree() + "\n" +
+                "\tPerceived Rep Degree: " + getPerceivedReplicationDegree() + "\n" +
+                "--------\n";
     }
 
     /**
      * Shows backed up chunk info
      */
     public String toSimpleString(){
-        return "ID: " + getChunkID() + "\n" +
-                "Perceived Rep Degree: " + getPerceivedReplicationDegree();
+        return "--------\n" +
+                "\tID: " + getChunkID() + "\n" +
+                "\tPerceived Rep Degree: " + getPerceivedReplicationDegree() + "\n" +
+                "--------\n";
     }
 
     @Override

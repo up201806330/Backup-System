@@ -32,7 +32,7 @@ BACKUP)
 		echo "Usage: $0 <peer_ap> BACKUP <filename> <rep degree>"
 		exit 1
 	fi
-	opernd_1=$3
+	opernd_1=${TESTFILESDIR}/$3
 	rep_deg=$4
 	;;
 RESTORE)
@@ -82,4 +82,4 @@ esac
 # echo "java test.TestApp ${pap} ${oper} ${opernd_1} ${rep_deg}"
 
 cd build
-java TestApp ${pap} ${oper} ${TESTFILESDIR}/${opernd_1} ${rep_deg}
+java TestApp ${pap} ${oper} ${opernd_1} ${rep_deg}

@@ -112,10 +112,10 @@ public class FileParser {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder(
-                "Pathname: " + filePath + "\n" +
-                "File ID: " + fileID + "\n" +
+                "Pathname  : " + filePath + "\n" +
+                "File ID   : " + fileID + "\n" +
                 "Rep degree: " + replicationDegree + "\n" +
-                "Chunks: " + "\n");
+                "Chunks    : " + "\n");
         for (Chunk chunk : chunks){
             result.append(chunk.toSimpleString()).append("\n");
         }

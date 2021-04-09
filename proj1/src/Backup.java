@@ -4,12 +4,11 @@ import java.util.concurrent.TimeUnit;
 public class Backup {
 
     public static void processPacketPUTCHUNK(Chunk chunk, String[] splitHeader) {
-        var fileStorage = FileStorage.instance;
-
         if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
-            // System.out.println("SKIPPING PUTCHUNK");
             return ;
         }
+
+        var fileStorage = FileStorage.instance;
 
         // Utils.printSplitHeader(splitHeader);
 
@@ -26,7 +25,11 @@ public class Backup {
         }
     }
 
-    public static void processPacketSTORED(Chunk chunk) {
+    public static void processPacketSTORED(Chunk chunk, String[] splitHeader) {
+        if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
+            return ;
+        }
+
         System.out.println("Processing STORED Packet");
 
         FileStorage.instance.incrementReplicationDegree(chunk);

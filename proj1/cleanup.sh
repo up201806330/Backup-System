@@ -12,13 +12,23 @@
 # Check number input arguments
 argc=$#
 
-if ((argc == 1 ))
+if ((argc > 1 ))
 then
-	peer_id=$1
-else 
-	echo "Usage: $0 [<peer_id>]]"
+	echo "Usage: $0 [<peer_id>]]  | $0"
 	exit 1
+elif ((argc < 0))
+then
+	echo "Usage: $0 [<peer_id>]] | $0"
+	exit 1
+elif ((argc == 0))
+then
+  for i in {1..99}
+  do
+    rm -rf build/service-$i
+  done
+else
+	peer_id=$1
+  rm -rf build/service-${peer_id}
 fi
 
-rm -rf build/service-${peer_id}
 
