@@ -83,9 +83,9 @@ public class FileStorage {
             for (FileParser file : backedUpFiles){
                 result.append("\n").append(file.toString());
             }
-            result.append("----------------------\n");
+            result.append("\n----------------------\n");
         }
-        else result.append("None");
+        else result.append("None\n");
 
         result.append("Stored Chunks: ");
 
@@ -93,9 +93,9 @@ public class FileStorage {
             for (Chunk chunk : storedChunkFiles){
                 result.append("\n").append(chunk.toString());
             }
-            result.append("----------------------\n");
+            result.append("\n----------------------\n");
         }
-        else result.append("None");
+        else result.append("None\n");
 
         return result.toString();
     }
