@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -5,6 +6,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileStorage {
+    /**
+     * Directory where backed up files and chunks will be stored
+     */
+    String serviceDirectory;
+
     /**
      * Singleton instance of FileStorage
      */
@@ -25,8 +31,13 @@ public class FileStorage {
      */
     private final ConcurrentHashMap<Chunk, String> chunkMap = new ConcurrentHashMap<>();
 
-    public FileStorage() {
+    public FileStorage() throws IOException {
         if (FileStorage.instance == null) FileStorage.instance = this;
+        this.serviceDirectory = "service-" + Peer.getId();
+        if (
+                !(new File(this.serviceDirectory + "/chunks")).mkdirs() ||
+                !(new File(this.serviceDirectory + "/restored_files")).mkdirs())
+            throw new IOException("Error creating service directories");
     }
 
     public boolean storeChunk(Chunk c) {
@@ -36,7 +47,7 @@ public class FileStorage {
 
         FileOutputStream fos;
         try {
-            fos = new FileOutputStream(c.getChunkID());
+            fos = new FileOutputStream( this.serviceDirectory+ "/chunks/" + c.getChunkID());
             fos.write(c.getContent());
             fos.close();
         } catch (IOException e) {
