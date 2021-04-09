@@ -17,4 +17,10 @@ ou
 java TestApp Peer1 BACKUP test.pdf 1
 
 
+------------------------
+
+./peer.sh 1.0 1 Peer1 230.0.0.1 8888 230.0.0.2 8888 230.0.0.3 8888
+./peer.sh 1.0 2 Peer2 230.0.0.1 8888 230.0.0.2 8888 230.0.0.3 8888
+./test.sh Peer1 BACKUP testing.txt 1
+
 

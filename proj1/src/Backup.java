@@ -36,7 +36,7 @@ public class Backup {
     }
 
     private static byte[] createSTORED(String[] splitHeader) {
-        String storedString = splitHeader[0] + " STORED " + splitHeader[2] + " " + splitHeader[3] + " " + splitHeader[4] + " " + "\r\n" + "\r\n";
+        String storedString = splitHeader[0] + " STORED " + Peer.getId() + " " + splitHeader[3] + " " + splitHeader[4] + " " + "\r\n" + "\r\n";
 
         return storedString.getBytes();
     }

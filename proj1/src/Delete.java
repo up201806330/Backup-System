@@ -65,7 +65,8 @@ public class Delete {
     }
 
     private static void deleteFileViaName(String filepath) {
-        File file = new File(filepath);
+        String newPath = "/service-" + Peer.getId() + "/chunks/" + filepath;
+        File file = new File(newPath);
 
         if (file.delete()) {
             System.out.println("File deleted with success");
