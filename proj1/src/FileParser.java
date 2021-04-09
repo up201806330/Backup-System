@@ -7,7 +7,7 @@ public class FileParser {
 
     private final int MAX_CHUNK_SIZE = 64000;
 
-    private final String id;
+    private final String fileID;
     private final File file;
     private final int replicationDegree;
     private final ArrayList<Chunk> chunks;
@@ -19,7 +19,7 @@ public class FileParser {
         this.replicationDegree = replicationDegree;
         this.chunks = parseChunks();
         this.hasExtraEmptyChunk = checkForEmptyEndingChunk();
-        this.id = getFileIdHashed();
+        this.fileID = getFileIdHashed();
     }
 
     private ArrayList<Chunk> parseChunks() {
@@ -33,17 +33,14 @@ public class FileParser {
 
             int size;
             while( (size = fis.read(chunkBuffer)) > 0) {
-
-                System.out.println(size);
-
-                Chunk createdChunk = new Chunk(++currentChunkNumber, Arrays.copyOf(chunkBuffer, size), size);
+                Chunk createdChunk = new Chunk(fileID, ++currentChunkNumber, Arrays.copyOf(chunkBuffer, size));
                 allChunks.add(createdChunk);
 
                 chunkBuffer = new byte[MAX_CHUNK_SIZE];
             }
 
             if (this.hasExtraEmptyChunk) {
-                Chunk chunk = new Chunk(++currentChunkNumber, null, 0);
+                Chunk chunk = new Chunk(fileID, ++currentChunkNumber);
                 this.chunks.add(chunk);
             }
 
@@ -57,7 +54,7 @@ public class FileParser {
     private String getFileIdHashed() {
 
         // using file name, date modified and owner as suggested in handout
-        String idToHash = this.file.getName() + String.valueOf(this.file.lastModified()) + this.file.getParent();
+        String idToHash = this.file.getName() + this.file.lastModified() + this.file.getParent();
 
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -82,8 +79,8 @@ public class FileParser {
         return ((this.file.length() % MAX_CHUNK_SIZE) == 0);
     }
 
-    public String getId() {
-        return id;
+    public String getFileID() {
+        return fileID;
     }
 
     public File getFile() {

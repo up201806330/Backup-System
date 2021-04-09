@@ -86,7 +86,7 @@ public class Peer implements RemoteInterface {
 
         for (Chunk c : fileParser.getChunks()) {
 
-            String dataHeader = this.protocolVersion + " PUTCHUNK " + peerID + " " + fileParser.getId() + " " + c.getChunkNumber() + " " + replicationDegree + " " + "\r\n" + "\r\n";
+            String dataHeader = this.protocolVersion + " PUTCHUNK " + peerID + " " + fileParser.getFileID() + " " + c.getChunkNumber() + " " + replicationDegree + " " + "\r\n" + "\r\n";
             System.out.println(dataHeader);
 
             byte[] fullMessage = new byte[dataHeader.length() + c.getContent().length];
@@ -96,7 +96,7 @@ public class Peer implements RemoteInterface {
             System.out.println("Sending Message to MDB");
             MDB.sendMessage(fullMessage);
 
-            Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, fileParser.getId(), c.getChunkNumber(), replicationDegree), 1, TimeUnit.SECONDS);
+            Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, fileParser.getFileID(), c.getChunkNumber(), replicationDegree), 1, TimeUnit.SECONDS);
         }
     }
 

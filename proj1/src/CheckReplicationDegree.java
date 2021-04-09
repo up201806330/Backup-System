@@ -6,20 +6,22 @@ import java.util.concurrent.TimeUnit;
  */
 public class CheckReplicationDegree implements Runnable {
 
-    private byte[] messageSent;
-    private int replicationDegree;
-    private int delay;
-    private int chunkNumber;
-    private int numberOfTries;
-    private String fileId;
+    private final byte[] tryAgainMessage;
+    private final String fileId;
+    private final int chunkNumber;
+    private final int replicationDegree;
 
-    public CheckReplicationDegree(byte[] fullMessage, String fileId, int number, int replicationDegree) {
-        this.messageSent = fullMessage;
-        this.chunkNumber = number;
+    private int delay;
+    private int numberOfTries;
+
+    public CheckReplicationDegree(byte[] tryAgainMessage, String fileId, int chunkNumber, int replicationDegree) {
+        this.tryAgainMessage = tryAgainMessage;
+        this.fileId = fileId;
+        this.chunkNumber = chunkNumber;
+        this.replicationDegree = replicationDegree;
+
         this.delay = 1;
         this.numberOfTries = 0;
-        this.replicationDegree = replicationDegree;
-        this.fileId = fileId;
     }
 
     @Override
@@ -32,7 +34,7 @@ public class CheckReplicationDegree implements Runnable {
 
         if (currentReplicationDegree < replicationDegree) {
             System.out.println("More Reps");
-            Peer.getMDB().sendMessage(messageSent);
+            Peer.getMDB().sendMessage(tryAgainMessage);
 
             this.delay *= 2;
             if (++this.numberOfTries < 5) Peer.getExec().schedule(this, this.delay, TimeUnit.SECONDS);

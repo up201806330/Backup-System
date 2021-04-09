@@ -4,30 +4,26 @@ public class Chunk {
     private final int chunkNumber;
     private int perceivedReplicationDegree;
     private final byte[] content;
-    private final int size;
-
-    public Chunk(int chunkNumber, byte[] content, int size) {
-        fileID = null;
-        this.chunkNumber = chunkNumber;
-        this.perceivedReplicationDegree = 1;
-        this.content = content;
-        this.size = size;
-    }
 
     public Chunk(String[] splitHeader, byte[] body){
         this.fileID = splitHeader[3];
         this.chunkNumber = Integer.parseInt(splitHeader[4]);
         this.perceivedReplicationDegree = 1;
         this.content = body;
-        this.size = body.length;
     }
     
+    public Chunk(String fileID, int chunkNumber, byte[] content){
+        this.fileID = fileID;
+        this.chunkNumber = chunkNumber;
+        this.perceivedReplicationDegree = 1;
+        this.content = content;
+    }
+
     public Chunk(String fileID, int chunkNumber){
         this.fileID = fileID;
         this.chunkNumber = chunkNumber;
         this.perceivedReplicationDegree = 1;
-        this.content = new byte[0];
-        this.size = 0;
+        content = null;
     }
 
     public String getFileID() {
