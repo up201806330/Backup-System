@@ -10,7 +10,6 @@
 
 # Check number input arguments
 argc=$#
-TESTFILESDIR="../files"
 
 if (( argc < 2 )) 
 then
@@ -32,7 +31,7 @@ BACKUP)
 		echo "Usage: $0 <peer_ap> BACKUP <filename> <rep degree>"
 		exit 1
 	fi
-	opernd_1=${TESTFILESDIR}/$3
+	opernd_1=$3
 	rep_deg=$4
 	;;
 RESTORE)
