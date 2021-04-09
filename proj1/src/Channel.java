@@ -41,7 +41,6 @@ public class Channel implements Runnable {
         DatagramPacket receivedPacket = new DatagramPacket(buffer, buffer.length);
 
         while (true) {
-
             try {
                 this.socket.receive(receivedPacket);
                 System.out.println("Packet Received");
@@ -51,7 +50,6 @@ public class Channel implements Runnable {
             }
 
             processPacket(receivedPacket);
-
         }
     }
 
@@ -70,9 +68,13 @@ public class Channel implements Runnable {
         String command = splitHeader[1];
         String fileID = splitHeader[3];
         int chunkNr = Integer.parseInt(splitHeader[4]);
+        int desiredRepDegree = Integer.parseInt(splitHeader[5]);
 
-        Chunk newChunk = new Chunk(fileID, chunkNr);
+        Chunk newChunk = new Chunk(fileID, chunkNr, desiredRepDegree);
         switch (command) {
+            case "STATE":
+                System.out.println(FileStorage.instance);
+                break;
             case "PUTCHUNK":
                 byte[] body = Arrays.copyOfRange(data, i + 4, data.length);
                 newChunk.setContent(body);

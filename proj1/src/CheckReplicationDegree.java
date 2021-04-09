@@ -29,7 +29,7 @@ public class CheckReplicationDegree implements Runnable {
         System.out.println("Entering Check Rep Degree -> Chunk nr. " + chunkNumber);
         System.out.println("Try: " + this.numberOfTries);
 
-        Chunk key = new Chunk(fileId, chunkNumber);
+        Chunk key = new Chunk(fileId, chunkNumber, replicationDegree);
         int currentReplicationDegree = FileStorage.instance.getPerceivedReplicationDegree(key);
 
         if (currentReplicationDegree < replicationDegree) {
