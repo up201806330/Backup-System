@@ -2,6 +2,7 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 public class FileParser {
 
@@ -11,7 +12,7 @@ public class FileParser {
     private final String filePath;
     private final String fileID;
     private final int replicationDegree;
-    private final ArrayList<Chunk> chunks;
+    private final LinkedHashSet<Chunk> chunks;
     boolean hasExtraEmptyChunk;
 
     public FileParser(String filePath, int replicationDegree) {
@@ -32,11 +33,11 @@ public class FileParser {
         this.chunks = null;
     }
 
-    private ArrayList<Chunk> parseChunks() {
+    private LinkedHashSet<Chunk> parseChunks() {
         byte[] chunkBuffer = new byte[MAX_CHUNK_SIZE];
         int currentChunkNumber = 0;
 
-        ArrayList<Chunk> allChunks = new ArrayList<>();
+        LinkedHashSet<Chunk> allChunks = new LinkedHashSet<>();
 
         try {
             FileInputStream fis = new FileInputStream(file);
@@ -105,7 +106,7 @@ public class FileParser {
         return replicationDegree;
     }
 
-    public ArrayList<Chunk> getChunks() {
+    public LinkedHashSet<Chunk> getChunks() {
         return chunks;
     }
 

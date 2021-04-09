@@ -25,7 +25,12 @@ public class FileStorage {
     /**
      * Concurrent set of all files whose backup was initiated by this peer
      */
-    private final Set<FileParser> backedUpFiles = ConcurrentHashMap.newKeySet();
+    private final Set<FileParser> initiatedFiles = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Concurrent map that for each chunk of each backed up file, has a concurrent set of peers that have that chunk backed up
+     */
+    private final ConcurrentHashMap<Chunk, ConcurrentHashMap.KeySetView<Object, Boolean>> chunksBackedPeers = new ConcurrentHashMap<Chunk, ConcurrentHashMap.KeySetView<Object, Boolean>>();
 
     /**
      * Concurrent set of all chunks stored locally by peer
@@ -37,6 +42,10 @@ public class FileStorage {
      */
     private final ConcurrentHashMap<Chunk, String> chunkMap = new ConcurrentHashMap<>();
 
+    /**
+     * Singleton constructor
+     * @throws IOException
+     */
     public FileStorage() throws IOException {
         if (FileStorage.instance == null) FileStorage.instance = this;
         String serviceDirectory = "service-" + Peer.getId();
@@ -47,15 +56,19 @@ public class FileStorage {
         Files.createDirectories(Paths.get(restoreDir));
     }
 
-    public boolean storeChunk(Chunk c) {
-
+    /**
+     * Tries to store new chunk as a file locally,
+     * @param chunk New chunk
+     * @return True if chunk was stored successfully, false if it already existed / something went wrong
+     */
+    public boolean storeChunk(Chunk chunk) {
         // File already exists locally, won't store again
-        if (!addChunk(c)) return false;
+        if (!addChunk(chunk)) return false;
 
         FileOutputStream fos;
         try {
-            fos = new FileOutputStream( chunksDir + "/" + c.getChunkID());
-            fos.write(c.getContent());
+            fos = new FileOutputStream( chunksDir + "/" + chunk.getChunkID());
+            fos.write(chunk.getContent());
             fos.close();
         } catch (IOException e) {
             System.out.println("Error writing chunk to file locally");
@@ -65,19 +78,29 @@ public class FileStorage {
         return true;
     }
 
-    public int getPerceivedReplicationDegree(Chunk chunk){
-        for (Chunk key : chunkMap.keySet()){
-            if (key.equals(chunk)) return key.getPerceivedReplicationDegree();
-        }
-        return -1;
-    }
-
+    /**
+     * Adds, if absent, new chunk to set of locally stored chunks
+     * @param chunk New chunk
+     * @return true if chunk did not exist in the set, false otherwise
+     */
     public synchronized boolean addChunk(Chunk chunk) {
         if (storedChunkFiles.add(chunk)) {
             incrementReplicationDegree(chunk);
             return true;
         }
         else return false;
+    }
+
+    /**
+     * Gets
+     * @param chunk
+     * @return perceived replication degree of chunk
+     */
+    public int getPerceivedReplicationDegree(Chunk chunk){
+        for (Chunk key : chunkMap.keySet()){
+            if (key.equals(chunk)) return key.getPerceivedReplicationDegree();
+        }
+        return -1;
     }
 
     public void incrementReplicationDegree(Chunk chunk) {
@@ -89,16 +112,66 @@ public class FileStorage {
         }
     }
 
+    public void updateChunksBackedPeers(Chunk chunk, int newBackingPeer){
+        if (!chunkIsBackedUp(chunk)) return;
+
+        var newPeerSet = ConcurrentHashMap.newKeySet();
+        newPeerSet.add(newBackingPeer);
+
+        var previousPeerSet = chunksBackedPeers.putIfAbsent(chunk, newPeerSet);
+        if (previousPeerSet != null) previousPeerSet.add(newBackingPeer);
+    }
+
     public void backupFile(FileParser file) {
-        backedUpFiles.add(file);
+        initiatedFiles.add(file);
+    }
+
+    public ConcurrentHashMap<Chunk, String> getChunkMap() {
+        return chunkMap;
+    }
+
+    public Set<FileParser> getInitiatedFiles() {
+        return initiatedFiles;
+    }
+
+    public Optional<FileParser> findInitiatedFile(String fileID){
+        for (FileParser f : initiatedFiles) {
+            if (f.getFileID().equals(fileID)) {
+                return Optional.of(f);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private boolean chunkIsBackedUp(Chunk chunk){
+        for (FileParser file : initiatedFiles){
+            if (file.getChunks().contains(chunk)) return true;
+        }
+        return false;
+    }
+
+    public void removeFileFromInitiatedFiles(FileParser fileParser) {
+        this.initiatedFiles.remove(fileParser);
+    }
+
+    public void removeChunkFromStoredChunkFiles(Chunk chunk) {
+        this.storedChunkFiles.remove(chunk);
+    }
+
+    public void removeEntryFromChunkMap(Chunk keyToRemove) {
+        this.chunkMap.remove(keyToRemove);
+    }
+
+    public Set<Chunk> getStoredChunkFiles() {
+        return storedChunkFiles;
     }
 
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("BACKED UP FILES: ");
 
-        if (backedUpFiles.size() > 0){
-            for (FileParser file : backedUpFiles){
+        if (initiatedFiles.size() > 0){
+            for (FileParser file : initiatedFiles){
                 result.append("\n").append(file.toString());
             }
         }
@@ -114,38 +187,5 @@ public class FileStorage {
         else result.append("None\n");
 
         return result.toString();
-    }
-
-    public ConcurrentHashMap<Chunk, String> getChunkMap() {
-        return chunkMap;
-    }
-
-    public Set<FileParser> getBackedUpFiles() {
-        return backedUpFiles;
-    }
-
-    public Optional<FileParser> findBackedUpFile(String fileID){
-        for (FileParser f : backedUpFiles) {
-            if (f.getFileID().equals(fileID)) {
-                return Optional.of(f);
-            }
-        }
-        return Optional.empty();
-    }
-
-    public void removeFileParserFromBackedUpFiles(FileParser fileParser) {
-        this.backedUpFiles.remove(fileParser);
-    }
-
-    public void removeChunkFromStoredChunkFiles(Chunk chunk) {
-        this.storedChunkFiles.remove(chunk);
-    }
-
-    public void removeEntryFromChunkMap(Chunk keyToRemove) {
-        this.chunkMap.remove(keyToRemove);
-    }
-
-    public Set<Chunk> getStoredChunkFiles() {
-        return storedChunkFiles;
     }
 }

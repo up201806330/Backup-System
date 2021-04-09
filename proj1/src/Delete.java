@@ -1,5 +1,4 @@
 import java.io.File;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Delete {
@@ -31,7 +30,7 @@ public class Delete {
     }
 
     private static void deleteFileParser(FileStorage fileStorage, String fileID) {
-        fileStorage.findBackedUpFile(fileID).ifPresent(fileStorage::removeFileParserFromBackedUpFiles);
+        fileStorage.findInitiatedFile(fileID).ifPresent(fileStorage::removeFileFromInitiatedFiles);
     }
 
     private static void deleteChunkFromSet(FileStorage fileStorage, Chunk chunk) {

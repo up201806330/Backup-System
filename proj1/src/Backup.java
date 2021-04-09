@@ -33,6 +33,7 @@ public class Backup {
         System.out.println("Processing STORED Packet");
 
         FileStorage.instance.incrementReplicationDegree(chunk);
+        FileStorage.instance.updateChunksBackedPeers(chunk, Integer.parseInt(splitHeader[2]));
     }
 
     private static byte[] createSTORED(String[] splitHeader) {
