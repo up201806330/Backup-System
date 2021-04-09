@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -5,6 +6,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileStorage {
+    /**
+     * Directory where backed up files and chunks will be stored
+     */
+    String serviceDirectory;
+
     /**
      * Singleton instance of FileStorage
      */
@@ -25,8 +31,13 @@ public class FileStorage {
      */
     private final ConcurrentHashMap<Chunk, String> chunkMap = new ConcurrentHashMap<>();
 
-    public FileStorage() {
+    public FileStorage() throws IOException {
         if (FileStorage.instance == null) FileStorage.instance = this;
+        this.serviceDirectory = "service-" + Peer.getId();
+        if (
+                !(new File(this.serviceDirectory + "/chunks")).mkdirs() ||
+                !(new File(this.serviceDirectory + "/restored_files")).mkdirs())
+            throw new IOException("Error creating service directories");
     }
 
     public boolean storeChunk(Chunk c) {
@@ -36,7 +47,7 @@ public class FileStorage {
 
         FileOutputStream fos;
         try {
-            fos = new FileOutputStream(c.getChunkID());
+            fos = new FileOutputStream( this.serviceDirectory+ "/chunks/" + c.getChunkID());
             fos.write(c.getContent());
             fos.close();
         } catch (IOException e) {
@@ -77,19 +88,25 @@ public class FileStorage {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("Backed up files:\n");
+        StringBuilder result = new StringBuilder("Backed up files: ");
 
-        for (FileParser file : backedUpFiles){
-            result.append("\t").append(file.toString()).append("\n");
+        if (backedUpFiles.size() > 0){
+            for (FileParser file : backedUpFiles){
+                result.append("\n").append(file.toString());
+            }
+            result.append("\n----------------------\n");
         }
-        result.append("----------------------\n");
+        else result.append("None\n");
 
-        result.append("Stored Chunks");
+        result.append("Stored Chunks: ");
 
-        for (Chunk chunk : storedChunkFiles){
-            result.append("\t").append(chunk.toString()).append("\n");
+        if (storedChunkFiles.size() > 0){
+            for (Chunk chunk : storedChunkFiles){
+                result.append("\n").append(chunk.toString());
+            }
+            result.append("\n----------------------\n");
         }
-        result.append("----------------------\n");
+        else result.append("None\n");
 
         return result.toString();
     }
