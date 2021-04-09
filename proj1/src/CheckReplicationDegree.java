@@ -38,6 +38,6 @@ public class CheckReplicationDegree implements Runnable {
             if (++this.numberOfTries < 5) Peer.getExec().schedule(this, this.delay, TimeUnit.SECONDS);
 
         }
-        else System.out.printf("Chunk nr. " + chunkNumber + " Passed!");
+        else System.out.println("Chunk nr. " + chunkNumber + " Passed!");
     }
 }
