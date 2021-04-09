@@ -77,19 +77,25 @@ public class FileStorage {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("Backed up files:\n");
+        StringBuilder result = new StringBuilder("Backed up files: ");
 
-        for (FileParser file : backedUpFiles){
-            result.append("\t").append(file.toString()).append("\n");
+        if (backedUpFiles.size() > 0){
+            for (FileParser file : backedUpFiles){
+                result.append("\n").append(file.toString());
+            }
+            result.append("----------------------\n");
         }
-        result.append("----------------------\n");
+        else result.append("None");
 
-        result.append("Stored Chunks");
+        result.append("Stored Chunks: ");
 
-        for (Chunk chunk : storedChunkFiles){
-            result.append("\t").append(chunk.toString()).append("\n");
+        if (storedChunkFiles.size() > 0){
+            for (Chunk chunk : storedChunkFiles){
+                result.append("\n").append(chunk.toString());
+            }
+            result.append("----------------------\n");
         }
-        result.append("----------------------\n");
+        else result.append("None");
 
         return result.toString();
     }

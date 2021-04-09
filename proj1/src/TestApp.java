@@ -5,7 +5,6 @@ import java.rmi.registry.Registry;
 public class TestApp {
 
     public static void main(String[] args) {
-        System.out.println("Number of args: " + args.length);
         if (args.length < 2 || args.length > 4) {
             System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>");
             return ;
@@ -57,7 +56,8 @@ public class TestApp {
                 }
                 case "STATE" -> {
                     System.out.println("State");
-                    System.out.println("Answer: " + stub.state());
+                    System.out.println("Answer:");
+                    System.out.println(stub.state());
                 }
                 default -> System.out.println("Operation not recognized");
             }
