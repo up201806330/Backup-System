@@ -61,7 +61,7 @@ public class Channel implements Runnable {
 
         int i;
         for (i = 0; i < data.length; i++) {
-            if (data[i] == '\r' && data[i + 1] == '\n' && data[i + 2] == '\r' && data[i + 3] == '\n') break;
+            if (data[i] == 0xD && data[i + 1] == 0xA && data[i + 2] == 0xD && data[i + 3] == 0xA) break;
         }
 
         byte[] header = Arrays.copyOfRange(data, 0, i);
