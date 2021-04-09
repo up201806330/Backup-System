@@ -10,6 +10,7 @@
 
 # Check number input arguments
 argc=$#
+TESTFILESDIR="../files"
 
 if (( argc < 2 )) 
 then
@@ -80,4 +81,5 @@ esac
 
 # echo "java test.TestApp ${pap} ${oper} ${opernd_1} ${rep_deg}"
 
-java test.TestApp ${pap} ${oper} ${opernd_1} ${rep_deg}
+cd build
+java TestApp ${pap} ${oper} ${TESTFILESDIR}/${opernd_1} ${rep_deg}

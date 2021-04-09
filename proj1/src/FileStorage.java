@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,10 +36,8 @@ public class FileStorage {
     public FileStorage() throws IOException {
         if (FileStorage.instance == null) FileStorage.instance = this;
         this.serviceDirectory = "service-" + Peer.getId();
-        if (
-                !(new File(this.serviceDirectory + "/chunks")).mkdirs() ||
-                !(new File(this.serviceDirectory + "/restored_files")).mkdirs())
-            throw new IOException("Error creating service directories");
+        Files.createDirectories(Paths.get(this.serviceDirectory + "/chunks"));
+        Files.createDirectories(Paths.get(this.serviceDirectory + "/restored_files"));
     }
 
     public boolean storeChunk(Chunk c) {
