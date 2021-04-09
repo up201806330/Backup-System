@@ -1,5 +1,9 @@
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Ensures desired replication degree is achieved for a chunk,
+ * with up to 5 tries
+ */
 public class CheckReplicationDegree implements Runnable {
 
     private byte[] messageSent;
@@ -20,11 +24,11 @@ public class CheckReplicationDegree implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Entering Check Rep Degree");
+        System.out.println("Entering Check Rep Degree -> Chunk nr. " + chunkNumber);
         System.out.println("Try: " + this.numberOfTries);
 
-        String key = this.fileId + "-" + this.chunkNumber;
-        int currentReplicationDegree = FileStorage.instance.getChunkReplicationMap().get(key);
+        Chunk key = new Chunk(fileId, chunkNumber);
+        int currentReplicationDegree = FileStorage.instance.getPerceivedReplicationDegree(key);
 
         if (currentReplicationDegree < replicationDegree) {
             System.out.println("More Reps");
@@ -34,5 +38,6 @@ public class CheckReplicationDegree implements Runnable {
             if (++this.numberOfTries < 5) Peer.getExec().schedule(this, this.delay, TimeUnit.SECONDS);
 
         }
+        else System.out.printf("Chunk nr. " + chunkNumber + " Passed!");
     }
 }

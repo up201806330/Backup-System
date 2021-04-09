@@ -89,8 +89,6 @@ public class Peer implements RemoteInterface {
             String dataHeader = this.protocolVersion + " PUTCHUNK " + peerID + " " + fileParser.getId() + " " + c.getChunkNumber() + " " + replicationDegree + " " + "\r\n" + "\r\n";
             System.out.println(dataHeader);
 
-            // System.out.println(Arrays.toString(c.getContent()));
-
             byte[] fullMessage = new byte[dataHeader.length() + c.getContent().length];
             System.arraycopy(dataHeader.getBytes(), 0, fullMessage,0, dataHeader.getBytes().length);
             System.arraycopy(c.getContent(), 0, fullMessage, dataHeader.getBytes().length, c.getContent().length);

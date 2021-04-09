@@ -1,25 +1,38 @@
 public class Chunk {
 
+    private final String fileID;
     private final int chunkNumber;
+    private int perceivedReplicationDegree;
     private final byte[] content;
-    private String fileID;
-    private int desiredReplicationDegree;
-    private int currReplicationDegree = 0;
     private final int size;
 
     public Chunk(int chunkNumber, byte[] content, int size) {
+        fileID = null;
         this.chunkNumber = chunkNumber;
+        this.perceivedReplicationDegree = 1;
         this.content = content;
         this.size = size;
     }
 
     public Chunk(String[] splitHeader, byte[] body){
-        this.chunkNumber = Integer.parseInt(splitHeader[4]);
         this.fileID = splitHeader[3];
-        this.size = body.length;
+        this.chunkNumber = Integer.parseInt(splitHeader[4]);
+        this.perceivedReplicationDegree = 1;
         this.content = body;
+        this.size = body.length;
+    }
+    
+    public Chunk(String fileID, int chunkNumber){
+        this.fileID = fileID;
+        this.chunkNumber = chunkNumber;
+        this.perceivedReplicationDegree = 1;
+        this.content = new byte[0];
+        this.size = 0;
     }
 
+    public String getFileID() {
+        return fileID;
+    }
 
     public int getChunkNumber() {
         return chunkNumber;
@@ -29,37 +42,28 @@ public class Chunk {
         return content;
     }
 
-    public String getFileID() {
-        return fileID;
+    public int getPerceivedReplicationDegree() {
+        return perceivedReplicationDegree;
+    }
+    
+    public void incrementPerceivedReplicationDegree(){
+        perceivedReplicationDegree++;
     }
 
-    public String getChunkFullName(){
+    public String getChunkID(){
         return fileID + "-" + chunkNumber; // fileId (hash)
     }
 
-    public int getDesiredReplicationDegree() {
-        return desiredReplicationDegree;
-    }
+    @Override
+    public String toString() {
+        return "ID: " + getChunkID() + "\n" +
+                "Perceived Rep Degree: " + getPerceivedReplicationDegree();
 
-    public void setDesiredReplicationDegree(int desiredReplicationDegree) {
-        this.desiredReplicationDegree = desiredReplicationDegree;
-    }
-
-    public int getCurrReplicationDegree() {
-        return currReplicationDegree;
-    }
-
-    public void setCurrReplicationDegree(int currReplicationDegree) {
-        this.currReplicationDegree = currReplicationDegree;
-    }
-
-    public int getSize() {
-        return size;
     }
 
     @Override
     public int hashCode() {
-        return getChunkFullName().hashCode();
+        return getChunkID().hashCode();
     }
 
     @Override
@@ -72,6 +76,6 @@ public class Chunk {
             return false;
 
         Chunk other = (Chunk) obj;
-        return getChunkFullName().equals(other.getChunkFullName());
+        return getChunkID().equals(other.getChunkID());
     }
 }

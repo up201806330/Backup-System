@@ -1,6 +1,5 @@
 import java.io.*;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -8,22 +7,22 @@ public class FileParser {
 
     private final int MAX_CHUNK_SIZE = 64000;
 
-    private String id;
-    private File file;
-    private int replicationDegree;
-    private ArrayList<Chunk> chunks;
+    private final String id;
+    private final File file;
+    private final int replicationDegree;
+    private final ArrayList<Chunk> chunks;
     boolean hasExtraEmptyChunk;
 
     public FileParser(String filepath, int replicationDegree) {
 
         this.file = new File(filepath);
         this.replicationDegree = replicationDegree;
-        this.chunks = getFileChunks();
+        this.chunks = parseChunks();
         this.hasExtraEmptyChunk = checkForEmptyEndingChunk();
-        getFileIdHashed();
+        this.id = getFileIdHashed();
     }
 
-    private ArrayList<Chunk> getFileChunks() {
+    private ArrayList<Chunk> parseChunks() {
         byte[] chunkBuffer = new byte[MAX_CHUNK_SIZE];
         int currentChunkNumber = 0;
 
@@ -55,7 +54,7 @@ public class FileParser {
         return allChunks;
     }
 
-    private void getFileIdHashed() {
+    private String getFileIdHashed() {
 
         // using file name, date modified and owner as suggested in handout
         String idToHash = this.file.getName() + String.valueOf(this.file.lastModified()) + this.file.getParent();
@@ -71,10 +70,11 @@ public class FileParser {
                     hexString.append('0');
                 hexString.append(hex);
             }
-            this.id = hexString.toString();
+            return hexString.toString();
 
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
 

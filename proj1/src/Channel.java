@@ -50,12 +50,12 @@ public class Channel implements Runnable {
                 e.printStackTrace();
             }
 
-            processPacket(receivedPacket, type);
+            processPacket(receivedPacket);
 
         }
     }
 
-    private void processPacket(DatagramPacket receivedPacket, ChannelType type) {
+    private void processPacket(DatagramPacket receivedPacket) {
         int size = receivedPacket.getLength();
         byte[] data = Arrays.copyOf(receivedPacket.getData(), size);
 
@@ -78,7 +78,8 @@ public class Channel implements Runnable {
                 Backup.processPacketPUTCHUNK(newChunk, splitHeader);
                 break;
             case "STORED":
-                Backup.processPacketSTORED(splitHeader);
+                newChunk = new Chunk(splitHeader[3], Integer.parseInt(splitHeader[4]));
+                Backup.processPacketSTORED(newChunk);
                 break;
             default:
                 break;

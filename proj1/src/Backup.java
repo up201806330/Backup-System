@@ -25,10 +25,10 @@ public class Backup {
         }
     }
 
-    public static void processPacketSTORED(String[] splitHeader) {
+    public static void processPacketSTORED(Chunk chunk) {
         System.out.println("Processing STORED Packet");
 
-        FileStorage.instance.incrementReplicationDegree(splitHeader[3] + "-" + splitHeader[4]);
+        FileStorage.instance.incrementReplicationDegree(chunk);
     }
 
     private static byte[] createSTORED(String[] splitHeader) {

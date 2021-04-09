@@ -1,19 +1,27 @@
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileStorage {
+    /**
+     * Singleton instance of FileStorage
+     */
     public static FileStorage instance;
 
+    /**
+     * List of all chunks stored locally by peer
+     */
     private final ArrayList<Chunk> storedChunkFiles = new ArrayList<>();
-    private final ConcurrentHashMap<String, Integer> chunkReplicationMap = new ConcurrentHashMap<>();
-    // < key, perceivedReplicationDegree >
-    // key = fileId-chunknr
+
+    /**
+     * Concurrent map of backed up chunks and fileId
+     */
+    private final ConcurrentHashMap<Chunk, String> chunkMap = new ConcurrentHashMap<>();
 
     public FileStorage() {
-        if (FileStorage.instance != null) return;
-        else FileStorage.instance = this;
+        if (FileStorage.instance == null) FileStorage.instance = this;
     }
 
     public boolean storeChunk(Chunk c) {
@@ -23,7 +31,7 @@ public class FileStorage {
 
         FileOutputStream fos;
         try {
-            fos = new FileOutputStream(c.getChunkFullName());
+            fos = new FileOutputStream(c.getChunkID());
             fos.write(c.getContent());
             fos.close();
         } catch (IOException e) {
@@ -34,8 +42,15 @@ public class FileStorage {
         return true;
     }
 
-    public ConcurrentHashMap<String, Integer> getChunkReplicationMap() {
-        return chunkReplicationMap;
+    public ConcurrentHashMap<Chunk, String> getChunkMap() {
+        return chunkMap;
+    }
+
+    public int getPerceivedReplicationDegree(Chunk chunk){
+        for (Chunk key : chunkMap.keySet()){
+            if (key.equals(chunk)) return key.getPerceivedReplicationDegree();
+        }
+        return -1;
     }
 
     public ArrayList<Chunk> getStoredChunkFiles() {
@@ -47,16 +62,18 @@ public class FileStorage {
         if (!storedChunkFiles.contains(chunk)) {
             // Mark chunk as stored locally
             storedChunkFiles.add(chunk);
-
-            incrementReplicationDegree(chunk.getChunkFullName());
-
+            incrementReplicationDegree(chunk);
             return true;
         }
         return false;
     }
 
-    public void incrementReplicationDegree(String chunkFileName) {
-        // if chunk doesnt exist in hashmap, adds it and put its replication value as 1. Otherwise sums 1.
-        chunkReplicationMap.merge(chunkFileName, 1, Integer::sum);
+    public void incrementReplicationDegree(Chunk chunk) {
+        // if chunk doesnt exist in map, adds it and put its perceived replication value as 1. Otherwise increment it
+        if (chunkMap.putIfAbsent(chunk, chunk.getFileID()) != null){
+            for (Chunk key : chunkMap.keySet()){
+                if (key.equals(chunk)) key.incrementPerceivedReplicationDegree();
+            }
+        }
     }
 }
