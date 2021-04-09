@@ -102,6 +102,18 @@ public class FileStorage {
         return backedUpFiles;
     }
 
+    public void removeFileParserFromBackedUpFiles(FileParser fileParser) {
+        this.backedUpFiles.remove(fileParser);
+    }
+
+    public void removeChunkFromStoredChunkFiles(Chunk chunk) {
+        this.storedChunkFiles.remove(chunk);
+    }
+
+    public void removeEntryFromChunkMap(Chunk keyToRemove) {
+        this.chunkMap.remove(keyToRemove);
+    }
+
     public Set<Chunk> getStoredChunkFiles() {
         return storedChunkFiles;
     }

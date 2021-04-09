@@ -1,3 +1,5 @@
+import java.io.File;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Delete {
@@ -15,17 +17,76 @@ public class Delete {
         // Delete also the files themselves.
 
         for (ConcurrentHashMap.Entry<Chunk, String> entry : fileStorage.getChunkMap().entrySet()) {
-            String key = entry.getKey().toString();
+            Chunk chunk = entry.getKey();
             String value = entry.getValue();
 
-            System.out.println(key);
-            System.out.println("---");
-            System.out.println(value);
+//            String chunkString = entry.getKey().toString();
+//            System.out.println(chunkString);
+//            System.out.println("---");
+//            System.out.println(value);
 
-//            String[] separatedValue = value;
+            if (value.equals(fileIdToDelete)) {
+                System.out.println("Found Entry to Delete!");
+
+                System.out.println("Nr of BackedUpFiles Pre: " + fileStorage.getBackedUpFiles().size());
+                // Delete FileParser object entry in Set backedUpFiles
+                deleteFileParser(fileStorage, value);
+                System.out.println("Nr of BackedUpFiles Pos: " + fileStorage.getBackedUpFiles().size());
+
+                System.out.println("Nr of Entries in storedChunkFiles Pre: " + fileStorage.getStoredChunkFiles().size());
+                // Delete Chunk entry in Set of storedChunkFiles
+                deleteChunkFromSet(fileStorage, chunk);
+                System.out.println("Nr of Entries in storedChunkFiles Pos: " + fileStorage.getStoredChunkFiles().size());
+
+                // Delete Backup file itself
+                deleteFileViaName(chunk.getChunkID());
+
+                System.out.println("Nr of Entries in storedChunkFiles Pos: " + fileStorage.getChunkMap().entrySet().size());
+                // Delete entry in ConcurrentHashMap
+                fileStorage.removeEntryFromChunkMap(chunk);
+                System.out.println("Nr of Entries in storedChunkFiles Pos: " + fileStorage.getChunkMap().entrySet().size());
+
+            }
+
         }
 
         // isChunkOfFileId(fileIdToDelete, fileIdToDelete-chunkNr)
 
     }
+
+    private static void deleteFileParser(FileStorage fileStorage, String fileID) {
+//        System.out.println("Looking for |" + fileID + "|");
+
+        for (FileParser f : fileStorage.getBackedUpFiles()) {
+//            System.out.println("Found |" + f.getFileID() + "|");
+            if (f.getFileID().equals(fileID)) {
+//                System.out.println("ITS A MATCH");
+                fileStorage.removeFileParserFromBackedUpFiles(f);
+            }
+        }
+    }
+
+    private static void deleteChunkFromSet(FileStorage fileStorage, Chunk chunk) {
+
+        for (Chunk c : fileStorage.getStoredChunkFiles()) {
+
+            if (c.equals(chunk)) {
+                System.out.println("Found chunk to delete from set");
+                fileStorage.removeChunkFromStoredChunkFiles(c);
+            }
+        }
+    }
+
+    private static void deleteFileViaName(String filepath) {
+
+        File file = new File(filepath);
+
+        if (file.delete()) {
+            System.out.println("File deleted with success");
+        }
+        else {
+            System.out.println("File not deleted");
+        }
+    }
+
 }
