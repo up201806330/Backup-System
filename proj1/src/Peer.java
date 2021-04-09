@@ -111,7 +111,14 @@ public class Peer implements RemoteInterface {
 
     public void delete(String filepath) {
         System.out.println("DELETE SERVICE -> FILE PATH = " + filepath);
-        // TODO:
+
+        FileParser fileParser = new FileParser(filepath);
+
+        String messageString = this.protocolVersion  + " DELETE " + peerID + " " + fileParser.getFileID() + " " + "\r\n" + "\r\n";
+        byte[] messageBytes = messageString.getBytes();
+
+        System.out.println("Sending Message to MC");
+        MC.sendMessage(messageBytes);
     }
 
     public void reclaim(long spaceReclaim) {

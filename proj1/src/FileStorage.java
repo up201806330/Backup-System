@@ -93,4 +93,16 @@ public class FileStorage {
 
         return result.toString();
     }
+
+    public ConcurrentHashMap<Chunk, String> getChunkMap() {
+        return chunkMap;
+    }
+
+    public Set<FileParser> getBackedUpFiles() {
+        return backedUpFiles;
+    }
+
+    public Set<Chunk> getStoredChunkFiles() {
+        return storedChunkFiles;
+    }
 }

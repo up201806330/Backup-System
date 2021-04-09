@@ -23,6 +23,15 @@ public class FileParser {
         this.hasExtraEmptyChunk = checkForEmptyEndingChunk();
     }
 
+    public FileParser(String filepath) {
+        this.filePath = filepath;
+        this.file = new File(filepath);
+        this.fileID = getFileIdHashed();
+
+        this.replicationDegree = 0;
+        this.chunks = null;
+    }
+
     private ArrayList<Chunk> parseChunks() {
         byte[] chunkBuffer = new byte[MAX_CHUNK_SIZE];
         int currentChunkNumber = 0;
@@ -124,6 +133,6 @@ public class FileParser {
             return false;
 
         FileParser other = (FileParser) obj;
-        return file.equals(other.file);
+        return filePath.equals(other.filePath);
     }
 }
