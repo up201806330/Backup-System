@@ -80,7 +80,7 @@ public class FileStorage {
 
     /**
      * Adds, if absent, new chunk to set of locally stored chunks
-     * @param chunk New chunk
+     * @param chunk
      * @return true if chunk did not exist in the set, false otherwise
      */
     public synchronized boolean addChunk(Chunk chunk) {
@@ -103,8 +103,11 @@ public class FileStorage {
         return -1;
     }
 
+    /**
+     * Either increments a chunks perceived replication degree or adds it to the map
+     * @param chunk
+     */
     public void incrementReplicationDegree(Chunk chunk) {
-        // if chunk doesnt exist in map, adds it and put its perceived replication value as 1. Otherwise increment it
         if (chunkMap.putIfAbsent(chunk, chunk.getFileID()) != null){
             for (Chunk key : chunkMap.keySet()){
                 if (key.equals(chunk)) key.incrementPerceivedReplicationDegree();
@@ -112,8 +115,13 @@ public class FileStorage {
         }
     }
 
+    /**
+     * Called when a STORED message is received, updates the initiators knowledge of what peers are backing up its chunk
+     * @param chunk
+     * @param newBackingPeer
+     */
     public void updateChunksBackedPeers(Chunk chunk, int newBackingPeer){
-        if (!chunkIsBackedUp(chunk)) return;
+        if (!isChunksInitiator(chunk)) return;
 
         var newPeerSet = ConcurrentHashMap.newKeySet();
         newPeerSet.add(newBackingPeer);
@@ -122,18 +130,19 @@ public class FileStorage {
         if (previousPeerSet != null) previousPeerSet.add(newBackingPeer);
     }
 
-    public void backupFile(FileParser file) {
+    /**
+     * Add file to set of initiator's backed up files
+     * @param file
+     */
+    public void initiateBackup(FileParser file) {
         initiatedFiles.add(file);
     }
 
-    public ConcurrentHashMap<Chunk, String> getChunkMap() {
-        return chunkMap;
-    }
-
-    public Set<FileParser> getInitiatedFiles() {
-        return initiatedFiles;
-    }
-
+    /**
+     * If the file corresponding to the given ID was backed up by this peer, return the FileParser object
+     * @param fileID
+     * @return If found, the corresponding FileParser object, otherwise Optional.empty
+     */
     public Optional<FileParser> findInitiatedFile(String fileID){
         for (FileParser f : initiatedFiles) {
             if (f.getFileID().equals(fileID)) {
@@ -143,7 +152,12 @@ public class FileStorage {
         return Optional.empty();
     }
 
-    private boolean chunkIsBackedUp(Chunk chunk){
+    /**
+     * Checks if a given chunk was backed up by this peer
+     * @param chunk
+     * @return true if chunk was initiated by this peer, otherwise false
+     */
+    private boolean isChunksInitiator(Chunk chunk){
         for (FileParser file : initiatedFiles){
             if (file.getChunks().contains(chunk)) return true;
         }
@@ -160,6 +174,14 @@ public class FileStorage {
 
     public void removeEntryFromChunkMap(Chunk keyToRemove) {
         this.chunkMap.remove(keyToRemove);
+    }
+
+    public ConcurrentHashMap<Chunk, String> getChunkMap() {
+        return chunkMap;
+    }
+
+    public Set<FileParser> getInitiatedFiles() {
+        return initiatedFiles;
     }
 
     public Set<Chunk> getStoredChunkFiles() {

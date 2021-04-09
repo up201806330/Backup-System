@@ -45,8 +45,9 @@ public class Delete {
         String newPath = FileStorage.instance.chunksDir + "/" + filepath;
         File file = new File(newPath);
 
-        if (file.delete()) System.out.println("File deleted with success");
-        else System.out.println("File not deleted");
+        String fileName = "Chunk file nr. " + filepath.substring(filepath.length() - 1);
+        if (file.delete()) System.out.println(fileName + " deleted with success");
+        else System.out.println(fileName + " not deleted");
     }
 
 }

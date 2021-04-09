@@ -17,8 +17,6 @@ public class Peer implements RemoteInterface {
     private static Channel MDB;
     private static Channel MDR;
 
-    private DatagramSocket socket;
-
     private static ScheduledThreadPoolExecutor exec;
 //    private ScheduledExecutorService executor;
 
@@ -53,8 +51,6 @@ public class Peer implements RemoteInterface {
 
         this.exec = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(200);;
 //        this.executor = Executors.newScheduledThreadPool(1);
-
-        this.socket = new DatagramSocket();
 
         this.MC = new Channel(args[3], Integer.parseInt(args[4]), Channel.ChannelType.MC);
         this.MDB = new Channel(args[5], Integer.parseInt(args[6]), Channel.ChannelType.MDB);
@@ -101,7 +97,7 @@ public class Peer implements RemoteInterface {
             Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
         }
 
-        FileStorage.instance.backupFile(fileParser);
+        FileStorage.instance.initiateBackup(fileParser);
     }
 
     public void restore(String filepath) {
