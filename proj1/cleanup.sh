@@ -22,7 +22,7 @@ then
 	exit 1
 elif ((argc == 0))
 then
-  for i in {1..99}
+  for i in {1..10}
   do
     rm -rf build/service-$i
   done

@@ -1,18 +1,21 @@
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class FileStorage {
     /**
-     * Directory where backed up files and chunks will be stored
+     * Directory where chunks are stored
      */
-    String serviceDirectory;
+    String chunksDir;
+
+    /**
+     * Directory where restored files are stored
+     */
+    String restoreDir;
 
     /**
      * Singleton instance of FileStorage
@@ -36,9 +39,12 @@ public class FileStorage {
 
     public FileStorage() throws IOException {
         if (FileStorage.instance == null) FileStorage.instance = this;
-        this.serviceDirectory = "service-" + Peer.getId();
-        Files.createDirectories(Paths.get(this.serviceDirectory + "/chunks"));
-        Files.createDirectories(Paths.get(this.serviceDirectory + "/restored_files"));
+        String serviceDirectory = "service-" + Peer.getId();
+        this.chunksDir = serviceDirectory + "/chunks";
+        this.restoreDir = serviceDirectory + "/restored";
+
+        Files.createDirectories(Paths.get(chunksDir));
+        Files.createDirectories(Paths.get(restoreDir));
     }
 
     public boolean storeChunk(Chunk c) {
@@ -48,7 +54,7 @@ public class FileStorage {
 
         FileOutputStream fos;
         try {
-            fos = new FileOutputStream( this.serviceDirectory+ "/chunks/" + c.getChunkID());
+            fos = new FileOutputStream( chunksDir + "/" + c.getChunkID());
             fos.write(c.getContent());
             fos.close();
         } catch (IOException e) {

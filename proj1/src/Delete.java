@@ -43,7 +43,7 @@ public class Delete {
     }
 
     private static void deleteFileViaName(String filepath) {
-        String newPath = "service-" + Peer.getId() + "/chunks/" + filepath;
+        String newPath = FileStorage.instance.chunksDir + "/" + filepath;
         File file = new File(newPath);
 
         if (file.delete()) System.out.println("File deleted with success");
