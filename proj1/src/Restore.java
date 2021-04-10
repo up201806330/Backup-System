@@ -26,6 +26,7 @@ public class Restore {
 
                 byte[] chunkMessage = createCHUNK(splitHeader, c);
                 int rand = new Random().nextInt(401);
+                System.out.println("Random: " + rand);
                 Peer.getExec().schedule(new SendCHUNKMessage(chunkMessage, Integer.parseInt(splitHeader[4])), rand, TimeUnit.MILLISECONDS);
             }
         }
@@ -33,7 +34,7 @@ public class Restore {
 
     private static byte[] createCHUNK(String[] splitHeader, Chunk c) {
 
-        String messageString = splitHeader[0] + " GETCHUNK " + Peer.getId() + " " + splitHeader[3] + " " + splitHeader[4] + " " + "\r\n" + "\r\n";
+        String messageString = splitHeader[0] + " CHUNK " + Peer.getId() + " " + splitHeader[3] + " " + splitHeader[4] + " " + "\r\n" + "\r\n";
         System.out.println(messageString);
 
         byte[] fullMessage = new byte[messageString.length() + c.getContent().length];
@@ -45,9 +46,11 @@ public class Restore {
 
     public static void processPacketCHUNK(Chunk newChunk, String[] splitHeader) {
         System.out.println("Processing CHUNK Packet");
+        System.out.println("Size of chunksAlreadySent: " + chunksAlreadySent.size());
 
         // if chunk number was already sent by someone its already in the set therefore is not to be sent
-        if (chunksAlreadySent.add(Integer.parseInt(splitHeader[4])) || Peer.getId() == Integer.parseInt(splitHeader[2])) {
+        if (!chunksAlreadySent.add(Integer.parseInt(splitHeader[4])) || Peer.getId() == Integer.parseInt(splitHeader[2])) {
+            System.out.println("Skipping Sending of CHUNK");
             return;
         }
 
@@ -56,8 +59,11 @@ public class Restore {
         FileOutputStream fos;
 
         try {
+            System.out.println("Entering Try Catch for File");
+            System.out.println("Writing Chunk Number: " + splitHeader[4]);
+            System.out.println("Path of new file: " + serviceDirectory + "/restored/" + splitHeader[3]);
             // splitHeader[3] -> FileId as the name of the restored file for now
-            fos = new FileOutputStream(serviceDirectory + "/restored_files/" + splitHeader[3], true);
+            fos = new FileOutputStream(serviceDirectory + "/restored/" + splitHeader[3], true);
             fos.write(newChunk.getContent());
             fos.close();
         } catch (IOException e) {

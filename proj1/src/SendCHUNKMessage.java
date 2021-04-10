@@ -13,6 +13,7 @@ public class SendCHUNKMessage implements Runnable {
 
         if (Restore.chunksAlreadySent.contains(chunkNumber)) return;
 
+        System.out.println("Sending to MDR CHUNK message");
         Peer.getMDR().sendMessage(chunkMessage);
     }
 }
