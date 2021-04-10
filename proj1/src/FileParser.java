@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 public class FileParser {
 
-    private final int MAX_CHUNK_SIZE = 64000;
+    public final int MAX_CHUNK_SIZE = 64000;
 
     private final File file;
     private final String filePath;

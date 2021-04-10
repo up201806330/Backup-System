@@ -14,7 +14,6 @@ public class Channel implements Runnable {
     private final ChannelType type;
     private final MulticastSocket socket;
 
-
     public Channel(String addressString, int port, ChannelType type) throws IOException {
         try {
             this.inetAddress = InetAddress.getByName(addressString);
@@ -65,6 +64,7 @@ public class Channel implements Runnable {
         byte[] header = Arrays.copyOfRange(data, 0, i);
         String[] splitHeader = new String(header).trim().split(" ");
 
+        System.out.println("SplitHeader length: " + splitHeader.length);
         String command = splitHeader[1];
         String fileID = splitHeader[3];
         int chunkNr = splitHeader.length >= 5 ? Integer.parseInt(splitHeader[4]) : 0;
@@ -82,6 +82,14 @@ public class Channel implements Runnable {
                 break;
             case "DELETE":
                 Delete.processPacketDELETE(splitHeader[3]);
+                break;
+            case "GETCHUNK":
+                Restore.processPacketGETCHUNK(splitHeader);
+                break;
+            case "CHUNK":
+                byte[] content = Arrays.copyOfRange(data, i + 4, data.length);
+                newChunk.setContent(content);
+                Restore.processPacketCHUNK(newChunk, splitHeader);
                 break;
             default:
                 break;
