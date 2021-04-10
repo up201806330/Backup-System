@@ -1,5 +1,7 @@
 import java.io.*;
 import java.rmi.AlreadyBoundException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -19,7 +21,7 @@ public class Peer implements RemoteInterface {
 
     private String protocolVersion;
     private static int peerID;
-    private static String accessPoint;
+    public static String accessPoint;
 
     private static Channel MC;
     private static Channel MDB;
@@ -43,7 +45,10 @@ public class Peer implements RemoteInterface {
         RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(instance, 0);
 
         Registry registry = LocateRegistry.getRegistry();
-        registry.bind(args[2], stub); // args[2] -> accessPoint
+        registry.bind(accessPoint, stub);
+
+        // Exit handler ; Unbinds RMI and saves storage
+        Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHandler(registry)));
 
         System.out.println("Peer ready");
     }
