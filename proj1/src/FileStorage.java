@@ -211,6 +211,14 @@ public class FileStorage implements Serializable {
         return Optional.empty();
     }
 
+    public void removeBackedPeer(Chunk chunk, int peerId) {
+        chunksBackedPeers.get(chunk).remove(peerId);
+    }
+
+    public void addBackedPeer(Chunk chunk, int peerId) {
+        chunksBackedPeers.get(chunk).add(peerId);
+    }
+
     public void removeInitiatedFile(FileObject fileObject) {
         initiatedFiles.remove(fileObject);
     }

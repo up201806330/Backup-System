@@ -2,14 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0171c53b-cf0b-4e65-b013-90f0f69d94ce" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Reclaim.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Channel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Channel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Chunk.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chunk.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FileObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileObject.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/FileStorage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileStorage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Peer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Peer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Restore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Restore.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Reclaim.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Reclaim.java" afterDir="false" />
     </list>
     <list id="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" name="Changes by Rafael" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -103,7 +97,7 @@
       <workItem from="1617892813438" duration="13956000" />
       <workItem from="1617917368738" duration="4962000" />
       <workItem from="1617959393021" duration="33296000" />
-      <workItem from="1618059549450" duration="16723000" />
+      <workItem from="1618059549450" duration="17357000" />
     </task>
     <servers />
   </component>
