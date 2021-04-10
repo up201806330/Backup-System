@@ -101,6 +101,13 @@ public class FileObject implements Serializable{
         }).isPresent();
     }
 
+    public Object decrementReplicationDegree(Chunk chunk) {
+        return findChunk(chunk).map(c -> {
+            c.decrementPerceivedReplicationDegree();
+            return true;
+        }).isPresent();
+    }
+
     private boolean checkForEmptyEndingChunk() {
         return ((this.file.length() % MAX_CHUNK_SIZE) == 0);
     }
@@ -155,4 +162,6 @@ public class FileObject implements Serializable{
         FileObject other = (FileObject) obj;
         return fileID.equals(other.fileID);
     }
+
+
 }

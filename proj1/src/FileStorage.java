@@ -32,7 +32,7 @@ public class FileStorage implements Serializable {
     public final Set<FileObject> initiatedFiles = ConcurrentHashMap.newKeySet();
 
     /**
-     * Concurrent map that for each chunk of each backed up file, has a concurrent set of peers that have that chunk backed up
+     * Concurrent map that for each chunk of each initiated file, has a concurrent set of peers that have that chunk backed up
      */
     public final ConcurrentHashMap<Chunk, ConcurrentHashMap.KeySetView<Object, Boolean>> chunksBackedPeers = new ConcurrentHashMap<Chunk, ConcurrentHashMap.KeySetView<Object, Boolean>>();
 
@@ -121,6 +121,22 @@ public class FileStorage implements Serializable {
         if (!storedChunkFiles.add(chunk)){
             for (Chunk key : storedChunkFiles){
                 if (key.equals(chunk)) key.incrementPerceivedReplicationDegree();
+            }
+        }
+    }
+
+    /**
+     * If the chunk is part of a file initiated by this peer, decrements the perceived replication degree of a chunk
+     * Else tries to decrement perceived replication degree of stored locally chunk.
+     * @param chunk
+     */
+    public void decrementReplicationDegree(Chunk chunk) {
+        if (findInitiatedFile(chunk.getFileID()).map(fileParser -> fileParser.decrementReplicationDegree(chunk)).isPresent())
+            return;
+
+        if (storedChunkFiles.contains(chunk)){
+            for (Chunk key : storedChunkFiles){
+                if (key.equals(chunk)) key.decrementPerceivedReplicationDegree();
             }
         }
     }

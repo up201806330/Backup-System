@@ -22,7 +22,7 @@ public class Restore {
 
         chunksAlreadySent.clear();
 
-        Chunk chunk = new Chunk(splitHeader[3], Integer.parseInt(splitHeader[4]), -1);
+        Chunk chunk = new Chunk(splitHeader[3], Integer.parseInt(splitHeader[4]));
         FileStorage.instance.hasChunkBackedUp(chunk).map(c ->  {
             byte[] chunkMessage = createCHUNK(splitHeader, c);
 

@@ -150,7 +150,11 @@ public class Peer implements RemoteInterface {
 
     public void reclaim(long spaceReclaim) {
         System.out.println("RECLAIM SERVICE -> DISK SPACE RECLAIM = " + spaceReclaim);
-        // TODO:
+
+//        String messageString = this.protocolVersion  + " REMOVED " + peerID + " " + fileParser.getFileID() + " " + "\r\n" + "\r\n";
+//        byte[] messageBytes = messageString.getBytes();
+
+
         // FileStorage.saveToDisk();
     }
 

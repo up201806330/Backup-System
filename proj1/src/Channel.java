@@ -85,6 +85,9 @@ public class Channel implements Runnable {
                 newChunk.setContent(content);
                 Restore.processPacketCHUNK(newChunk, splitHeader);
                 break;
+            case "REMOVED":
+                Reclaim.processPacketREMOVED(splitHeader);
+                break;
             default:
                 break;
         }

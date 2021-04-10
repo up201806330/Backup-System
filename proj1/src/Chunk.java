@@ -24,6 +24,14 @@ public class Chunk implements Serializable {
         this.desiredReplicationDegree = desiredReplicationDegree;
     }
 
+    public Chunk(String fileID, int chunkNumber) {
+        this.fileID = fileID;
+        this.chunkNumber = chunkNumber;
+        this.perceivedReplicationDegree = 0;
+        this.content = null;
+        this.desiredReplicationDegree = -1;
+    }
+
     public String getFileID() {
         return fileID;
     }
@@ -54,6 +62,10 @@ public class Chunk implements Serializable {
 
     public void incrementPerceivedReplicationDegree(){
         perceivedReplicationDegree++;
+    }
+
+    public void decrementPerceivedReplicationDegree() {
+        perceivedReplicationDegree--;
     }
 
     /**
@@ -97,4 +109,5 @@ public class Chunk implements Serializable {
         Chunk other = (Chunk) obj;
         return getChunkID().equals(other.getChunkID());
     }
+
 }

@@ -2,18 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0171c53b-cf0b-4e65-b013-90f0f69d94ce" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/Reclaim.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Peer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Peer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Restore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Restore.java" afterDir="false" />
-    </list>
-    <list id="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" name="Changes by Rafael" comment="">
-      <change beforePath="$PROJECT_DIR$/src/Backup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Backup.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Channel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Channel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/FileParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Chunk.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Chunk.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FileObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileObject.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/FileStorage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileStorage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Peer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Peer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Restore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Restore.java" afterDir="false" />
     </list>
+    <list id="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" name="Changes by Rafael" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -37,29 +35,6 @@
       <filtered-out-file-type name="TAG" />
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
-  </component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/src/Peer.java">
-      <ranges>
-        <range start1="122" end1="122" start2="122" end2="128" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
-        <range start1="125" end1="126" start2="131" end2="131" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
-        <range start1="127" end1="131" start2="132" end2="133" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
-        <range start1="142" end1="142" start2="144" end2="146" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
-      </ranges>
-    </file>
-    <file path="$PROJECT_DIR$/src/Restore.java">
-      <ranges>
-        <range start1="0" end1="4" start2="0" end2="4" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
-        <range start1="5" end1="5" start2="5" end2="6" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
-        <range start1="7" end1="7" start2="8" end2="9" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
-        <range start1="12" end1="12" start2="14" end2="15" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
-        <range start1="56" end1="58" start2="59" end2="59" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
-        <range start1="61" end1="62" start2="62" end2="62" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
-        <range start1="63" end1="64" start2="63" end2="63" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
-        <range start1="65" end1="66" start2="64" end2="65" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
-        <range start1="74" end1="74" start2="73" end2="104" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
-      </ranges>
-    </file>
   </component>
   <component name="ProjectId" id="1qDVSYOwE87rrYhtESPthfz3Tdk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -128,7 +103,7 @@
       <workItem from="1617892813438" duration="13956000" />
       <workItem from="1617917368738" duration="4962000" />
       <workItem from="1617959393021" duration="33296000" />
-      <workItem from="1618059549450" duration="11219000" />
+      <workItem from="1618059549450" duration="16723000" />
     </task>
     <servers />
   </component>
