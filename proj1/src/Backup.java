@@ -1,4 +1,3 @@
-import java.io.FileInputStream;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -20,9 +19,8 @@ public class Backup {
             byte[] storedMessage = createSTORED(splitHeader);
 
             int rand = new Random().nextInt(401);
-            System.out.println("Sending STORED in: " + rand + "ms");
             Peer.getExec().schedule(() -> Peer.getMC().sendMessage(storedMessage), rand, TimeUnit.MILLISECONDS);
-            Peer.saveFileStorageToDisk();
+            fileStorage.saveToDisk();
         }
     }
 

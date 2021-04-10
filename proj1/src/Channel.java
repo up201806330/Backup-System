@@ -25,19 +25,14 @@ public class Channel implements Runnable {
 
         this.socket = new MulticastSocket(this.port);
         this.socket.joinGroup(this.inetAddress);
-
-        System.out.println("Exiting Channel Constructor");
     }
 
     @Override
     public void run() {
-
-        System.out.println("Entering Channel Run");
+        System.out.println("Started up channel " + type);
 
         byte[] buffer = new byte[80000]; // 80000 > 64000
-
         DatagramPacket receivedPacket = new DatagramPacket(buffer, buffer.length);
-
         while (true) {
             try {
                 this.socket.receive(receivedPacket);

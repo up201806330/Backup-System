@@ -32,7 +32,7 @@ public class Delete {
             }
         }
 
-        Peer.saveFileStorageToDisk();
+        fileStorage.saveToDisk();
     }
 
     private static void deleteFileParser(String fileID) {

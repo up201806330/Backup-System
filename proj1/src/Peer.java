@@ -15,7 +15,7 @@ public class Peer implements RemoteInterface {
     /**
      * Peers working directory
      */
-    private static String serviceDirectory;
+    public static String serviceDirectory;
 
     private String protocolVersion;
     private static int peerID;
@@ -28,7 +28,7 @@ public class Peer implements RemoteInterface {
     private static ScheduledThreadPoolExecutor exec;
 //    private ScheduledExecutorService executor;
 
-    public static void main(String args[]) throws IOException, AlreadyBoundException {
+    public static void main(String[] args) throws IOException, AlreadyBoundException {
         if(args.length != 9) {
             System.out.println("Usage: Java Peer <protocol version> <peer id> " +
                     "<service access point> <MCReceiver address> <MCReceiver port> <MDBReceiver address> " +
@@ -37,21 +37,23 @@ public class Peer implements RemoteInterface {
         }
 
         new Peer(args);
-        fileStorage = loadFileStorageFromDisk();
+        fileStorage = FileStorage.loadFromDisk();
 
         // RMI Connection
         RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(instance, 0);
-
         Registry registry = LocateRegistry.getRegistry();
         registry.bind(accessPoint, stub);
 
         // Exit handler ; Unbinds RMI and saves storage
         Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHandler(registry)));
 
+        // Schedule saving to file at 5 seconds rate
+        exec.scheduleAtFixedRate(fileStorage::saveToDisk, 0, 5, TimeUnit.SECONDS);
+
         System.out.println("Peer ready");
     }
 
-    public Peer(String args[]) throws IOException {
+    public Peer(String[] args) throws IOException {
         if (Peer.instance != null) return;
         else Peer.instance = this;
 
@@ -61,7 +63,6 @@ public class Peer implements RemoteInterface {
         serviceDirectory = "service-" + peerID;
 
         exec = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(200);;
-//        this.executor = Executors.newScheduledThreadPool(1);
 
         MC = new Channel(args[3], Integer.parseInt(args[4]), Channel.ChannelType.MC);
         MDB = new Channel(args[5], Integer.parseInt(args[6]), Channel.ChannelType.MDB);
@@ -70,15 +71,6 @@ public class Peer implements RemoteInterface {
         exec.execute(MC);
         exec.execute(MDB);
         exec.execute(MDR);
-
-//        new Thread(this.MC).start();
-//        new Thread(this.MDB).start();
-//        new Thread(this.MDR).start();
-
-//        channels = new HashMap<>();
-//        channels.put(Channel.ChannelType.MC, MC);
-//        channels.put(Channel.ChannelType.MDB, MDB);
-//        channels.put(Channel.ChannelType.MDR, MDR);
     }
 
     public static String getServiceDirectory() {
@@ -113,7 +105,7 @@ public class Peer implements RemoteInterface {
         }
 
         fileStorage.initiateBackup(fileParser);
-        saveFileStorageToDisk();
+        fileStorage.saveToDisk();
     }
 
     public void restore(String filepath) {
@@ -133,13 +125,11 @@ public class Peer implements RemoteInterface {
             String messageString = this.protocolVersion + " GETCHUNK " + peerID + " " + fileParser.getFileID() + " " + i + " " + "\r\n" + "\r\n";
             byte[] messageBytes = messageString.getBytes();
 
-            System.out.println("Sending Message to MC");
             MC.sendMessage(messageBytes);
         }
 
         Restore.t = Peer.getExec().scheduleWithFixedDelay(() -> Restore.constructRestoredFileFromRestoredChunks(numberOfChunksToFind, filepath, fileParser.getFileID()), 100, 100, TimeUnit.MILLISECONDS);
-        System.out.println("Ending Restored. Proceeding to saveFileStorageToDisk");
-        saveFileStorageToDisk();
+        fileStorage.saveToDisk();
     }
 
     public void delete(String filepath) {
@@ -154,7 +144,7 @@ public class Peer implements RemoteInterface {
 
         System.out.println("Sending Message to MC");
         MC.sendMessage(messageBytes);
-        saveFileStorageToDisk();
+        fileStorage.saveToDisk();
     }
 
     public void reclaim(long spaceReclaim) {
@@ -175,10 +165,6 @@ public class Peer implements RemoteInterface {
         return peerID;
     }
 
-    public String getVersion() {
-        return protocolVersion;
-    }
-
     public static Channel getMDB() {
         return MDB;
     }
@@ -187,31 +173,5 @@ public class Peer implements RemoteInterface {
     }
     public static Channel getMDR() {
         return MDR;
-    }
-
-    public static void saveFileStorageToDisk(){
-        try{
-            FileOutputStream fs = new FileOutputStream(serviceDirectory + "/" + "State");
-            ObjectOutputStream os = new ObjectOutputStream(fs);
-            os.writeObject(fileStorage);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static FileStorage loadFileStorageFromDisk() throws IOException {
-        try{
-            FileInputStream fs = new FileInputStream(serviceDirectory + "/" + "State");
-            ObjectInputStream os = new ObjectInputStream(fs);
-            FileStorage.instance = (FileStorage) os.readObject();
-            return FileStorage.instance;
-        } catch (FileNotFoundException e){
-            System.out.println("File Storage not found ; Creating new one");
-            return new FileStorage();
-        }
-        catch (IOException | ClassNotFoundException e){
-            e.printStackTrace();
-            return new FileStorage();
-        }
     }
 }

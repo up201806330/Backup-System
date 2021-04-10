@@ -1,7 +1,4 @@
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -211,6 +208,32 @@ public class FileStorage implements Serializable {
 
     public Set<Chunk> getStoredChunkFiles() {
         return storedChunkFiles;
+    }
+
+    public void saveToDisk(){
+        try{
+            FileOutputStream fs = new FileOutputStream(Peer.serviceDirectory + "/" + "State");
+            ObjectOutputStream os = new ObjectOutputStream(fs);
+            os.writeObject(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static FileStorage loadFromDisk() throws IOException {
+        try{
+            FileInputStream fs = new FileInputStream(Peer.serviceDirectory + "/" + "State");
+            ObjectInputStream os = new ObjectInputStream(fs);
+            FileStorage.instance = (FileStorage) os.readObject();
+            return FileStorage.instance;
+        } catch (FileNotFoundException e){
+            System.out.println("File Storage not found ; Creating new one");
+            return new FileStorage();
+        }
+        catch (IOException | ClassNotFoundException e){
+            e.printStackTrace();
+            return new FileStorage();
+        }
     }
 
     @Override
