@@ -1,13 +1,16 @@
 import java.io.File;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Delete {
 
     public static void processPacketDELETE(String fileIdToDelete) {
-        System.out.println("Processing DELETE Packet");
-
         var fileStorage = FileStorage.instance;
+
+        if (fileStorage.isFilesInitiator(FileParser.fromFileID(fileIdToDelete))){
+            return;
+        }
+
+        System.out.println("Processing DELETE Packet");
 
         for (ConcurrentHashMap.Entry<Chunk, String> entry : fileStorage.getChunkMap().entrySet()) {
             Chunk chunk = entry.getKey();
@@ -31,7 +34,7 @@ public class Delete {
     }
 
     private static void deleteFileParser(FileStorage fileStorage, String fileID) {
-        fileStorage.findBackedUpFile(fileID).ifPresent(fileStorage::removeFileParserFromBackedUpFiles);
+        fileStorage.findInitiatedFile(fileID).ifPresent(fileStorage::removeFileFromInitiatedFiles);
     }
 
     private static void deleteChunkFromSet(FileStorage fileStorage, Chunk chunk) {
@@ -43,11 +46,12 @@ public class Delete {
     }
 
     private static void deleteFileViaName(String filepath) {
-        String newPath = "service-" + Peer.getId() + "/chunks/" + filepath;
+        String newPath = FileStorage.instance.chunksDir + "/" + filepath;
         File file = new File(newPath);
 
-        if (file.delete()) System.out.println("File deleted with success");
-        else System.out.println("File not deleted");
+        String fileName = "Chunk file nr. " + filepath.substring(filepath.length() - 1);
+        if (file.delete()) System.out.println(fileName + " deleted with success");
+        else System.out.println(fileName + " not deleted");
     }
 
 }

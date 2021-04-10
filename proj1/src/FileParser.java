@@ -2,17 +2,20 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 public class FileParser {
 
     public final int MAX_CHUNK_SIZE = 64000;
 
-    private final File file;
-    private final String filePath;
-    private final String fileID;
-    private final int replicationDegree;
-    private final ArrayList<Chunk> chunks;
+    private File file;
+    private String filePath;
+    private String fileID;
+    private int replicationDegree;
+    private LinkedHashSet<Chunk> chunks;
     boolean hasExtraEmptyChunk;
+
+    public FileParser() { }
 
     public FileParser(String filePath, int replicationDegree) {
         this.file = new File(filePath);
@@ -32,11 +35,17 @@ public class FileParser {
         this.chunks = null;
     }
 
-    private ArrayList<Chunk> parseChunks() {
+    public static FileParser fromFileID(String fileID){
+        var result = new FileParser();
+        result.fileID = fileID;
+        return result;
+    }
+
+    private LinkedHashSet<Chunk> parseChunks() {
         byte[] chunkBuffer = new byte[MAX_CHUNK_SIZE];
         int currentChunkNumber = 0;
 
-        ArrayList<Chunk> allChunks = new ArrayList<>();
+        LinkedHashSet<Chunk> allChunks = new LinkedHashSet<>();
 
         try {
             FileInputStream fis = new FileInputStream(file);
@@ -105,7 +114,7 @@ public class FileParser {
         return replicationDegree;
     }
 
-    public ArrayList<Chunk> getChunks() {
+    public LinkedHashSet<Chunk> getChunks() {
         return chunks;
     }
 
@@ -124,6 +133,11 @@ public class FileParser {
     }
 
     @Override
+    public int hashCode() {
+        return fileID.hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -133,6 +147,6 @@ public class FileParser {
             return false;
 
         FileParser other = (FileParser) obj;
-        return filePath.equals(other.filePath);
+        return fileID.equals(other.fileID);
     }
 }
