@@ -17,7 +17,7 @@ public class Peer implements RemoteInterface {
      */
     public static String serviceDirectory;
 
-    private String protocolVersion;
+    private static String protocolVersion;
     private static int peerID;
     public static String accessPoint;
 
@@ -91,22 +91,25 @@ public class Peer implements RemoteInterface {
         }
 
         for (Chunk chunk : fileObject.getChunks()) {
-
-            String dataHeader = this.protocolVersion + " PUTCHUNK " + peerID + " " + fileObject.getFileID() + " " + chunk.getChunkNumber() + " " + replicationDegree + " " + "\r\n" + "\r\n";
-            System.out.println(dataHeader);
-
-            byte[] fullMessage = new byte[dataHeader.length() + chunk.getContent().length];
-            System.arraycopy(dataHeader.getBytes(), 0, fullMessage,0, dataHeader.getBytes().length);
-            System.arraycopy(chunk.getContent(), 0, fullMessage, dataHeader.getBytes().length, chunk.getContent().length);
-
-            MDB.sendMessage(fullMessage);
-
-            System.out.println("Entering Check Rep Degree -> Chunk nr. " + chunk.getChunkNumber());
-            Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
+            initiatePUTCHUNK(fileObject.getFileID(), chunk);
         }
 
         fileStorage.initiateBackup(fileObject);
         FileStorage.saveToDisk();
+    }
+
+    public static void initiatePUTCHUNK(String fileID, Chunk chunk) {
+        String dataHeader = protocolVersion + " PUTCHUNK " + peerID + " " + fileID + " " + chunk.getChunkNumber() + " " + chunk.getDesiredReplicationDegree() + " " + "\r\n" + "\r\n";
+        System.out.println(dataHeader);
+
+        byte[] fullMessage = new byte[dataHeader.length() + chunk.getContent().length];
+        System.arraycopy(dataHeader.getBytes(), 0, fullMessage,0, dataHeader.getBytes().length);
+        System.arraycopy(chunk.getContent(), 0, fullMessage, dataHeader.getBytes().length, chunk.getContent().length);
+
+        MDB.sendMessage(fullMessage);
+
+        System.out.println("Entering Check Rep Degree -> Chunk nr. " + chunk.getChunkNumber());
+        Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
     }
 
     public void restore(String filepath) {

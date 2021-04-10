@@ -1,3 +1,6 @@
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 public class Reclaim {
 
 
@@ -16,8 +19,15 @@ public class Reclaim {
         fileStorage.removeBackedPeer(chunkToSearch, peerId);
 
         // check if new count is lower than desired replication degree
-        if (fileStorage.getPerceivedReplicationDegree(chunkToSearch) < chunkToSearch.getDesiredReplicationDegree()) {
+        var chunkInThisPeerOpt = fileStorage.findChunk(chunkToSearch);
+        if (chunkInThisPeerOpt.isEmpty()){
+            System.out.println("Something went wrong in chunk nr. " + chunkNr);
+            return;
+        }
 
+        if (fileStorage.getPerceivedReplicationDegree(chunkToSearch) < chunkInThisPeerOpt.get().getDesiredReplicationDegree()) {
+            int rand = new Random().nextInt(401);
+            Peer.getExec().schedule(() -> Peer.initiatePUTCHUNK(fileId, chunkInThisPeerOpt.get()), rand, TimeUnit.MILLISECONDS);
         }
 
         // if so, random delay (0-400ms) and then initiate Backup
