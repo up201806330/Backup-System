@@ -16,7 +16,7 @@ public class ShutdownHandler implements Runnable{
     public void run() {
         try {
             registry.unbind(Peer.accessPoint);
-            FileStorage.instance.saveToDisk();
+            FileStorage.saveToDisk();
         } catch (RemoteException | NotBoundException e) {
             e.printStackTrace();
         }

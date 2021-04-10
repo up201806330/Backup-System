@@ -12,27 +12,23 @@ public class Delete {
 
         System.out.println("Processing DELETE Packet");
 
-        for (ConcurrentHashMap.Entry<Chunk, String> entry : fileStorage.chunkMap.entrySet()) {
-            Chunk chunk = entry.getKey();
-            String value = entry.getValue();
+        for (Chunk chunk : fileStorage.storedChunkFiles) {
+            String fileID = chunk.getFileID();
 
-            if (value.equals(fileIdToDelete)) {
+            if (fileID.equals(fileIdToDelete)) {
 
                 // Delete FileParser object entry in Set backedUpFiles
-                deleteFileParser(value);
+                deleteFileParser(fileID);
 
                 // Delete Chunk entry in Set of storedChunkFiles
                 deleteChunkFromSet(chunk);
 
                 // Delete Backup file itself
                 deleteFileViaName(chunk.getChunkID());
-
-                // Delete entry in ConcurrentHashMap
-                fileStorage.removeEntryFromChunkMap(chunk);
             }
         }
 
-        fileStorage.saveToDisk();
+        FileStorage.saveToDisk();
     }
 
     private static void deleteFileParser(String fileID) {

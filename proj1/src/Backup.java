@@ -20,7 +20,7 @@ public class Backup {
 
             int rand = new Random().nextInt(401);
             Peer.getExec().schedule(() -> Peer.getMC().sendMessage(storedMessage), rand, TimeUnit.MILLISECONDS);
-            fileStorage.saveToDisk();
+            FileStorage.saveToDisk();
         }
     }
 

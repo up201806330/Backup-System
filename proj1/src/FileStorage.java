@@ -42,11 +42,6 @@ public class FileStorage implements Serializable {
     public final Set<Chunk> storedChunkFiles = ConcurrentHashMap.newKeySet();
 
     /**
-     * Concurrent map of backed up chunks and fileId
-     */
-    public final ConcurrentHashMap<Chunk, String> chunkMap = new ConcurrentHashMap<>();
-
-    /**
      * Singleton constructor
      * @throws IOException
      */
@@ -89,7 +84,7 @@ public class FileStorage implements Serializable {
      * @return true if chunk did not exist in the set, false otherwise
      */
     public synchronized boolean addChunk(Chunk chunk) {
-        if (storedChunkFiles.add(chunk)) {
+        if (!storedChunkFiles.add(chunk)) {
             incrementReplicationDegree(chunk);
             return true;
         }
@@ -99,22 +94,34 @@ public class FileStorage implements Serializable {
     /**
      * Gets
      * @param chunk
-     * @return perceived replication degree of chunk
+     * @return perceived replication degree of chunk, be it a stored locally backed up chunk or a part of an initiated file
      */
     public int getPerceivedReplicationDegree(Chunk chunk){
-        for (Chunk key : chunkMap.keySet()){
+        Optional<Optional<Object>> repDegreeIfItsInitiatedChunk =
+        findInitiatedFile(chunk.getFileID()).
+                map(fileParser -> fileParser.findChunk(chunk).map(Chunk::getPerceivedReplicationDegree));
+
+        if (repDegreeIfItsInitiatedChunk.isPresent()){
+            return (int)repDegreeIfItsInitiatedChunk.get().get();
+        }
+
+        for (Chunk key : storedChunkFiles){
             if (key.equals(chunk)) return key.getPerceivedReplicationDegree();
         }
         return -1;
     }
 
     /**
-     * Either increments a chunks perceived replication degree or adds it to the map
+     * If the chunk is part of a file initiated by this peer, increments the perceived replication degree of a chunk
+     * Else tries to increment perceived replication degree of stored locally chunk. If its missing, add it to the set
      * @param chunk
      */
     public void incrementReplicationDegree(Chunk chunk) {
-        if (chunkMap.putIfAbsent(chunk, chunk.getFileID()) != null){
-            for (Chunk key : chunkMap.keySet()){
+        if (findInitiatedFile(chunk.getFileID()).map(fileParser -> fileParser.incrementReplicationDegree(chunk)).isPresent())
+            return;
+
+        if (!storedChunkFiles.add(chunk)){
+            for (Chunk key : storedChunkFiles){
                 if (key.equals(chunk)) key.incrementPerceivedReplicationDegree();
             }
         }
@@ -198,23 +205,11 @@ public class FileStorage implements Serializable {
         storedChunkFiles.remove(chunk);
     }
 
-    public void removeEntryFromChunkMap(Chunk keyToRemove) {
-        chunkMap.remove(keyToRemove);
-    }
-
-    public ConcurrentHashMap<Chunk, String> getChunkMap() {
-        return chunkMap;
-    }
-
-    public Set<Chunk> getStoredChunkFiles() {
-        return storedChunkFiles;
-    }
-
-    public void saveToDisk(){
+    public static void saveToDisk(){
         try{
             FileOutputStream fs = new FileOutputStream(Peer.serviceDirectory + "/" + "State");
             ObjectOutputStream os = new ObjectOutputStream(fs);
-            os.writeObject(this);
+            os.writeObject(instance);
         } catch (IOException e) {
             e.printStackTrace();
         }

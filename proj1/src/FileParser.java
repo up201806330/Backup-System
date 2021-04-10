@@ -2,6 +2,7 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 
 public class FileParser implements Serializable{
 
@@ -93,6 +94,13 @@ public class FileParser implements Serializable{
         }
     }
 
+    public boolean incrementReplicationDegree(Chunk chunk){
+        return findChunk(chunk).map(c -> {
+            c.incrementPerceivedReplicationDegree();
+            return true;
+        }).isPresent();
+    }
+
     private boolean checkForEmptyEndingChunk() {
         return ((this.file.length() % MAX_CHUNK_SIZE) == 0);
     }
@@ -101,20 +109,19 @@ public class FileParser implements Serializable{
         return file;
     }
 
-    public String getFilePath() {
-        return filePath;
-    }
-
     public String getFileID() {
         return fileID;
     }
 
-    public int getReplicationDegree() {
-        return replicationDegree;
-    }
-
     public LinkedHashSet<Chunk> getChunks() {
         return chunks;
+    }
+
+    public Optional<Chunk> findChunk(Chunk chunk){
+        for (Chunk c : chunks){
+            if (c.equals(chunk)) return Optional.of(c);
+        }
+        return Optional.empty();
     }
 
     @Override

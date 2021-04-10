@@ -22,7 +22,6 @@ public class CheckReplicationDegree implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Entering Check Rep Degree -> Chunk nr. " + targetChunk.getChunkNumber());
         System.out.println("Try: " + this.numberOfTries);
 
         int currentReplicationDegree = FileStorage.instance.getPerceivedReplicationDegree(targetChunk);

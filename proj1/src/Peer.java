@@ -48,7 +48,7 @@ public class Peer implements RemoteInterface {
         Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHandler(registry)));
 
         // Schedule saving to file at 5 seconds rate
-        exec.scheduleAtFixedRate(fileStorage::saveToDisk, 0, 5, TimeUnit.SECONDS);
+        exec.scheduleAtFixedRate(FileStorage::saveToDisk, 0, 5, TimeUnit.SECONDS);
 
         System.out.println("Peer ready");
     }
@@ -101,11 +101,12 @@ public class Peer implements RemoteInterface {
 
             MDB.sendMessage(fullMessage);
 
+            System.out.println("Entering Check Rep Degree -> Chunk nr. " + chunk.getChunkNumber());
             Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
         }
 
         fileStorage.initiateBackup(fileParser);
-        fileStorage.saveToDisk();
+        FileStorage.saveToDisk();
     }
 
     public void restore(String filepath) {
@@ -129,7 +130,7 @@ public class Peer implements RemoteInterface {
         }
 
         Restore.t = Peer.getExec().scheduleWithFixedDelay(() -> Restore.constructRestoredFileFromRestoredChunks(numberOfChunksToFind, filepath, fileParser.getFileID()), 100, 100, TimeUnit.MILLISECONDS);
-        fileStorage.saveToDisk();
+        FileStorage.saveToDisk();
     }
 
     public void delete(String filepath) {
@@ -144,13 +145,13 @@ public class Peer implements RemoteInterface {
 
         System.out.println("Sending Message to MC");
         MC.sendMessage(messageBytes);
-        fileStorage.saveToDisk();
+        FileStorage.saveToDisk();
     }
 
     public void reclaim(long spaceReclaim) {
         System.out.println("RECLAIM SERVICE -> DISK SPACE RECLAIM = " + spaceReclaim);
         // TODO:
-        // saveFileStorageToDisk();
+        // FileStorage.saveToDisk();
     }
 
     public String state() {
