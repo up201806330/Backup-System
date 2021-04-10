@@ -95,12 +95,12 @@ public class FileStorage implements Serializable {
      * @return perceived replication degree of chunk, be it a stored locally backed up chunk or a part of an initiated file
      */
     public int getPerceivedReplicationDegree(Chunk chunk){
-        Optional<Optional<Object>> repDegreeIfItsInitiatedChunk =
+        var repDegreeIfItsInitiatedChunk =
         findInitiatedFile(chunk.getFileID()).
                 map(fileParser -> fileParser.findChunk(chunk).map(Chunk::getPerceivedReplicationDegree));
 
         if (repDegreeIfItsInitiatedChunk.isPresent()){
-            return (int)repDegreeIfItsInitiatedChunk.get().get();
+            return repDegreeIfItsInitiatedChunk.get().get();
         }
 
         for (Chunk key : storedChunkFiles){
@@ -174,6 +174,22 @@ public class FileStorage implements Serializable {
             if (f.getFileID().equals(fileID)) {
                 return Optional.of(f);
             }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * If the given chunk is either backed up by this peer or its file was initiated by this peer, returns it
+     * @param chunk
+     * @return If found, the corresponding Chunk object, otherwise Optional.empty
+     */
+    public Optional<Chunk> findChunk(Chunk chunk){
+        var chunkIfItsInitiatedChunk = findInitiatedFile(chunk.getFileID()).map(fileObject -> fileObject.findChunk(chunk));
+        if (chunkIfItsInitiatedChunk.isPresent())
+            return chunkIfItsInitiatedChunk.get();
+
+        for (Chunk c : storedChunkFiles){
+            if (c.equals(chunk)) return Optional.of(c);
         }
         return Optional.empty();
     }
