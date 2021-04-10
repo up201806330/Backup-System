@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 
-public class FileParser implements Serializable{
+public class FileObject implements Serializable{
 
     public static final int MAX_CHUNK_SIZE = 64000;
 
@@ -15,9 +15,9 @@ public class FileParser implements Serializable{
     private LinkedHashSet<Chunk> chunks;
     boolean hasExtraEmptyChunk;
 
-    public FileParser() { }
+    public FileObject() { }
 
-    public FileParser(String filePath, int replicationDegree) {
+    public FileObject(String filePath, int replicationDegree) {
         this.file = new File(filePath);
         this.filePath = filePath;
         this.fileID = getFileIdHashed();
@@ -26,7 +26,7 @@ public class FileParser implements Serializable{
         this.hasExtraEmptyChunk = checkForEmptyEndingChunk();
     }
 
-    public FileParser(String filepath) {
+    public FileObject(String filepath) {
         this.filePath = filepath;
         this.file = new File(filepath);
         this.fileID = getFileIdHashed();
@@ -35,8 +35,8 @@ public class FileParser implements Serializable{
         this.chunks = null;
     }
 
-    public static FileParser fromFileID(String fileID){
-        var result = new FileParser();
+    public static FileObject fromFileID(String fileID){
+        var result = new FileObject();
         result.fileID = fileID;
         return result;
     }
@@ -152,7 +152,7 @@ public class FileParser implements Serializable{
         if (getClass() != obj.getClass())
             return false;
 
-        FileParser other = (FileParser) obj;
+        FileObject other = (FileObject) obj;
         return fileID.equals(other.fileID);
     }
 }

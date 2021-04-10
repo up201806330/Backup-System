@@ -1,12 +1,11 @@
 import java.io.File;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Delete {
     private static FileStorage fileStorage;
 
     public static void processPacketDELETE(String fileIdToDelete) {
         fileStorage = FileStorage.instance;
-        if (fileStorage.isFilesInitiator(FileParser.fromFileID(fileIdToDelete))){
+        if (fileStorage.isFilesInitiator(FileObject.fromFileID(fileIdToDelete))){
             return;
         }
 

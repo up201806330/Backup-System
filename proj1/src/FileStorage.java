@@ -29,7 +29,7 @@ public class FileStorage implements Serializable {
     /**
      * Concurrent set of all files whose backup was initiated by this peer
      */
-    public final Set<FileParser> initiatedFiles = ConcurrentHashMap.newKeySet();
+    public final Set<FileObject> initiatedFiles = ConcurrentHashMap.newKeySet();
 
     /**
      * Concurrent map that for each chunk of each backed up file, has a concurrent set of peers that have that chunk backed up
@@ -144,7 +144,7 @@ public class FileStorage implements Serializable {
      * Add file to set of initiator's backed up files
      * @param file
      */
-    public void initiateBackup(FileParser file) {
+    public void initiateBackup(FileObject file) {
         initiatedFiles.add(file);
     }
 
@@ -153,8 +153,8 @@ public class FileStorage implements Serializable {
      * @param fileID
      * @return If found, the corresponding FileParser object, otherwise Optional.empty
      */
-    public Optional<FileParser> findInitiatedFile(String fileID){
-        for (FileParser f : initiatedFiles) {
+    public Optional<FileObject> findInitiatedFile(String fileID){
+        for (FileObject f : initiatedFiles) {
             if (f.getFileID().equals(fileID)) {
                 return Optional.of(f);
             }
@@ -168,7 +168,7 @@ public class FileStorage implements Serializable {
      * @return true if chunk was initiated by this peer, otherwise false
      */
     public boolean isChunksInitiator(Chunk chunk){
-        for (FileParser file : initiatedFiles){
+        for (FileObject file : initiatedFiles){
             if (file.getChunks().contains(chunk)) return true;
         }
         return false;
@@ -179,7 +179,7 @@ public class FileStorage implements Serializable {
      * @param file
      * @return true if file was initiated by this peer, otherwise false
      */
-    public boolean isFilesInitiator(FileParser file){
+    public boolean isFilesInitiator(FileObject file){
         return initiatedFiles.contains(file);
     }
 
@@ -195,8 +195,8 @@ public class FileStorage implements Serializable {
         return Optional.empty();
     }
 
-    public void removeInitiatedFile(FileParser fileParser) {
-        initiatedFiles.remove(fileParser);
+    public void removeInitiatedFile(FileObject fileObject) {
+        initiatedFiles.remove(fileObject);
     }
 
     public void removeChunkFromStoredChunkFiles(Chunk chunk) {
@@ -234,7 +234,7 @@ public class FileStorage implements Serializable {
         StringBuilder result = new StringBuilder("BACKED UP FILES: ");
 
         if (initiatedFiles.size() > 0){
-            for (FileParser file : initiatedFiles){
+            for (FileObject file : initiatedFiles){
                 result.append("\n").append(file.toString());
             }
         }

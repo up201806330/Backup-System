@@ -85,14 +85,14 @@ public class Peer implements RemoteInterface {
 
         System.out.println("\n---- BACKUP SERVICE ---- FILE PATH = " + filepath + " | REPLICATION DEGREEE = " + replicationDegree);
 
-        FileParser fileParser = new FileParser(filepath, replicationDegree);
-        if (fileParser.getFile().length() > 64000000){
+        FileObject fileObject = new FileObject(filepath, replicationDegree);
+        if (fileObject.getFile().length() > 64000000){
             throw new Exception("File size bigger than 64GB ; Aborting...");
         }
 
-        for (Chunk chunk : fileParser.getChunks()) {
+        for (Chunk chunk : fileObject.getChunks()) {
 
-            String dataHeader = this.protocolVersion + " PUTCHUNK " + peerID + " " + fileParser.getFileID() + " " + chunk.getChunkNumber() + " " + replicationDegree + " " + "\r\n" + "\r\n";
+            String dataHeader = this.protocolVersion + " PUTCHUNK " + peerID + " " + fileObject.getFileID() + " " + chunk.getChunkNumber() + " " + replicationDegree + " " + "\r\n" + "\r\n";
             System.out.println(dataHeader);
 
             byte[] fullMessage = new byte[dataHeader.length() + chunk.getContent().length];
@@ -105,7 +105,7 @@ public class Peer implements RemoteInterface {
             Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
         }
 
-        fileStorage.initiateBackup(fileParser);
+        fileStorage.initiateBackup(fileObject);
         FileStorage.saveToDisk();
     }
 
@@ -118,30 +118,30 @@ public class Peer implements RemoteInterface {
 
         System.out.println("RESTORE SERVICE -> FILE PATH = " + filepath);
 
-        FileParser fileParser = new FileParser(filepath);
-        long fileSize = fileParser.getFile().length();
-        int numberOfChunksToFind = ((int)fileSize / FileParser.MAX_CHUNK_SIZE) + 1;
+        FileObject fileObject = new FileObject(filepath);
+        long fileSize = fileObject.getFile().length();
+        int numberOfChunksToFind = ((int)fileSize / FileObject.MAX_CHUNK_SIZE) + 1;
 
         for (int i = 0; i < numberOfChunksToFind; i++) {
-            String messageString = this.protocolVersion + " GETCHUNK " + peerID + " " + fileParser.getFileID() + " " + i + " " + "\r\n" + "\r\n";
+            String messageString = this.protocolVersion + " GETCHUNK " + peerID + " " + fileObject.getFileID() + " " + i + " " + "\r\n" + "\r\n";
             byte[] messageBytes = messageString.getBytes();
 
             MC.sendMessage(messageBytes);
         }
 
-        Restore.t = Peer.getExec().scheduleWithFixedDelay(() -> Restore.constructRestoredFileFromRestoredChunks(numberOfChunksToFind, filepath, fileParser.getFileID()), 100, 100, TimeUnit.MILLISECONDS);
+        Restore.t = Peer.getExec().scheduleWithFixedDelay(() -> Restore.constructRestoredFileFromRestoredChunks(numberOfChunksToFind, filepath, fileObject.getFileID()), 100, 100, TimeUnit.MILLISECONDS);
         FileStorage.saveToDisk();
     }
 
     public void delete(String filepath) {
         System.out.println("DELETE SERVICE -> FILE PATH = " + filepath);
 
-        FileParser fileParser = new FileParser(filepath);
+        FileObject fileObject = new FileObject(filepath);
 
-        String messageString = this.protocolVersion  + " DELETE " + peerID + " " + fileParser.getFileID() + " " + "\r\n" + "\r\n";
+        String messageString = this.protocolVersion  + " DELETE " + peerID + " " + fileObject.getFileID() + " " + "\r\n" + "\r\n";
         byte[] messageBytes = messageString.getBytes();
 
-        fileStorage.removeInitiatedFile(fileParser);
+        fileStorage.removeInitiatedFile(fileObject);
 
         System.out.println("Sending Message to MC");
         MC.sendMessage(messageBytes);

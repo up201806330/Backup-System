@@ -3,7 +3,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
@@ -70,7 +69,7 @@ public class Restore {
         // constructs restored file
         try {
             FileOutputStream fos = new FileOutputStream(FileStorage.instance.restoreDir + "/" + extractFileNameFromPath(filepath), true);
-            byte[] buf = new byte[FileParser.MAX_CHUNK_SIZE];
+            byte[] buf = new byte[FileObject.MAX_CHUNK_SIZE];
             for(int i = 0 ; i < numberOfChunksToFind ; i++){
                 InputStream fis = Files.newInputStream(Paths.get(FileStorage.instance.cacheDir + "/" + fileID + "-" + i), StandardOpenOption.DELETE_ON_CLOSE);
                 int b;
