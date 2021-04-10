@@ -17,13 +17,13 @@ public class Delete {
 
             if (fileID.equals(fileIdToDelete)) {
 
-                // Delete FileParser object entry in Set backedUpFiles
+                // Initiator deletes entry that file was initiated
                 deleteFileParser(fileID);
 
-                // Delete Chunk entry in Set of storedChunkFiles
-                deleteChunkFromSet(chunk);
+                // Backing peer deletes entry from stored chunks
+                fileStorage.removeChunkFromStoredChunkFiles(chunk);
 
-                // Delete Backup file itself
+                // Backing peer deletes actual chunk file
                 deleteFileViaName(chunk.getChunkID());
             }
         }
@@ -33,14 +33,6 @@ public class Delete {
 
     private static void deleteFileParser(String fileID) {
         fileStorage.findInitiatedFile(fileID).ifPresent(fileStorage::removeInitiatedFile);
-    }
-
-    private static void deleteChunkFromSet(Chunk chunk) {
-        for (Chunk c : fileStorage.storedChunkFiles) {
-            if (c.equals(chunk)) {
-                fileStorage.removeChunkFromStoredChunkFiles(c);
-            }
-        }
     }
 
     private static void deleteFileViaName(String filepath) {

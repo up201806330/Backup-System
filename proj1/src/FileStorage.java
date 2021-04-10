@@ -84,11 +84,9 @@ public class FileStorage implements Serializable {
      * @return true if chunk did not exist in the set, false otherwise
      */
     public synchronized boolean addChunk(Chunk chunk) {
-        if (!storedChunkFiles.add(chunk)) {
-            incrementReplicationDegree(chunk);
-            return true;
-        }
-        else return false;
+        boolean result = storedChunkFiles.add(chunk);
+        incrementReplicationDegree(chunk);
+        return result;
     }
 
     /**

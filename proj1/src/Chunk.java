@@ -11,7 +11,7 @@ public class Chunk implements Serializable {
     public Chunk(String fileID, int chunkNumber, int desiredReplicationDegree, byte[] content){
         this.fileID = fileID;
         this.chunkNumber = chunkNumber;
-        this.perceivedReplicationDegree = 1;
+        this.perceivedReplicationDegree = 0;
         this.content = content;
         this.desiredReplicationDegree = desiredReplicationDegree;
     }
@@ -19,7 +19,7 @@ public class Chunk implements Serializable {
     public Chunk(String fileID, int chunkNumber, int desiredReplicationDegree){
         this.fileID = fileID;
         this.chunkNumber = chunkNumber;
-        this.perceivedReplicationDegree = 1;
+        this.perceivedReplicationDegree = 0;
         this.content = null;
         this.desiredReplicationDegree = desiredReplicationDegree;
     }
