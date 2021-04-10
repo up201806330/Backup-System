@@ -24,11 +24,11 @@ elif ((argc == 0))
 then
   for i in {1..10}
   do
-    rm -rf build/service-$i
+    rm -rf src/build/service-$i
   done
 else
 	peer_id=$1
-  rm -rf build/service-${peer_id}
+  rm -rf src/build/service-${peer_id}
 fi
 
 

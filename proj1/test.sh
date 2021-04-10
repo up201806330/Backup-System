@@ -80,5 +80,5 @@ esac
 
 # echo "java test.TestApp ${pap} ${oper} ${opernd_1} ${rep_deg}"
 
-cd build
+cd src/build
 java TestApp ${pap} ${oper} ${opernd_1} ${rep_deg}
