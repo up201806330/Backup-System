@@ -4,49 +4,49 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Delete {
 
     public static void processPacketDELETE(String fileIdToDelete) {
-        var fileStorage = FileStorage.instance;
-
-        if (fileStorage.isFilesInitiator(FileParser.fromFileID(fileIdToDelete))){
+        if (FileStorage.isFilesInitiator(FileParser.fromFileID(fileIdToDelete))){
             return;
         }
 
         System.out.println("Processing DELETE Packet");
 
-        for (ConcurrentHashMap.Entry<Chunk, String> entry : fileStorage.getChunkMap().entrySet()) {
+        for (ConcurrentHashMap.Entry<Chunk, String> entry : FileStorage.chunkMap.entrySet()) {
             Chunk chunk = entry.getKey();
             String value = entry.getValue();
 
             if (value.equals(fileIdToDelete)) {
 
                 // Delete FileParser object entry in Set backedUpFiles
-                deleteFileParser(fileStorage, value);
+                deleteFileParser(value);
 
                 // Delete Chunk entry in Set of storedChunkFiles
-                deleteChunkFromSet(fileStorage, chunk);
+                deleteChunkFromSet(chunk);
 
                 // Delete Backup file itself
                 deleteFileViaName(chunk.getChunkID());
 
                 // Delete entry in ConcurrentHashMap
-                fileStorage.removeEntryFromChunkMap(chunk);
+                FileStorage.removeEntryFromChunkMap(chunk);
             }
         }
+
+        Peer.saveFileStorageToDisk();
     }
 
-    private static void deleteFileParser(FileStorage fileStorage, String fileID) {
-        fileStorage.findInitiatedFile(fileID).ifPresent(fileStorage::removeFileFromInitiatedFiles);
+    private static void deleteFileParser(String fileID) {
+        FileStorage.findInitiatedFile(fileID).ifPresent(FileStorage::removeInitiatedFile);
     }
 
-    private static void deleteChunkFromSet(FileStorage fileStorage, Chunk chunk) {
-        for (Chunk c : fileStorage.getStoredChunkFiles()) {
+    private static void deleteChunkFromSet(Chunk chunk) {
+        for (Chunk c : FileStorage.storedChunkFiles) {
             if (c.equals(chunk)) {
-                fileStorage.removeChunkFromStoredChunkFiles(c);
+                FileStorage.removeChunkFromStoredChunkFiles(c);
             }
         }
     }
 
     private static void deleteFileViaName(String filepath) {
-        String newPath = FileStorage.instance.chunksDir + "/" + filepath;
+        String newPath = FileStorage.chunksDir + "/" + filepath;
         File file = new File(newPath);
 
         String fileName = "Chunk file nr. " + filepath.substring(filepath.length() - 1);

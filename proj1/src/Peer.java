@@ -1,5 +1,4 @@
 import java.io.*;
-import java.net.*;
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -7,7 +6,15 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.*;
 
 public class Peer implements RemoteInterface {
+    /**
+     * Singleton instance of Peer
+     */
     public static Peer instance;
+
+    /**
+     * Peers working directory
+     */
+    private static String serviceDirectory;
 
     private String protocolVersion;
     private static int peerID;
@@ -29,7 +36,7 @@ public class Peer implements RemoteInterface {
         }
 
         new Peer(args);
-        new FileStorage();
+        loadFileStorageFromDisk();
 
         // RMI Connection
         RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(instance, 0);
@@ -46,19 +53,20 @@ public class Peer implements RemoteInterface {
         else Peer.instance = this;
 
         this.protocolVersion = args[0];
-        this.peerID = Integer.parseInt(args[1]);
-        this.accessPoint = args[2];
+        peerID = Integer.parseInt(args[1]);
+        accessPoint = args[2];
+        serviceDirectory = "service-" + peerID;
 
-        this.exec = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(200);;
+        exec = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(200);;
 //        this.executor = Executors.newScheduledThreadPool(1);
 
-        this.MC = new Channel(args[3], Integer.parseInt(args[4]), Channel.ChannelType.MC);
-        this.MDB = new Channel(args[5], Integer.parseInt(args[6]), Channel.ChannelType.MDB);
-        this.MDR = new Channel(args[7], Integer.parseInt(args[8]), Channel.ChannelType.MDR);
+        MC = new Channel(args[3], Integer.parseInt(args[4]), Channel.ChannelType.MC);
+        MDB = new Channel(args[5], Integer.parseInt(args[6]), Channel.ChannelType.MDB);
+        MDR = new Channel(args[7], Integer.parseInt(args[8]), Channel.ChannelType.MDR);
 
-        exec.execute(this.MC);
-        exec.execute(this.MDB);
-        exec.execute(this.MDR);
+        exec.execute(MC);
+        exec.execute(MDB);
+        exec.execute(MDR);
 
 //        new Thread(this.MC).start();
 //        new Thread(this.MDB).start();
@@ -68,6 +76,10 @@ public class Peer implements RemoteInterface {
 //        channels.put(Channel.ChannelType.MC, MC);
 //        channels.put(Channel.ChannelType.MDB, MDB);
 //        channels.put(Channel.ChannelType.MDR, MDR);
+    }
+
+    public static String getServiceDirectory() {
+        return serviceDirectory;
     }
 
     public synchronized void backup(String filepath, int replicationDegree) throws Exception {
@@ -97,12 +109,14 @@ public class Peer implements RemoteInterface {
             Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
         }
 
-        FileStorage.instance.initiateBackup(fileParser);
+        FileStorage.initiateBackup(fileParser);
+        saveFileStorageToDisk();
     }
 
     public void restore(String filepath) {
         System.out.println("RESTORE SERVICE -> FILE PATH = " + filepath);
         // TODO:
+        // saveFileStorageToDisk();
     }
 
     public void delete(String filepath) {
@@ -113,13 +127,17 @@ public class Peer implements RemoteInterface {
         String messageString = this.protocolVersion  + " DELETE " + peerID + " " + fileParser.getFileID() + " " + "\r\n" + "\r\n";
         byte[] messageBytes = messageString.getBytes();
 
+        FileStorage.removeInitiatedFile(fileParser);
+
         System.out.println("Sending Message to MC");
         MC.sendMessage(messageBytes);
+        saveFileStorageToDisk();
     }
 
     public void reclaim(long spaceReclaim) {
         System.out.println("RECLAIM SERVICE -> DISK SPACE RECLAIM = " + spaceReclaim);
         // TODO:
+        // saveFileStorageToDisk();
     }
 
     public String state() {
@@ -143,5 +161,31 @@ public class Peer implements RemoteInterface {
     }
     public static Channel getMC() {
         return MC;
+    }
+
+    public static void saveFileStorageToDisk(){
+        try{
+            var fileStorage = FileStorage.instance;
+            FileOutputStream fs = new FileOutputStream(serviceDirectory + "/" + "State");
+            ObjectOutputStream os = new ObjectOutputStream(fs);
+            os.writeObject(fileStorage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void loadFileStorageFromDisk() throws IOException {
+        try{
+            FileInputStream fs = new FileInputStream(serviceDirectory + "/" + "State");
+            ObjectInputStream os = new ObjectInputStream(fs);
+            FileStorage.instance = (FileStorage) os.readObject();
+        } catch (FileNotFoundException e){
+            System.out.println("File Storage not found ; Creating new one");
+            new FileStorage();
+        }
+        catch (IOException | ClassNotFoundException e){
+            e.printStackTrace();
+            new FileStorage();
+        }
     }
 }

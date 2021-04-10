@@ -1,10 +1,9 @@
 import java.io.*;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 
-public class FileParser {
+public class FileParser implements Serializable{
 
     private final int MAX_CHUNK_SIZE = 64000;
 

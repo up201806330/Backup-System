@@ -1,4 +1,6 @@
-public class Chunk {
+import java.io.Serializable;
+
+public class Chunk implements Serializable {
 
     private final String fileID;
     private final int chunkNumber;
