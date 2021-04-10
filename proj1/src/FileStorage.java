@@ -110,8 +110,8 @@ public class FileStorage implements Serializable {
     }
 
     /**
-     * If the chunk is part of a file initiated by this peer, increments the perceived replication degree of a chunk
-     * Else tries to increment perceived replication degree of stored locally chunk. If its missing, add it to the set
+     * If the chunk is part of a file initiated by this peer, increments its perceived replication degree
+     * Else tries to increment perceived replication degree of locally stored chunk. If its missing, add it to the set
      * @param chunk
      */
     public void incrementReplicationDegree(Chunk chunk) {
@@ -126,8 +126,8 @@ public class FileStorage implements Serializable {
     }
 
     /**
-     * If the chunk is part of a file initiated by this peer, decrements the perceived replication degree of a chunk
-     * Else tries to decrement perceived replication degree of stored locally chunk.
+     * If the chunk is part of a file initiated by this peer, decrements its perceived replication degree
+     * Else tries to decrement perceived replication degree of locally stored chunk.
      * @param chunk
      */
     public void decrementReplicationDegree(Chunk chunk) {
