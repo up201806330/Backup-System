@@ -3,9 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="0171c53b-cf0b-4e65-b013-90f0f69d94ce" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.txt" beforeDir="false" afterPath="$PROJECT_DIR$/README.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Delete.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Delete.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.sh" beforeDir="false" afterPath="$PROJECT_DIR$/test.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Channel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Channel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FileParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Peer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Peer.java" afterDir="false" />
     </list>
     <list id="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" name="Changes by Rafael" comment="" />
     <option name="SHOW_DIALOG" value="false" />
@@ -96,7 +96,7 @@
       <workItem from="1617892294847" duration="504000" />
       <workItem from="1617892813438" duration="13956000" />
       <workItem from="1617917368738" duration="4962000" />
-      <workItem from="1617959393021" duration="20835000" />
+      <workItem from="1617959393021" duration="33092000" />
     </task>
     <servers />
   </component>

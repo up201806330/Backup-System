@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 
 public class FileParser implements Serializable{
 
-    private final int MAX_CHUNK_SIZE = 64000;
+    public final int MAX_CHUNK_SIZE = 64000;
 
     private File file;
     private String filePath;

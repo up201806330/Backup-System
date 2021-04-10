@@ -116,8 +116,26 @@ public class Peer implements RemoteInterface {
 
     public void restore(String filepath) {
         System.out.println("RESTORE SERVICE -> FILE PATH = " + filepath);
-        // TODO:
-        // saveFileStorageToDisk();
+
+        FileParser fileParser = new FileParser(filepath);
+
+        long fileSize = fileParser.getFile().length();
+
+        System.out.println("Filesize: " + fileSize);
+
+        int numberOfChunksToFind = ((int)fileSize / fileParser.MAX_CHUNK_SIZE) + 1;
+
+        System.out.println("Number of chunks to find: " + numberOfChunksToFind);
+
+        for (int i = 1; i < numberOfChunksToFind + 1; i++) {
+            String messageString = this.protocolVersion + " GETCHUNK " + peerID + " " + fileParser.getFileID() + " " + i + " " + "\r\n" + "\r\n";
+            byte[] messageBytes = messageString.getBytes();
+
+            System.out.println("Sending Message to MC");
+            MC.sendMessage(messageBytes);
+        }
+
+        saveFileStorageToDisk();
     }
 
     public void delete(String filepath) {
@@ -162,6 +180,9 @@ public class Peer implements RemoteInterface {
     }
     public static Channel getMC() {
         return MC;
+    }
+    public static Channel getMDR() {
+        return MDR;
     }
 
     public static void saveFileStorageToDisk(){
