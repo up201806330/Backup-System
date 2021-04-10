@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -157,11 +158,20 @@ public class FileStorage {
      * @param chunk
      * @return true if chunk was initiated by this peer, otherwise false
      */
-    private boolean isChunksInitiator(Chunk chunk){
+    public boolean isChunksInitiator(Chunk chunk){
         for (FileParser file : initiatedFiles){
             if (file.getChunks().contains(chunk)) return true;
         }
         return false;
+    }
+
+    /**
+     * Checks if a given file was backed up by this peer
+     * @param file
+     * @return true if file was initiated by this peer, otherwise false
+     */
+    public boolean isFilesInitiator(FileParser file){
+        return initiatedFiles.contains(file);
     }
 
     public void removeFileFromInitiatedFiles(FileParser fileParser) {

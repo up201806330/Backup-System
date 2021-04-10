@@ -81,7 +81,7 @@ public class Channel implements Runnable {
                 Backup.processPacketSTORED(newChunk, splitHeader);
                 break;
             case "DELETE":
-                Delete.processPacketDELETE(splitHeader[3]);
+                Delete.processPacketDELETE(fileID);
                 break;
             default:
                 break;

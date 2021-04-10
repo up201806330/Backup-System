@@ -4,9 +4,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Delete {
 
     public static void processPacketDELETE(String fileIdToDelete) {
-        System.out.println("Processing DELETE Packet");
-
         var fileStorage = FileStorage.instance;
+
+        if (fileStorage.isFilesInitiator(FileParser.fromFileID(fileIdToDelete))){
+            return;
+        }
+
+        System.out.println("Processing DELETE Packet");
 
         for (ConcurrentHashMap.Entry<Chunk, String> entry : fileStorage.getChunkMap().entrySet()) {
             Chunk chunk = entry.getKey();

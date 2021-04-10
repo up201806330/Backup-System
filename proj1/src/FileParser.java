@@ -8,12 +8,14 @@ public class FileParser {
 
     private final int MAX_CHUNK_SIZE = 64000;
 
-    private final File file;
-    private final String filePath;
-    private final String fileID;
-    private final int replicationDegree;
-    private final LinkedHashSet<Chunk> chunks;
+    private File file;
+    private String filePath;
+    private String fileID;
+    private int replicationDegree;
+    private LinkedHashSet<Chunk> chunks;
     boolean hasExtraEmptyChunk;
+
+    public FileParser() { }
 
     public FileParser(String filePath, int replicationDegree) {
         this.file = new File(filePath);
@@ -31,6 +33,12 @@ public class FileParser {
 
         this.replicationDegree = 0;
         this.chunks = null;
+    }
+
+    public static FileParser fromFileID(String fileID){
+        var result = new FileParser();
+        result.fileID = fileID;
+        return result;
     }
 
     private LinkedHashSet<Chunk> parseChunks() {
@@ -125,6 +133,11 @@ public class FileParser {
     }
 
     @Override
+    public int hashCode() {
+        return fileID.hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
@@ -134,6 +147,6 @@ public class FileParser {
             return false;
 
         FileParser other = (FileParser) obj;
-        return filePath.equals(other.filePath);
+        return fileID.equals(other.fileID);
     }
 }
