@@ -25,7 +25,7 @@ public class CheckReplicationDegree implements Runnable {
         System.out.println("Entering Check Rep Degree -> Chunk nr. " + targetChunk.getChunkNumber());
         System.out.println("Try: " + this.numberOfTries);
 
-        int currentReplicationDegree = FileStorage.getPerceivedReplicationDegree(targetChunk);
+        int currentReplicationDegree = FileStorage.instance.getPerceivedReplicationDegree(targetChunk);
 
         if (currentReplicationDegree < targetChunk.getDesiredReplicationDegree()) {
             Peer.getMDB().sendMessage(tryAgainMessage);

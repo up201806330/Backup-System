@@ -2,8 +2,10 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Backup {
+    private static FileStorage fileStorage;
 
     public static void processPacketPUTCHUNK(Chunk chunk, String[] splitHeader) {
+        fileStorage = FileStorage.instance;
         if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
             return ;
         }
@@ -12,7 +14,7 @@ public class Backup {
 
         System.out.println("Processing PUTCHUNK Packet");
 
-        boolean storedSuccessfully = FileStorage.storeChunk(chunk);
+        boolean storedSuccessfully = fileStorage.storeChunk(chunk);
         if (storedSuccessfully){
             byte[] storedMessage = createSTORED(splitHeader);
 
@@ -30,8 +32,8 @@ public class Backup {
 
         System.out.println("Processing STORED Packet");
 
-        FileStorage.incrementReplicationDegree(chunk);
-        FileStorage.updateChunksBackedPeers(chunk, Integer.parseInt(splitHeader[2]));
+        fileStorage.incrementReplicationDegree(chunk);
+        fileStorage.updateChunksBackedPeers(chunk, Integer.parseInt(splitHeader[2]));
     }
 
     private static byte[] createSTORED(String[] splitHeader) {

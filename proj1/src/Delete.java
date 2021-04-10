@@ -2,15 +2,17 @@ import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Delete {
+    private static FileStorage fileStorage;
 
     public static void processPacketDELETE(String fileIdToDelete) {
-        if (FileStorage.isFilesInitiator(FileParser.fromFileID(fileIdToDelete))){
+        fileStorage = FileStorage.instance;
+        if (fileStorage.isFilesInitiator(FileParser.fromFileID(fileIdToDelete))){
             return;
         }
 
         System.out.println("Processing DELETE Packet");
 
-        for (ConcurrentHashMap.Entry<Chunk, String> entry : FileStorage.chunkMap.entrySet()) {
+        for (ConcurrentHashMap.Entry<Chunk, String> entry : fileStorage.chunkMap.entrySet()) {
             Chunk chunk = entry.getKey();
             String value = entry.getValue();
 
@@ -26,7 +28,7 @@ public class Delete {
                 deleteFileViaName(chunk.getChunkID());
 
                 // Delete entry in ConcurrentHashMap
-                FileStorage.removeEntryFromChunkMap(chunk);
+                fileStorage.removeEntryFromChunkMap(chunk);
             }
         }
 
@@ -34,19 +36,19 @@ public class Delete {
     }
 
     private static void deleteFileParser(String fileID) {
-        FileStorage.findInitiatedFile(fileID).ifPresent(FileStorage::removeInitiatedFile);
+        fileStorage.findInitiatedFile(fileID).ifPresent(fileStorage::removeInitiatedFile);
     }
 
     private static void deleteChunkFromSet(Chunk chunk) {
-        for (Chunk c : FileStorage.storedChunkFiles) {
+        for (Chunk c : fileStorage.storedChunkFiles) {
             if (c.equals(chunk)) {
-                FileStorage.removeChunkFromStoredChunkFiles(c);
+                fileStorage.removeChunkFromStoredChunkFiles(c);
             }
         }
     }
 
     private static void deleteFileViaName(String filepath) {
-        String newPath = FileStorage.chunksDir + "/" + filepath;
+        String newPath = fileStorage.chunksDir + "/" + filepath;
         File file = new File(newPath);
 
         String fileName = "Chunk file nr. " + filepath.substring(filepath.length() - 1);

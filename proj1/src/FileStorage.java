@@ -17,32 +17,32 @@ public class FileStorage implements Serializable {
     /**
      * Directory where chunks are stored
      */
-    public static String chunksDir;
+    public String chunksDir;
 
     /**
      * Directory where restored files are stored
      */
-    public static String restoreDir;
+    public String restoreDir;
 
     /**
      * Concurrent set of all files whose backup was initiated by this peer
      */
-    public static final Set<FileParser> initiatedFiles = ConcurrentHashMap.newKeySet();
+    public final Set<FileParser> initiatedFiles = ConcurrentHashMap.newKeySet();
 
     /**
      * Concurrent map that for each chunk of each backed up file, has a concurrent set of peers that have that chunk backed up
      */
-    public static final ConcurrentHashMap<Chunk, ConcurrentHashMap.KeySetView<Object, Boolean>> chunksBackedPeers = new ConcurrentHashMap<Chunk, ConcurrentHashMap.KeySetView<Object, Boolean>>();
+    public final ConcurrentHashMap<Chunk, ConcurrentHashMap.KeySetView<Object, Boolean>> chunksBackedPeers = new ConcurrentHashMap<Chunk, ConcurrentHashMap.KeySetView<Object, Boolean>>();
 
     /**
      * Concurrent set of all chunks stored locally by peer
      */
-    public static final Set<Chunk> storedChunkFiles = ConcurrentHashMap.newKeySet();
+    public final Set<Chunk> storedChunkFiles = ConcurrentHashMap.newKeySet();
 
     /**
      * Concurrent map of backed up chunks and fileId
      */
-    public static final ConcurrentHashMap<Chunk, String> chunkMap = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Chunk, String> chunkMap = new ConcurrentHashMap<>();
 
     /**
      * Singleton constructor
@@ -62,7 +62,7 @@ public class FileStorage implements Serializable {
      * @param chunk New chunk
      * @return True if chunk was stored successfully, false if it already existed / something went wrong
      */
-    public static boolean storeChunk(Chunk chunk) {
+    public boolean storeChunk(Chunk chunk) {
         // File already exists locally, won't store again
         if (!addChunk(chunk)) return false;
 
@@ -84,7 +84,7 @@ public class FileStorage implements Serializable {
      * @param chunk
      * @return true if chunk did not exist in the set, false otherwise
      */
-    public static synchronized boolean addChunk(Chunk chunk) {
+    public synchronized boolean addChunk(Chunk chunk) {
         if (storedChunkFiles.add(chunk)) {
             incrementReplicationDegree(chunk);
             return true;
@@ -97,7 +97,7 @@ public class FileStorage implements Serializable {
      * @param chunk
      * @return perceived replication degree of chunk
      */
-    public static int getPerceivedReplicationDegree(Chunk chunk){
+    public int getPerceivedReplicationDegree(Chunk chunk){
         for (Chunk key : chunkMap.keySet()){
             if (key.equals(chunk)) return key.getPerceivedReplicationDegree();
         }
@@ -108,7 +108,7 @@ public class FileStorage implements Serializable {
      * Either increments a chunks perceived replication degree or adds it to the map
      * @param chunk
      */
-    public static void incrementReplicationDegree(Chunk chunk) {
+    public void incrementReplicationDegree(Chunk chunk) {
         if (chunkMap.putIfAbsent(chunk, chunk.getFileID()) != null){
             for (Chunk key : chunkMap.keySet()){
                 if (key.equals(chunk)) key.incrementPerceivedReplicationDegree();
@@ -121,7 +121,7 @@ public class FileStorage implements Serializable {
      * @param chunk
      * @param newBackingPeer
      */
-    public static void updateChunksBackedPeers(Chunk chunk, int newBackingPeer){
+    public void updateChunksBackedPeers(Chunk chunk, int newBackingPeer){
         if (!isChunksInitiator(chunk)) return;
 
         var newPeerSet = ConcurrentHashMap.newKeySet();
@@ -135,7 +135,7 @@ public class FileStorage implements Serializable {
      * Add file to set of initiator's backed up files
      * @param file
      */
-    public static void initiateBackup(FileParser file) {
+    public void initiateBackup(FileParser file) {
         initiatedFiles.add(file);
     }
 
@@ -144,7 +144,7 @@ public class FileStorage implements Serializable {
      * @param fileID
      * @return If found, the corresponding FileParser object, otherwise Optional.empty
      */
-    public static Optional<FileParser> findInitiatedFile(String fileID){
+    public Optional<FileParser> findInitiatedFile(String fileID){
         for (FileParser f : initiatedFiles) {
             if (f.getFileID().equals(fileID)) {
                 return Optional.of(f);
@@ -158,7 +158,7 @@ public class FileStorage implements Serializable {
      * @param chunk
      * @return true if chunk was initiated by this peer, otherwise false
      */
-    public static boolean isChunksInitiator(Chunk chunk){
+    public boolean isChunksInitiator(Chunk chunk){
         for (FileParser file : initiatedFiles){
             if (file.getChunks().contains(chunk)) return true;
         }
@@ -170,23 +170,27 @@ public class FileStorage implements Serializable {
      * @param file
      * @return true if file was initiated by this peer, otherwise false
      */
-    public static boolean isFilesInitiator(FileParser file){
+    public boolean isFilesInitiator(FileParser file){
         return initiatedFiles.contains(file);
     }
 
-    public static void removeInitiatedFile(FileParser fileParser) {
+    public void removeInitiatedFile(FileParser fileParser) {
         initiatedFiles.remove(fileParser);
     }
 
-    public static void removeChunkFromStoredChunkFiles(Chunk chunk) {
+    public void removeChunkFromStoredChunkFiles(Chunk chunk) {
         storedChunkFiles.remove(chunk);
     }
 
-    public static void removeEntryFromChunkMap(Chunk keyToRemove) {
+    public void removeEntryFromChunkMap(Chunk keyToRemove) {
         chunkMap.remove(keyToRemove);
     }
 
-    public static Set<Chunk> getStoredChunkFiles() {
+    public ConcurrentHashMap<Chunk, String> getChunkMap() {
+        return chunkMap;
+    }
+
+    public Set<Chunk> getStoredChunkFiles() {
         return storedChunkFiles;
     }
 

@@ -10,6 +10,7 @@ public class Peer implements RemoteInterface {
      * Singleton instance of Peer
      */
     public static Peer instance;
+    private static FileStorage fileStorage;
 
     /**
      * Peers working directory
@@ -36,7 +37,7 @@ public class Peer implements RemoteInterface {
         }
 
         new Peer(args);
-        loadFileStorageFromDisk();
+        fileStorage = loadFileStorageFromDisk();
 
         // RMI Connection
         RemoteInterface stub = (RemoteInterface) UnicastRemoteObject.exportObject(instance, 0);
@@ -109,7 +110,7 @@ public class Peer implements RemoteInterface {
             Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
         }
 
-        FileStorage.initiateBackup(fileParser);
+        fileStorage.initiateBackup(fileParser);
         saveFileStorageToDisk();
     }
 
@@ -127,7 +128,7 @@ public class Peer implements RemoteInterface {
         String messageString = this.protocolVersion  + " DELETE " + peerID + " " + fileParser.getFileID() + " " + "\r\n" + "\r\n";
         byte[] messageBytes = messageString.getBytes();
 
-        FileStorage.removeInitiatedFile(fileParser);
+        fileStorage.removeInitiatedFile(fileParser);
 
         System.out.println("Sending Message to MC");
         MC.sendMessage(messageBytes);
@@ -141,7 +142,7 @@ public class Peer implements RemoteInterface {
     }
 
     public String state() {
-        return FileStorage.instance.toString();
+        return fileStorage.toString();
     }
 
     public static ScheduledThreadPoolExecutor getExec() {
@@ -165,7 +166,6 @@ public class Peer implements RemoteInterface {
 
     public static void saveFileStorageToDisk(){
         try{
-            var fileStorage = FileStorage.instance;
             FileOutputStream fs = new FileOutputStream(serviceDirectory + "/" + "State");
             ObjectOutputStream os = new ObjectOutputStream(fs);
             os.writeObject(fileStorage);
@@ -174,18 +174,19 @@ public class Peer implements RemoteInterface {
         }
     }
 
-    private static void loadFileStorageFromDisk() throws IOException {
+    private static FileStorage loadFileStorageFromDisk() throws IOException {
         try{
             FileInputStream fs = new FileInputStream(serviceDirectory + "/" + "State");
             ObjectInputStream os = new ObjectInputStream(fs);
             FileStorage.instance = (FileStorage) os.readObject();
+            return FileStorage.instance;
         } catch (FileNotFoundException e){
             System.out.println("File Storage not found ; Creating new one");
-            new FileStorage();
+            return new FileStorage();
         }
         catch (IOException | ClassNotFoundException e){
             e.printStackTrace();
-            new FileStorage();
+            return new FileStorage();
         }
     }
 }
