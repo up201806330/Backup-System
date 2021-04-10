@@ -2,12 +2,15 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Reclaim {
-
+    private static FileStorage fileStorage;
 
     public static void processPacketREMOVED(String[] splitHeader) {
-        // FileId + ChunkNr
+        fileStorage = FileStorage.instance;
+        if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
+            return ;
+        }
 
-        FileStorage fileStorage = FileStorage.instance;
+        System.out.println("Processing REMOVED Packet");
 
         int peerId = Integer.parseInt(splitHeader[2]);
         String fileId = splitHeader[3];
