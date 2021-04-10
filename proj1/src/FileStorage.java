@@ -227,6 +227,10 @@ public class FileStorage implements Serializable {
         storedChunkFiles.remove(chunk);
     }
 
+    public Set<Chunk> getStoredChunkFiles() {
+        return storedChunkFiles;
+    }
+
     public static void saveToDisk(){
         try{
             FileOutputStream fs = new FileOutputStream(Peer.serviceDirectory + "/" + "State");
