@@ -1,7 +1,5 @@
 import java.io.*;
 import java.rmi.AlreadyBoundException;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -52,7 +50,6 @@ public class Peer implements RemoteInterface {
 
         System.out.println("Peer ready");
     }
-
 
     public Peer(String args[]) throws IOException {
         if (Peer.instance != null) return;

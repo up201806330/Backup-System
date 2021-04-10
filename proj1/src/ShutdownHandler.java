@@ -2,6 +2,9 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
 
+/**
+ * Ran when peer is closed by exit() or SIGTERM
+ */
 public class ShutdownHandler implements Runnable{
     private final Registry registry;
 
