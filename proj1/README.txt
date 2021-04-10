@@ -25,3 +25,4 @@ java TestApp Peer1 BACKUP test.pdf 1
 ./test.sh Peer1 DELETE ../files/testing.txt
 
 
+N ESQUECER DE MUDAR O peer.sh, cleanup.sh e test.sh PARA DENTRO DO BUILD!!!!
