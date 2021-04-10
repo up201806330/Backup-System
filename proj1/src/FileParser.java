@@ -42,7 +42,7 @@ public class FileParser implements Serializable{
 
     private LinkedHashSet<Chunk> parseChunks() {
         byte[] chunkBuffer = new byte[MAX_CHUNK_SIZE];
-        int currentChunkNumber = 0;
+        int currentChunkNumber = -1;
 
         LinkedHashSet<Chunk> allChunks = new LinkedHashSet<>();
 

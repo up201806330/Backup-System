@@ -8,7 +8,6 @@ public class Backup {
     public static void processPacketPUTCHUNK(Chunk chunk, String[] splitHeader) {
         fileStorage = FileStorage.instance;
         if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
-            FileInputStream x;
             return ;
         }
 

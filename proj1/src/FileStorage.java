@@ -161,7 +161,7 @@ public class FileStorage implements Serializable {
     }
 
     /**
-     * Checks if a given chunk was backed up by this peer
+     * Checks if this peer is a given chunk's initiator
      * @param chunk
      * @return true if chunk was initiated by this peer, otherwise false
      */
@@ -173,12 +173,24 @@ public class FileStorage implements Serializable {
     }
 
     /**
-     * Checks if a given file was backed up by this peer
+     * Checks if this peer is a given file's initiator
      * @param file
      * @return true if file was initiated by this peer, otherwise false
      */
     public boolean isFilesInitiator(FileParser file){
         return initiatedFiles.contains(file);
+    }
+
+    /**
+     * Checks if a given chunk is backed up by this peer
+     * @param chunk
+     * @return the stored chunk object if it exists, otherwise Optional.empty
+     */
+    public Optional<Chunk> hasChunkBackedUp(Chunk chunk){
+        for(Chunk c : storedChunkFiles){
+            if (c.equals(chunk)) return Optional.of(c);
+        }
+        return Optional.empty();
     }
 
     public void removeInitiatedFile(FileParser fileParser) {

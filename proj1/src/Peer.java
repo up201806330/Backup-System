@@ -129,9 +129,7 @@ public class Peer implements RemoteInterface {
         long fileSize = fileParser.getFile().length();
         int numberOfChunksToFind = ((int)fileSize / FileParser.MAX_CHUNK_SIZE) + 1;
 
-        System.out.println("Number of chunks to find: " + numberOfChunksToFind);
-
-        for (int i = 1; i < numberOfChunksToFind + 1; i++) {
+        for (int i = 0; i < numberOfChunksToFind; i++) {
             String messageString = this.protocolVersion + " GETCHUNK " + peerID + " " + fileParser.getFileID() + " " + i + " " + "\r\n" + "\r\n";
             byte[] messageBytes = messageString.getBytes();
 

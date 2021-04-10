@@ -38,6 +38,7 @@ RESTORE)
 	if(( argc != 3 ))
 	then
 		echo "Usage: $0 <peer_app> RESTORE <filename>"
+		exit 1
 	fi
 	opernd_1=$3
 	rep_deg=""
