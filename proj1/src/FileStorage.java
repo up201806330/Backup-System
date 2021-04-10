@@ -25,6 +25,11 @@ public class FileStorage implements Serializable {
     public String restoreDir;
 
     /**
+     * Directory where received chunks are temporarily stored to restore files
+     */
+    public String cacheDir;
+
+    /**
      * Concurrent set of all files whose backup was initiated by this peer
      */
     public final Set<FileParser> initiatedFiles = ConcurrentHashMap.newKeySet();
@@ -52,9 +57,11 @@ public class FileStorage implements Serializable {
         if (FileStorage.instance == null) FileStorage.instance = this;
         chunksDir = Peer.getServiceDirectory() + "/chunks";
         restoreDir = Peer.getServiceDirectory() + "/restored";
+        cacheDir = Peer.getServiceDirectory() + "/cache";
 
         Files.createDirectories(Paths.get(chunksDir));
         Files.createDirectories(Paths.get(restoreDir));
+        Files.createDirectories(Paths.get(cacheDir));
     }
 
     /**

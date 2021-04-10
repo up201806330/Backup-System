@@ -120,15 +120,17 @@ public class Peer implements RemoteInterface {
     }
 
     public void restore(String filepath) {
+        File targetFile = new File(Restore.extractFileNameFromPath(filepath));
+        if (targetFile.exists() && !targetFile.isDirectory()){
+            System.out.println("Already restored a file by that name ; Aborting");
+            return;
+        }
+
         System.out.println("RESTORE SERVICE -> FILE PATH = " + filepath);
 
         FileParser fileParser = new FileParser(filepath);
-
         long fileSize = fileParser.getFile().length();
-
-        System.out.println("Filesize: " + fileSize);
-
-        int numberOfChunksToFind = ((int)fileSize / fileParser.MAX_CHUNK_SIZE) + 1;
+        int numberOfChunksToFind = ((int)fileSize / FileParser.MAX_CHUNK_SIZE) + 1;
 
         System.out.println("Number of chunks to find: " + numberOfChunksToFind);
 
@@ -140,6 +142,8 @@ public class Peer implements RemoteInterface {
             MC.sendMessage(messageBytes);
         }
 
+        Restore.t = Peer.getExec().scheduleWithFixedDelay(() -> Restore.constructRestoredFileFromRestoredChunks(numberOfChunksToFind, filepath, fileParser.getFileID()), 100, 100, TimeUnit.MILLISECONDS);
+        System.out.println("Ending Restored. Proceeding to saveFileStorageToDisk");
         saveFileStorageToDisk();
     }
 

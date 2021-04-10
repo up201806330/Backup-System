@@ -1,15 +1,18 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Restore {
 
     public static final Set<Integer> chunksAlreadySent = new HashSet<>();
+    public static ScheduledFuture<?> t;
 
     public static void processPacketGETCHUNK(String[] splitHeader) {
         System.out.println("Processing GETCHUNK Packet");
@@ -54,16 +57,12 @@ public class Restore {
             return;
         }
 
-        String serviceDirectory = "service-" + Peer.getId();
-
         FileOutputStream fos;
 
         try {
-            System.out.println("Entering Try Catch for File");
             System.out.println("Writing Chunk Number: " + splitHeader[4]);
-            System.out.println("Path of new file: " + serviceDirectory + "/restored/" + splitHeader[3]);
             // splitHeader[3] -> FileId as the name of the restored file for now
-            fos = new FileOutputStream(serviceDirectory + "/restored/" + splitHeader[3], true);
+            fos = new FileOutputStream(FileStorage.instance.cacheDir + "/" + splitHeader[3] + "-" + splitHeader[4], true);
             fos.write(newChunk.getContent());
             fos.close();
         } catch (IOException e) {
@@ -71,5 +70,37 @@ public class Restore {
         }
 
         System.out.println("Wrote to restored file chunk number " + splitHeader[4]);
+    }
+
+    public static void constructRestoredFileFromRestoredChunks(int numberOfChunksToFind, String filepath, String fileID) {
+        System.out.println("Running constructRestoredFileFromRestoredChunks");
+        if (chunksAlreadySent.size() != numberOfChunksToFind) return;
+
+        System.out.println("GOT ALL CHUNKS TO RESTORE FILE");
+        t.cancel(false);
+
+        // constructs restored file
+        try {
+            System.out.println("Saving to " + FileStorage.instance.restoreDir + "/" + extractFileNameFromPath(filepath));
+            FileOutputStream fos = new FileOutputStream(FileStorage.instance.restoreDir + "/" + extractFileNameFromPath(filepath), true);
+            byte[] buf = new byte[FileParser.MAX_CHUNK_SIZE];
+            for(int i = 1 ; i <= numberOfChunksToFind ; i++){
+                System.out.println("Getting Chunk From " + Paths.get(fileID + "-" + i));
+                InputStream fis = Files.newInputStream(Paths.get(FileStorage.instance.cacheDir + "/" + fileID + "-" + i), StandardOpenOption.DELETE_ON_CLOSE);
+                int b;
+                while ( (b = fis.read(buf)) >= 0)
+                    fos.write(buf, 0, b);
+                fis.close();
+            }
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Finishing constructRestoredFileFromRestoredChunks");
+    }
+
+    public static String extractFileNameFromPath(String path){
+        return path.substring(path.lastIndexOf('/') + 1, path.length());
     }
 }
