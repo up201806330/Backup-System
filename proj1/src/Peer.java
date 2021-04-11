@@ -132,13 +132,15 @@ public class Peer implements RemoteInterface {
         }
 
         System.out.println("RESTORE SERVICE -> FILE PATH = " + filepath);
+        Restore.isRestoreTarget = true;
+
 
         FileObject fileObject = new FileObject(filepath);
         long fileSize = fileObject.getFile().length();
         int numberOfChunksToFind = ((int)fileSize / FileObject.MAX_CHUNK_SIZE) + 1;
 
         for (int i = 0; i < numberOfChunksToFind; i++) {
-            String messageString = this.protocolVersion + " GETCHUNK " + peerID + " " + fileObject.getFileID() + " " + i + " " + "\r\n" + "\r\n";
+            String messageString = protocolVersion + " GETCHUNK " + peerID + " " + fileObject.getFileID() + " " + i + " " + "\r\n" + "\r\n";
             byte[] messageBytes = messageString.getBytes();
 
             MC.sendMessage(messageBytes);

@@ -9,7 +9,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Restore {
-
+    public static boolean isRestoreTarget;
     public static final Set<Integer> chunksAlreadySent = new HashSet<>();
     public static ScheduledFuture<?> t;
 
@@ -43,8 +43,9 @@ public class Restore {
     }
 
     public static void processPacketCHUNK(Chunk newChunk, String[] splitHeader) {
-        // if chunk number was already sent by someone its already in the set therefore is not to be sent
-        if (!chunksAlreadySent.add(Integer.parseInt(splitHeader[4])) || Peer.getId() == Integer.parseInt(splitHeader[2])) {
+        if (!chunksAlreadySent.add(Integer.parseInt(splitHeader[4])) || // If chunk was already sent by someone else
+                Peer.getId() == Integer.parseInt(splitHeader[2]) ||     // Or this peer sent this message
+                !isRestoreTarget) {                                     // Or this peer isn't the one who requested the RESTORE
             return;
         }
 
