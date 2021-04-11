@@ -12,7 +12,7 @@ public class Backup {
 
         // Utils.printSplitHeader(splitHeader);
 
-        System.out.println("Processing PUTCHUNK Packet");
+        System.out.println("Processing PUTCHUNK Packet ->" + chunk.getChunkNumber());
 
         // check to make sure backup will not exceed that max amount of storage allowed
         if ( (chunk.getContent().length / 1000.0) + fileStorage.getCurrentlyKBytesUsedSpace() > fileStorage.getMaximumSpaceAvailable() ) {
@@ -22,6 +22,7 @@ public class Backup {
 
         boolean storedSuccessfully = fileStorage.storeChunk(chunk);
         if (storedSuccessfully){
+            System.out.println("Sending STORED ->" + chunk.getChunkNumber());
             byte[] storedMessage = createSTORED(splitHeader);
 
             int rand = new Random().nextInt(401);
@@ -35,10 +36,12 @@ public class Backup {
             return ;
         }
 
-        System.out.println("Processing STORED Packet");
+        System.out.print("Processing STORED Packet ->" + chunk.getChunkNumber());
 
         fileStorage.incrementReplicationDegree(chunk);
         fileStorage.updateChunksBackedPeers(chunk, Integer.parseInt(splitHeader[2]));
+
+        System.out.println(" " + fileStorage.getPerceivedReplicationDegree(chunk));
     }
 
     private static byte[] createSTORED(String[] splitHeader) {

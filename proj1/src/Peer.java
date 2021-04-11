@@ -77,7 +77,7 @@ public class Peer implements RemoteInterface {
         return serviceDirectory;
     }
 
-    public synchronized void backup(String filepath, int replicationDegree) throws Exception {
+    public void backup(String filepath, int replicationDegree) throws Exception {
         if (replicationDegree > 9) {
             replicationDegree = 9;
             System.out.println("Replication degree capped to 9");
@@ -90,17 +90,18 @@ public class Peer implements RemoteInterface {
             throw new Exception("File size bigger than 64GB ; Aborting...");
         }
 
+        fileStorage.initiateBackup(fileObject);
+        
         for (Chunk chunk : fileObject.getChunks()) {
             initiatePUTCHUNK(fileObject.getFileID(), chunk);
         }
 
-        fileStorage.initiateBackup(fileObject);
         FileStorage.saveToDisk();
     }
 
     public static void initiatePUTCHUNK(String fileID, Chunk chunk) {
         String dataHeader = protocolVersion + " PUTCHUNK " + peerID + " " + fileID + " " + chunk.getChunkNumber() + " " + chunk.getDesiredReplicationDegree() + " " + "\r\n" + "\r\n";
-        System.out.println(dataHeader);
+        // System.out.println(dataHeader);
 
         byte[] fullMessage = new byte[dataHeader.length() + chunk.getContent().length];
         System.arraycopy(dataHeader.getBytes(), 0, fullMessage,0, dataHeader.getBytes().length);
@@ -109,7 +110,7 @@ public class Peer implements RemoteInterface {
         MDB.sendMessage(fullMessage);
 
         System.out.println("Entering Check Rep Degree -> Chunk nr. " + chunk.getChunkNumber());
-        Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
+        Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 5, TimeUnit.SECONDS);
     }
 
     public void restore(String filepath) {

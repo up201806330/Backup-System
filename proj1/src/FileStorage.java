@@ -78,12 +78,11 @@ public class FileStorage implements Serializable {
             fos = new FileOutputStream( chunksDir + "/" + chunk.getChunkID());
             fos.write(chunk.getContent());
             fos.close();
+            return true;
         } catch (IOException e) {
             System.out.println("Error writing chunk to file locally");
             return false;
         }
-
-        return true;
     }
 
     /**
@@ -91,7 +90,7 @@ public class FileStorage implements Serializable {
      * @param chunk
      * @return true if chunk did not exist in the set, false otherwise
      */
-    public synchronized boolean addChunk(Chunk chunk) {
+    public boolean addChunk(Chunk chunk) {
         boolean result = storedChunkFiles.add(chunk);
         incrementReplicationDegree(chunk);
         return result;
