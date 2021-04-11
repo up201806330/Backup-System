@@ -355,8 +355,13 @@ public class FileStorage implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("BACKED UP FILES: ");
+        StringBuilder result = new StringBuilder();
 
+        result.append("Capacity: ").
+                append(getCurrentlyKBytesUsedSpace()).append("KB / ").
+                append(maximumSpaceAvailable).append("KB\n");
+
+        result.append("BACKED UP FILES: ");
         if (initiatedFiles.size() > 0){
             for (FileObject file : initiatedFiles){
                 result.append("\n").append(file.toString());
@@ -365,7 +370,6 @@ public class FileStorage implements Serializable {
         else result.append("None\n");
 
         result.append("STORED CHUNKS: ");
-
         if (storedChunks.size() > 0){
             for (Chunk chunk : storedChunks){
                 result.append("\n").append(chunk.toString());
