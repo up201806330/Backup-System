@@ -3,8 +3,10 @@ import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Peer implements RemoteInterface {
     /**
@@ -18,7 +20,7 @@ public class Peer implements RemoteInterface {
      */
     public static String serviceDirectory;
 
-    private static String protocolVersion;
+    public static String protocolVersion;
     private static int peerID;
     public static String accessPoint;
 
@@ -99,11 +101,23 @@ public class Peer implements RemoteInterface {
             futures.add(initiatePUTCHUNK(fileObject.getFileID(), chunk));
         }
 
-        boolean failed = false;
-        for (ScheduledFuture<?> future : futures) {
-            if (!((boolean) future.get())) failed = true;
-        }
-        if (!failed){
+        AtomicBoolean failed = new AtomicBoolean(false);
+        final Set<ScheduledFuture<?>> processedFutures = new HashSet<>();
+        Set<ScheduledFuture<?>> futuresToProcess;
+        do{
+            futuresToProcess = new HashSet<>(futures);
+            futuresToProcess.removeAll(processedFutures);
+            futuresToProcess.forEach(future -> {
+                processedFutures.add(future);
+                try {
+                    if (!((boolean) future.get())) failed.set(true);
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            });
+        }while(!futuresToProcess.isEmpty());
+
+        if (!failed.get()){
             System.out.println("Successfully backed up!");
             FileStorage.saveToDisk();
         }

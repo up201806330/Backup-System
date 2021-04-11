@@ -1,3 +1,11 @@
+# Backup enhancement
+> *This scheme can deplete the backup space rather rapidly, and cause too much activity on the nodes once that space is full. Can you think of an alternative scheme that ensures the desired replication degree, avoids these problems, and, nevertheless, can interoperate with peers that execute the chunk backup protocol described above?*
+
+The easiest way to avoid chunks being replicated way more times than their desired replication degree
+is by using the approach described in the restore protocol to avoid flooding the host with chunk messages:
+upon receiving a PUTCHUNK message, the peer would wait *a random time uniformly distributed between 0 and 400 ms* 
+and only sending a STORED reply if by that time the perceived replication degree is still lower than the desired one
+
 # Delete enhancement
 > *If a peer that backs up some chunks of the file is not running at the time the initiator peer sends a DELETE message for that file, the space used by these chunks will never be reclaimed. Can you think of a change to the protocol, possibly including additional messages, that would allow to reclaim storage space even in that event?*
 

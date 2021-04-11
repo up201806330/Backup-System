@@ -32,6 +32,14 @@ public class Chunk implements Serializable {
         this.content = null;
     }
 
+    public Chunk(Chunk c){
+        this.fileID = c.getFileID();
+        this.chunkNumber = c.getChunkNumber();
+        this.desiredReplicationDegree = c.getDesiredReplicationDegree();
+        this.perceivedReplicationDegree = c.getPerceivedReplicationDegree();
+        this.content = c.getContent();
+    }
+
     public String getFileID() {
         return fileID;
     }
@@ -58,6 +66,10 @@ public class Chunk implements Serializable {
 
     public void setContent(byte[] content) {
         this.content = content;
+    }
+
+    public void setPerceivedReplicationDegree(int perceivedReplicationDegree){
+        this.perceivedReplicationDegree = perceivedReplicationDegree;
     }
 
     public void incrementPerceivedReplicationDegree(){

@@ -11,7 +11,7 @@ public class Delete {
 
         System.out.println("Processing DELETE Packet");
 
-        for (Chunk chunk : fileStorage.storedChunkFiles) {
+        for (Chunk chunk : fileStorage.storedChunks) {
             String fileID = chunk.getFileID();
 
             if (fileID.equals(fileIdToDelete)) {

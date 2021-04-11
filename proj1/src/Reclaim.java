@@ -23,9 +23,9 @@ public class Reclaim {
         // pick what chunks to delete so as to obey the new max used space
         // check if without the deleted chunk it meets the space requirements
         while (!checkIfNewMaxSpaceIsEnough(maxUsedSpaceKB)) {
-            int random = new Random().nextInt(fileStorage.getStoredChunkFiles().size());
+            int random = new Random().nextInt(fileStorage.getStoredChunks().size());
             int i = 0;
-            for (Chunk c : fileStorage.getStoredChunkFiles()) {
+            for (Chunk c : fileStorage.getStoredChunks()) {
                 if (i == random) {
                     chunksDeleted.add(c); // adding chunk object to deleted set
                     System.out.println("ID to be deleted: " + c.getChunkID());

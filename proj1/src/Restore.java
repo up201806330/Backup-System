@@ -27,7 +27,7 @@ public class Restore {
             byte[] chunkMessage = createCHUNK(splitHeader, c);
 
             int rand = new Random().nextInt(401);
-            Peer.getExec().schedule(new SendCHUNKMessage(chunkMessage, Integer.parseInt(splitHeader[4])), rand, TimeUnit.MILLISECONDS);
+            Peer.getExec().schedule(() -> sendCHUNKMessage(chunkMessage, Integer.parseInt(splitHeader[4])), rand, TimeUnit.MILLISECONDS);
             return c;
         });
     }
@@ -40,6 +40,11 @@ public class Restore {
         System.arraycopy(c.getContent(), 0, fullMessage, messageString.getBytes().length, c.getContent().length);
 
         return fullMessage;
+    }
+
+    private static void sendCHUNKMessage(byte[] chunkMessage, int chunkNumber){
+        if (Restore.chunksAlreadySent.contains(chunkNumber)) return;
+        Peer.getMDR().sendMessage(chunkMessage);
     }
 
     public static void processPacketCHUNK(Chunk newChunk, String[] splitHeader) {

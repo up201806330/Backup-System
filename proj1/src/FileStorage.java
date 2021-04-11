@@ -44,7 +44,12 @@ public class FileStorage implements Serializable {
     /**
      * Concurrent set of all chunks stored locally by peer
      */
-    public final Set<Chunk> storedChunkFiles = ConcurrentHashMap.newKeySet();
+    public final Set<Chunk> storedChunks = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Concurrent set of all chunks stored by the system, useful for the backup enhancement
+     */
+    public final Set<Chunk> allChunks = ConcurrentHashMap.newKeySet();
 
     /**
      * Singleton constructor
@@ -70,8 +75,7 @@ public class FileStorage implements Serializable {
      * @return True if chunk was stored successfully, false if it already existed / something went wrong
      */
     public boolean storeChunk(Chunk chunk) {
-        // File already exists locally, won't store again
-        if (!addChunk(chunk)) return false;
+        var result = addStoredChunk(chunk);
         incrementReplicationDegree(chunk);
 
         FileOutputStream fos;
@@ -79,20 +83,11 @@ public class FileStorage implements Serializable {
             fos = new FileOutputStream( chunksDir + "/" + chunk.getChunkID());
             fos.write(chunk.getContent());
             fos.close();
-            return true;
+            return result;
         } catch (IOException e) {
             System.out.println("Error writing chunk to file locally");
             return false;
         }
-    }
-
-    /**
-     * Adds, if absent, new chunk to set of locally stored chunks
-     * @param chunk
-     * @return true if chunk did not exist in the set, false otherwise
-     */
-    public boolean addChunk(Chunk chunk) {
-        return storedChunkFiles.add(chunk);
     }
 
     /**
@@ -109,8 +104,15 @@ public class FileStorage implements Serializable {
             return repDegreeIfItsInitiatedChunk.get().get();
         }
 
-        for (Chunk key : storedChunkFiles){
-            if (key.equals(chunk)) return key.getPerceivedReplicationDegree();
+        if (storedChunks.contains(chunk)){
+            for (Chunk x : storedChunks){
+                if (x.equals(chunk)) return x.getPerceivedReplicationDegree();
+            }
+        }
+        if (allChunks.contains(chunk)){
+            for (Chunk y : allChunks){
+                if (y.equals(chunk)) return y.getPerceivedReplicationDegree();
+            }
         }
         return -1;
     }
@@ -124,10 +126,12 @@ public class FileStorage implements Serializable {
         if (findInitiatedFile(chunk.getFileID()).map(fileParser -> fileParser.incrementReplicationDegree(chunk)).isPresent())
             return;
 
-        if (!storedChunkFiles.add(chunk)){
-            for (Chunk key : storedChunkFiles){
-                if (key.equals(chunk)) key.incrementPerceivedReplicationDegree();
-            }
+        allChunks.add(new Chunk(chunk));
+        for (Chunk x : allChunks){
+            if (x.equals(chunk)) x.incrementPerceivedReplicationDegree();
+        }
+        for (Chunk y : storedChunks){
+            if (y.equals(chunk)) y.incrementPerceivedReplicationDegree();
         }
     }
 
@@ -140,9 +144,14 @@ public class FileStorage implements Serializable {
         if (findInitiatedFile(chunk.getFileID()).map(fileParser -> fileParser.decrementReplicationDegree(chunk)).isPresent())
             return;
 
-        if (storedChunkFiles.contains(chunk)){
-            for (Chunk key : storedChunkFiles){
-                if (key.equals(chunk)) key.decrementPerceivedReplicationDegree();
+        if (allChunks.contains(chunk)){
+            for (Chunk x : allChunks){
+                if (x.equals(chunk)) x.decrementPerceivedReplicationDegree();
+            }
+        }
+        if (storedChunks.contains(chunk)){
+            for (Chunk y : storedChunks){
+                if (y.equals(chunk)) y.decrementPerceivedReplicationDegree();
             }
         }
     }
@@ -199,6 +208,24 @@ public class FileStorage implements Serializable {
     }
 
     /**
+     * Adds stored chunk to peers knowledge, taking into account the chunks perceived replication degree if its already in the system
+     * @param chunk
+     * @return True if chunk was stored successfully, false if it already existed
+     */
+    private boolean addStoredChunk(Chunk chunk){
+        var result = true;
+        if(allChunks.contains(chunk)){
+            for (Chunk c : allChunks) {
+                if (c.equals(chunk)) {
+                    chunk.setPerceivedReplicationDegree(c.getPerceivedReplicationDegree());
+                }
+            }
+        }
+        result = storedChunks.add(chunk);
+        return result;
+    }
+
+    /**
      * If the file corresponding to the given ID was backed up by this peer, return the FileParser object
      * @param fileID
      * @return If found, the corresponding FileParser object, otherwise Optional.empty
@@ -222,7 +249,7 @@ public class FileStorage implements Serializable {
         if (chunkIfItsInitiatedChunk.isPresent())
             return chunkIfItsInitiatedChunk.get();
 
-        for (Chunk c : storedChunkFiles){
+        for (Chunk c : storedChunks){
             if (c.equals(chunk)) return Optional.of(c);
         }
         return Optional.empty();
@@ -255,10 +282,25 @@ public class FileStorage implements Serializable {
      * @return the stored chunk object if it exists, otherwise Optional.empty
      */
     public Optional<Chunk> hasChunkBackedUp(Chunk chunk){
-        for(Chunk c : storedChunkFiles){
+        for(Chunk c : storedChunks){
             if (c.equals(chunk)) return Optional.of(c);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Space used up by the service on this peer
+     * @return
+     */
+    public long getCurrentlyKBytesUsedSpace() {
+        long currentSpace = 0; // in KBytes
+
+        for (Chunk c : storedChunks) {
+            // chunk content length is in bytes.  B/1000 = KB
+            currentSpace += (c.getContent().length) / 1000.0;
+        }
+
+        return currentSpace;
     }
 
     public void setMaximumSpaceAvailable(long maximumSpaceAvailable) {
@@ -269,27 +311,20 @@ public class FileStorage implements Serializable {
         return maximumSpaceAvailable;
     }
 
-    public long getCurrentlyKBytesUsedSpace() {
-        long currentSpace = 0; // in KBytes
-
-        for (Chunk c : storedChunkFiles) {
-            // chunk content length is in bytes.  B/1000 = KB
-            currentSpace += (c.getContent().length) / 1000.0;
-        }
-
-        return currentSpace;
-    }
-
     public void removeInitiatedFile(FileObject fileObject) {
         initiatedFiles.remove(fileObject);
     }
 
-    public void removeChunkFromStoredChunkFiles(Chunk chunk) {
-        storedChunkFiles.remove(chunk);
+    public void removeChunkFromAllChunkFiles(Chunk chunk) {
+        allChunks.remove(chunk);
     }
 
-    public Set<Chunk> getStoredChunkFiles() {
-        return storedChunkFiles;
+    public void removeChunkFromStoredChunkFiles(Chunk chunk) {
+        storedChunks.remove(chunk);
+    }
+
+    public Set<Chunk> getStoredChunks() {
+        return storedChunks;
     }
 
     public static void saveToDisk(){
@@ -331,8 +366,8 @@ public class FileStorage implements Serializable {
 
         result.append("STORED CHUNKS: ");
 
-        if (storedChunkFiles.size() > 0){
-            for (Chunk chunk : storedChunkFiles){
+        if (storedChunks.size() > 0){
+            for (Chunk chunk : storedChunks){
                 result.append("\n").append(chunk.toString());
             }
         }
