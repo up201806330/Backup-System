@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 public class Channel implements Runnable {
     enum ChannelType { MC, MDB, MDR };
@@ -36,7 +37,6 @@ public class Channel implements Runnable {
         while (true) {
             try {
                 this.socket.receive(receivedPacket);
-                System.out.println("Packet Received");
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -58,7 +58,6 @@ public class Channel implements Runnable {
         byte[] header = Arrays.copyOfRange(data, 0, i);
         String[] splitHeader = new String(header).trim().split(" ");
 
-        System.out.println("SplitHeader length: " + splitHeader.length);
         String command = splitHeader[1];
         String fileID = splitHeader[3];
         int chunkNr = splitHeader.length >= 5 ? Integer.parseInt(splitHeader[4]) : 0;
@@ -69,7 +68,7 @@ public class Channel implements Runnable {
             case "PUTCHUNK":
                 byte[] body = Arrays.copyOfRange(data, i + 4, data.length);
                 newChunk.setContent(body);
-                Backup.processPacketPUTCHUNK(newChunk, splitHeader);
+                Peer.getExec().execute(() -> Backup.processPacketPUTCHUNK(newChunk, splitHeader));
                 break;
             case "STORED":
                 Backup.processPacketSTORED(newChunk, splitHeader);
@@ -99,17 +98,5 @@ public class Channel implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public InetAddress getInetAddress() {
-        return inetAddress;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public ChannelType getType() {
-        return type;
     }
 }
