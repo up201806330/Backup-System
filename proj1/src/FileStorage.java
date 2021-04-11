@@ -12,6 +12,11 @@ public class FileStorage implements Serializable {
     public static FileStorage instance;
 
     /**
+     * Maximum disk space in KBytes that can be used for storing chunks
+     */
+    public long maximumSpaceAvailable;
+
+    /**
      * Directory where chunks are stored
      */
     public String chunksDir;
@@ -47,6 +52,9 @@ public class FileStorage implements Serializable {
      */
     public FileStorage() throws IOException {
         if (FileStorage.instance == null) FileStorage.instance = this;
+
+        maximumSpaceAvailable = 1000000; // = 1000MB = 1GB
+
         chunksDir = Peer.getServiceDirectory() + "/chunks";
         restoreDir = Peer.getServiceDirectory() + "/restored";
         cacheDir = Peer.getServiceDirectory() + "/cache";
@@ -225,6 +233,25 @@ public class FileStorage implements Serializable {
             if (c.equals(chunk)) return Optional.of(c);
         }
         return Optional.empty();
+    }
+
+    public void setMaximumSpaceAvailable(long maximumSpaceAvailable) {
+        this.maximumSpaceAvailable = maximumSpaceAvailable;
+    }
+
+    public long getMaximumSpaceAvailable() {
+        return maximumSpaceAvailable;
+    }
+
+    public long getCurrentlyKBytesUsedSpace() {
+        long currentSpace = 0; // in KBytes
+
+        for (Chunk c : storedChunkFiles) {
+            // chunk content length is in bytes.  B/1000 = KB
+            currentSpace += (c.getContent().length) / 1000.0;
+        }
+
+        return currentSpace;
     }
 
     public void removeBackedPeer(Chunk chunk, int peerId) {
