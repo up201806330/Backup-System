@@ -23,26 +23,31 @@ public class Reclaim {
     public static void deleteBackups(long maxUsedSpace, String generalREMOVEDMessage) {
         long maxUsedSpaceBytes = maxUsedSpace * 1000;
 
+        Set<Chunk> chunksDeleted = new HashSet<>();
+
         // pick what chunks to delete so as to obey the new max used space
-//        while () {
-//
-//        }
-
-        // delete those chunks
-
-        // update do rep degree
-
+        // check if without the deleted chunk it meets the space requirements
+        while (!checkIfNewMaxSpaceIsEnough(maxUsedSpaceBytes)) {
+            int random = new Random().nextInt(fileStorage.getStoredChunkFiles().size());
+            int i = 0;
+            for (Chunk c : fileStorage.getStoredChunkFiles()) {
+                if (i == random) {
+                    chunksDeleted.add(c); // adding chunk object to deleted set
+                    fileStorage.removeChunkFromStoredChunkFiles(c); // removing from fileStorage
+                }
+                i++;
+            }
+        }
 
         // for each chunk send message
-        Set<Integer> listOfChunkNumbersDeleted = new HashSet<>();
-        listOfChunkNumbersDeleted.add(1); // temporary. just not to give warning in for loop
+        for (Chunk c : chunksDeleted) {
 
-        for (int i = 0; i < listOfChunkNumbersDeleted.size(); i++) {
+            fileStorage.removeBackedPeer(c, Peer.getId());
 
-//            String messageString = generalREMOVEDMessage + fileObject.getFileID() + " " + chunkNr + " " + "\r\n" + "\r\n";
-//            byte[] messageBytes = messageString.getBytes();
-//
-//            Peer.getMC().sendMessage(messageBytes);
+            String messageString = generalREMOVEDMessage + c.getFileID() + " " + c.getChunkNumber() + " " + "\r\n" + "\r\n";
+            byte[] messageBytes = messageString.getBytes();
+
+            Peer.getMC().sendMessage(messageBytes);
         }
     }
 
