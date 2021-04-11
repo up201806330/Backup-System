@@ -3,6 +3,8 @@ import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.Set;
 import java.util.concurrent.*;
 
 public class Peer implements RemoteInterface {
@@ -26,6 +28,7 @@ public class Peer implements RemoteInterface {
     private static Channel MDR;
 
     private static ScheduledThreadPoolExecutor exec;
+    public static Set<ScheduledFuture<?>> futures = ConcurrentHashMap.newKeySet();
 //    private ScheduledExecutorService executor;
 
     public static void main(String[] args) throws IOException, AlreadyBoundException {
@@ -91,15 +94,24 @@ public class Peer implements RemoteInterface {
         }
 
         fileStorage.initiateBackup(fileObject);
-        
+
+        futures.clear();
         for (Chunk chunk : fileObject.getChunks()) {
-            initiatePUTCHUNK(fileObject.getFileID(), chunk);
+            futures.add(initiatePUTCHUNK(fileObject.getFileID(), chunk));
         }
 
-        FileStorage.saveToDisk();
+        boolean failed = false;
+        for (ScheduledFuture<?> future : futures) {
+            if (!((boolean) future.get())) failed = true;
+        }
+        if (!failed){
+            System.out.println("Successfully backed up!");
+            FileStorage.saveToDisk();
+        }
+        else System.out.println("Back up failed");
     }
 
-    public static void initiatePUTCHUNK(String fileID, Chunk chunk) {
+    public static ScheduledFuture<?> initiatePUTCHUNK(String fileID, Chunk chunk) {
         String dataHeader = protocolVersion + " PUTCHUNK " + peerID + " " + fileID + " " + chunk.getChunkNumber() + " " + chunk.getDesiredReplicationDegree() + " " + "\r\n" + "\r\n";
         // System.out.println(dataHeader);
 
@@ -110,7 +122,7 @@ public class Peer implements RemoteInterface {
         MDB.sendMessage(fullMessage);
 
         System.out.println("Entering Check Rep Degree -> Chunk nr. " + chunk.getChunkNumber());
-        Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 5, TimeUnit.SECONDS);
+        return Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
     }
 
     public void restore(String filepath) {

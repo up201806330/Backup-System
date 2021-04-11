@@ -36,12 +36,10 @@ public class Backup {
             return ;
         }
 
-        System.out.print("Processing STORED Packet ->" + chunk.getChunkNumber());
+        System.out.println("Processing STORED Packet");
 
         fileStorage.incrementReplicationDegree(chunk);
         fileStorage.updateChunksBackedPeers(chunk, Integer.parseInt(splitHeader[2]));
-
-        System.out.println(" " + fileStorage.getPerceivedReplicationDegree(chunk));
     }
 
     private static byte[] createSTORED(String[] splitHeader) {

@@ -1,10 +1,11 @@
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Ensures desired replication degree is achieved for a chunk,
  * with up to 5 tries
  */
-public class CheckReplicationDegree implements Runnable {
+public class CheckReplicationDegree implements Callable {
 
     private final byte[] tryAgainMessage;
     private final Chunk targetChunk;
@@ -21,8 +22,8 @@ public class CheckReplicationDegree implements Runnable {
     }
 
     @Override
-    public void run() {
-        System.out.println(targetChunk.getChunkNumber() +  " Try: " + this.numberOfTries);
+    public Object call() throws Exception {
+        System.out.println("Chunk nr. " + targetChunk.getChunkNumber() +  " Try: " + this.numberOfTries);
 
         int currentReplicationDegree = FileStorage.instance.getPerceivedReplicationDegree(targetChunk);
 
@@ -30,9 +31,14 @@ public class CheckReplicationDegree implements Runnable {
             Peer.getMDB().sendMessage(tryAgainMessage);
 
             this.delay *= 2;
-            if (++this.numberOfTries < 5) Peer.getExec().schedule(this, this.delay, TimeUnit.SECONDS);
+            if (++this.numberOfTries < 5) {
+                Peer.futures.add(Peer.getExec().schedule(this, this.delay, TimeUnit.SECONDS));
+                return true;
+            }
             else System.out.println("Chunk nr. " + targetChunk.getChunkNumber() + " timed out");
+            return false;
         }
         else System.out.println("Chunk nr. " + targetChunk.getChunkNumber() + " Passed!");
+        return true;
     }
 }
