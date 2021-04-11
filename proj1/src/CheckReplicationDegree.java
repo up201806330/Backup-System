@@ -22,7 +22,7 @@ public class CheckReplicationDegree implements Callable {
     }
 
     @Override
-    public Object call() throws Exception {
+    public Object call() {
         System.out.println("Chunk nr. " + targetChunk.getChunkNumber() +  " Try: " + this.numberOfTries);
 
         int currentReplicationDegree = FileStorage.instance.getPerceivedReplicationDegree(targetChunk);

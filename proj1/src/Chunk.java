@@ -61,7 +61,7 @@ public class Chunk implements Serializable {
     }
 
     public String getChunkID(){
-        return fileID + "-" + chunkNumber; // fileId (hash)
+        return fileID + "-" + chunkNumber;
     }
 
     public void setContent(byte[] content) {
@@ -95,7 +95,7 @@ public class Chunk implements Serializable {
     }
 
     /**
-     * Shows backed up chunk info
+     * Shows info seen from initiator
      */
     public String toSimpleString(){
         return "--------\n" +

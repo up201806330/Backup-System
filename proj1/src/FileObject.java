@@ -12,8 +12,8 @@ public class FileObject implements Serializable{
     private String filePath;
     private String fileID;
     private int replicationDegree;
-    private LinkedHashSet<Chunk> chunks;
     boolean hasExtraEmptyChunk;
+    private LinkedHashSet<Chunk> chunks;
 
     public FileObject() { }
 
@@ -22,16 +22,16 @@ public class FileObject implements Serializable{
         this.filePath = filePath;
         this.fileID = getFileIdHashed();
         this.replicationDegree = replicationDegree;
-        this.chunks = parseChunks();
         this.hasExtraEmptyChunk = checkForEmptyEndingChunk();
+        this.chunks = parseChunks();
     }
 
     public FileObject(String filepath) {
-        this.filePath = filepath;
         this.file = new File(filepath);
+        this.filePath = filepath;
         this.fileID = getFileIdHashed();
-
         this.replicationDegree = 0;
+        this.hasExtraEmptyChunk = checkForEmptyEndingChunk();
         this.chunks = null;
     }
 
@@ -58,9 +58,9 @@ public class FileObject implements Serializable{
                 chunkBuffer = new byte[MAX_CHUNK_SIZE];
             }
 
-            if (this.hasExtraEmptyChunk) {
-                Chunk chunk = new Chunk(fileID, ++currentChunkNumber, replicationDegree);
-                this.chunks.add(chunk);
+            if (hasExtraEmptyChunk) {
+                Chunk emptyChunk = new Chunk(fileID, ++currentChunkNumber, replicationDegree);
+                allChunks.add(emptyChunk);
             }
 
         } catch (IOException e) {
@@ -109,6 +109,7 @@ public class FileObject implements Serializable{
     }
 
     private boolean checkForEmptyEndingChunk() {
+        System.out.println(this.file.length());
         return ((this.file.length() % MAX_CHUNK_SIZE) == 0);
     }
 

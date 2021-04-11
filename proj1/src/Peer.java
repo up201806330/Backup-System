@@ -98,6 +98,7 @@ public class Peer implements RemoteInterface {
 
         futures.clear();
         for (Chunk chunk : fileObject.getChunks()) {
+            System.out.println("CHunk nr" + chunk.getChunkNumber());
             futures.add(initiatePUTCHUNK(fileObject.getFileID(), chunk));
         }
 
@@ -128,9 +129,11 @@ public class Peer implements RemoteInterface {
         String dataHeader = protocolVersion + " PUTCHUNK " + peerID + " " + fileID + " " + chunk.getChunkNumber() + " " + chunk.getDesiredReplicationDegree() + " " + "\r\n" + "\r\n";
         // System.out.println(dataHeader);
 
-        byte[] fullMessage = new byte[dataHeader.length() + chunk.getContent().length];
+        byte[] content = chunk.getContent();
+        byte[] fullMessage = new byte[dataHeader.length() + (content != null ? content.length : 0)];
         System.arraycopy(dataHeader.getBytes(), 0, fullMessage,0, dataHeader.getBytes().length);
-        System.arraycopy(chunk.getContent(), 0, fullMessage, dataHeader.getBytes().length, chunk.getContent().length);
+        if (content != null)
+            System.arraycopy(chunk.getContent(), 0, fullMessage, dataHeader.getBytes().length, chunk.getContent().length);
 
         MDB.sendMessage(fullMessage);
 
