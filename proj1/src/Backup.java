@@ -6,7 +6,7 @@ public class Backup {
 
     public static void processPacketPUTCHUNK(Chunk chunk, String[] splitHeader) {
         fileStorage = FileStorage.instance;
-        if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
+        if ( Peer.getId() == Integer.parseInt(splitHeader[2]) || fileStorage.isChunksInitiator(chunk)) {
             return ;
         }
 
@@ -29,6 +29,7 @@ public class Backup {
             Peer.getExec().schedule(() -> Peer.getMC().sendMessage(storedMessage), rand, TimeUnit.MILLISECONDS);
             FileStorage.saveToDisk();
         }
+        System.out.println("Already have this chunk backed up");
     }
 
     public static void processPacketSTORED(Chunk chunk, String[] splitHeader) {

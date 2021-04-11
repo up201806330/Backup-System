@@ -34,7 +34,14 @@ public class Delete {
         fileStorage.findInitiatedFile(fileID).ifPresent(fileStorage::removeInitiatedFile);
     }
 
-    private static void deleteFileViaName(String filepath) {
+    public static void deleteFileViaName(String filepath) {
+        fileStorage = FileStorage.instance;
+        if (fileStorage==null) {
+            System.out.println("filestorage instance is null");
+        }
+        else if (fileStorage.chunksDir==null){
+            System.out.println("chunksDir value is null :(");
+        }
         String newPath = fileStorage.chunksDir + "/" + filepath;
         File file = new File(newPath);
 

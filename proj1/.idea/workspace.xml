@@ -3,11 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" id="0171c53b-cf0b-4e65-b013-90f0f69d94ce" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Backup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Backup.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Delete.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Delete.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/FileStorage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileStorage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Peer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Peer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Reclaim.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Reclaim.java" afterDir="false" />
     </list>
-    <list id="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" name="Changes by Rafael" comment="" />
+    <list id="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" name="Changes by Rafael" comment="">
+      <change beforePath="$PROJECT_DIR$/src/Backup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Backup.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/FileStorage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FileStorage.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -31,6 +35,17 @@
       <filtered-out-file-type name="TAG" />
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
+  </component>
+  <component name="LineStatusTrackerManager">
+    <file path="$PROJECT_DIR$/src/FileStorage.java">
+      <ranges>
+        <range start1="74" end1="74" start2="74" end2="75" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="93" end1="96" start2="94" end2="95" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="149" end1="149" start2="148" end2="158" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="164" end1="164" start2="173" end2="191" changelist="23e8dc18-fab7-44fa-933c-f6ac8d40ab4a" />
+        <range start1="254" end1="262" start2="281" end2="281" changelist="0171c53b-cf0b-4e65-b013-90f0f69d94ce" />
+      </ranges>
+    </file>
   </component>
   <component name="ProjectId" id="1qDVSYOwE87rrYhtESPthfz3Tdk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -65,21 +80,6 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager">
-    <configuration default="true" type="ArquillianTestNG" factoryName="" nameIsGenerated="true">
-      <option name="arquillianRunConfiguration">
-        <value>
-          <option name="containerStateName" value="" />
-        </value>
-      </option>
-      <option name="TEST_OBJECT" value="CLASS" />
-      <properties />
-      <listeners />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -99,7 +99,8 @@
       <workItem from="1617892813438" duration="13956000" />
       <workItem from="1617917368738" duration="4962000" />
       <workItem from="1617959393021" duration="33296000" />
-      <workItem from="1618059549450" duration="28021000" />
+      <workItem from="1618059549450" duration="28775000" />
+      <workItem from="1618135680476" duration="10299000" />
     </task>
     <servers />
   </component>

@@ -8,14 +8,16 @@ public class Reclaim {
     private static FileStorage fileStorage;
 
     public static boolean checkIfNewMaxSpaceIsEnough(long newMaxUsedSpaceKB) {
+        fileStorage = FileStorage.instance;
+        if (fileStorage == null) System.out.println("--- FILE STORAGE IS NULL ?? ---");
         // updates maximum storage capacity (KBytes)
         fileStorage.setMaximumSpaceAvailable(newMaxUsedSpaceKB);
-
+        System.out.println("CurrentlyKBytes Used: " + fileStorage.getCurrentlyKBytesUsedSpace());
         return fileStorage.getCurrentlyKBytesUsedSpace() <= fileStorage.getMaximumSpaceAvailable();
     }
 
     public static void deleteBackups(long maxUsedSpaceKB, String generalREMOVEDMessage) {
-
+        System.out.println("Need to delete files!");
         Set<Chunk> chunksDeleted = new HashSet<>();
 
         // pick what chunks to delete so as to obey the new max used space
@@ -26,7 +28,10 @@ public class Reclaim {
             for (Chunk c : fileStorage.getStoredChunkFiles()) {
                 if (i == random) {
                     chunksDeleted.add(c); // adding chunk object to deleted set
+                    System.out.println("ID to be deleted: " + c.getChunkID());
+                    if (fileStorage == null) System.out.println("--- FILE STORAGE IS NULL ??? ---");
                     fileStorage.removeChunkFromStoredChunkFiles(c); // removing from fileStorage
+                    Delete.deleteFileViaName(c.getChunkID());
                 }
                 i++;
             }
@@ -35,11 +40,10 @@ public class Reclaim {
         // for each chunk send message
         for (Chunk c : chunksDeleted) {
 
-            fileStorage.removeBackedPeer(c, Peer.getId());
-
             String messageString = generalREMOVEDMessage + c.getFileID() + " " + c.getChunkNumber() + " " + "\r\n" + "\r\n";
             byte[] messageBytes = messageString.getBytes();
 
+            System.out.println("Sending Message warning removal of chunk " + c.getChunkID());
             Peer.getMC().sendMessage(messageBytes);
         }
     }

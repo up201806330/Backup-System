@@ -72,6 +72,7 @@ public class FileStorage implements Serializable {
     public boolean storeChunk(Chunk chunk) {
         // File already exists locally, won't store again
         if (!addChunk(chunk)) return false;
+        incrementReplicationDegree(chunk);
 
         FileOutputStream fos;
         try {
@@ -91,9 +92,7 @@ public class FileStorage implements Serializable {
      * @return true if chunk did not exist in the set, false otherwise
      */
     public boolean addChunk(Chunk chunk) {
-        boolean result = storedChunkFiles.add(chunk);
-        incrementReplicationDegree(chunk);
-        return result;
+        return storedChunkFiles.add(chunk);
     }
 
     /**
@@ -149,6 +148,16 @@ public class FileStorage implements Serializable {
     }
 
     /**
+     * If this peer initiated chunk, returns its set of backed up peers, else returns Optional.empty
+     * @param chunk
+     * @return
+     */
+    public Optional<ConcurrentHashMap.KeySetView<Object, Boolean>> getBackedPeers(Chunk chunk){
+        var result = chunksBackedPeers.get(chunk);
+        return result != null ? Optional.of(result) : Optional.empty();
+    }
+
+    /**
      * Called when a STORED message is received, updates the initiators knowledge of what peers are backing up its chunk
      * @param chunk
      * @param newBackingPeer
@@ -161,6 +170,24 @@ public class FileStorage implements Serializable {
 
         var previousPeerSet = chunksBackedPeers.putIfAbsent(chunk, newPeerSet);
         if (previousPeerSet != null) previousPeerSet.add(newBackingPeer);
+    }
+
+    /**
+     * If chunk was initiated by this peer, marks peerId as no longer backing it up
+     * @param chunk
+     * @param peerId
+     */
+    public void removeBackedPeer(Chunk chunk, int peerId) {
+        getBackedPeers(chunk).map(set -> set.remove(peerId));
+    }
+
+    /**
+     * Marks peerId as backing up chunk
+     * @param chunk
+     * @param peerId
+     */
+    public void addBackedPeer(Chunk chunk, int peerId) {
+        getBackedPeers(chunk).map(set -> set.add(peerId));
     }
 
     /**
@@ -251,14 +278,6 @@ public class FileStorage implements Serializable {
         }
 
         return currentSpace;
-    }
-
-    public void removeBackedPeer(Chunk chunk, int peerId) {
-        chunksBackedPeers.get(chunk).remove(peerId);
-    }
-
-    public void addBackedPeer(Chunk chunk, int peerId) {
-        chunksBackedPeers.get(chunk).add(peerId);
     }
 
     public void removeInitiatedFile(FileObject fileObject) {
