@@ -7,27 +7,20 @@ public class Reclaim {
 
     private static FileStorage fileStorage;
 
-    public static boolean checkIfNewMaxSpaceIsEnough(long newMaxUsedSpace) {
+    public static boolean checkIfNewMaxSpaceIsEnough(long newMaxUsedSpaceKB) {
+        // updates maximum storage capacity (KBytes)
+        fileStorage.setMaximumSpaceAvailable(newMaxUsedSpaceKB);
 
-        Set<Chunk> chunks = FileStorage.instance.getStoredChunkFiles();
-
-        long spaceCurrentlyUsed = 0;
-
-        for (Chunk c : chunks) {
-            spaceCurrentlyUsed += c.getContent().length;
-        }
-
-        return spaceCurrentlyUsed <= newMaxUsedSpace * 1000;
+        return fileStorage.getCurrentlyKBytesUsedSpace() <= fileStorage.getMaximumSpaceAvailable();
     }
 
-    public static void deleteBackups(long maxUsedSpace, String generalREMOVEDMessage) {
-        long maxUsedSpaceBytes = maxUsedSpace * 1000;
+    public static void deleteBackups(long maxUsedSpaceKB, String generalREMOVEDMessage) {
 
         Set<Chunk> chunksDeleted = new HashSet<>();
 
         // pick what chunks to delete so as to obey the new max used space
         // check if without the deleted chunk it meets the space requirements
-        while (!checkIfNewMaxSpaceIsEnough(maxUsedSpaceBytes)) {
+        while (!checkIfNewMaxSpaceIsEnough(maxUsedSpaceKB)) {
             int random = new Random().nextInt(fileStorage.getStoredChunkFiles().size());
             int i = 0;
             for (Chunk c : fileStorage.getStoredChunkFiles()) {
