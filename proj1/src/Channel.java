@@ -46,6 +46,7 @@ public class Channel implements Runnable {
     }
 
     private void processPacket(DatagramPacket receivedPacket) {
+
         int size = receivedPacket.getLength();
         byte[] data = Arrays.copyOf(receivedPacket.getData(), size);
 
@@ -56,6 +57,9 @@ public class Channel implements Runnable {
 
         byte[] header = Arrays.copyOfRange(data, 0, i);
         String[] splitHeader = new String(header).trim().split(" ");
+
+        // Peer ignores all messages that it doesnt understand
+        if (!splitHeader[0].equals(Peer.protocolVersion)) return;
 
         String command = splitHeader[1];
         int senderID = Integer.parseInt(splitHeader[2]);

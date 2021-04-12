@@ -34,7 +34,7 @@ public class Restore {
     }
 
     private static byte[] createCHUNK(String[] splitHeader, Chunk c) {
-        String messageString = splitHeader[0] + " CHUNK " + Peer.getId() + " " + splitHeader[3] + " " + splitHeader[4] + " " + "\r\n" + "\r\n";
+        String messageString = "1.0 CHUNK " + Peer.getId() + " " + splitHeader[3] + " " + splitHeader[4] + " " + "\r\n" + "\r\n";
 
         byte[] fullMessage = new byte[messageString.length() + c.getContent().length];
         System.arraycopy(messageString.getBytes(), 0, fullMessage,0, messageString.getBytes().length);
