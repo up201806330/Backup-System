@@ -18,7 +18,7 @@ public class Backup {
             return;
         }
 
-        byte[] storedMessage = createSTORED(splitHeader);
+        byte[] storedMessage = (splitHeader[0] + " STORED " + Peer.getId() + " " + splitHeader[3] + " " + splitHeader[4] + " " + "\r\n" + "\r\n").getBytes();
 
         int rand = new Random().nextInt(401);
         var storedSuccessfullyFuture = Peer.getExec().schedule(
@@ -48,18 +48,12 @@ public class Backup {
 
     public static void processPacketSTORED(Chunk chunk, String[] splitHeader) {
         if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
-            return ;
+            return;
         }
 
         System.out.println("Processing STORED Packet ->" + chunk.getChunkNumber());
 
         fileStorage.incrementReplicationDegree(chunk);
         fileStorage.updateChunksBackedPeers(chunk, Integer.parseInt(splitHeader[2]));
-    }
-
-    private static byte[] createSTORED(String[] splitHeader) {
-        String storedString = splitHeader[0] + " STORED " + Peer.getId() + " " + splitHeader[3] + " " + splitHeader[4] + " " + "\r\n" + "\r\n";
-
-        return storedString.getBytes();
     }
 }

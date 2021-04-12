@@ -24,7 +24,7 @@ public class Channel implements Runnable {
         this.type = type;
 
         this.socket = new MulticastSocket(this.port);
-        this.socket.joinGroup(this.inetAddress);
+        socket.joinGroup(this.inetAddress);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class Channel implements Runnable {
 
     public synchronized void sendMessage(byte[] buf) {
         try {
-            this.socket.send(new DatagramPacket(buf, buf.length, this.inetAddress, this.port));
+            socket.send(new DatagramPacket(buf, buf.length, this.inetAddress, this.port));
         } catch (IOException e) {
             e.printStackTrace();
         }

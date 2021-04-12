@@ -156,8 +156,7 @@ public class Peer implements RemoteInterface {
         int numberOfChunksToFind = ((int)fileSize / FileObject.MAX_CHUNK_SIZE) + 1;
 
         for (int i = 0; i < numberOfChunksToFind; i++) {
-            String messageString = protocolVersion + " GETCHUNK " + peerID + " " + fileObject.getFileID() + " " + i + " " + "\r\n" + "\r\n";
-            byte[] messageBytes = messageString.getBytes();
+            byte[] messageBytes = (protocolVersion + " GETCHUNK " + peerID + " " + fileObject.getFileID() + " " + i + " " + "\r\n" + "\r\n").getBytes();
 
             MC.sendMessage(messageBytes);
         }
@@ -174,8 +173,7 @@ public class Peer implements RemoteInterface {
         for (int i = 1, timeInterval = 1 ; i <= 5 ; i++, timeInterval *= 2){
             int finalI = i;
             futures.add(exec.schedule(() -> {
-                String messageString = protocolVersion  + " DELETE " + peerID + " " + fileObject.getFileID() + " " + "\r\n" + "\r\n";
-                byte[] messageBytes = messageString.getBytes();
+                byte[] messageBytes = (protocolVersion  + " DELETE " + peerID + " " + fileObject.getFileID() + " " + "\r\n" + "\r\n").getBytes();
                 System.out.println("Sending Message to MC: Try " + finalI);
                 MC.sendMessage(messageBytes);
             }, timeInterval, TimeUnit.SECONDS));

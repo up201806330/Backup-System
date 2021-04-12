@@ -15,8 +15,7 @@ public class Reclaim {
             Chunk c = orderedChunks.get(i);
             fileStorage.removeChunkFromStoredChunkFiles(c);
             fileStorage.deleteFileViaName(c.getChunkID());
-            String messageString = generalREMOVEDMessage + c.getFileID() + " " + c.getChunkNumber() + " " + "\r\n" + "\r\n";
-            byte[] messageBytes = messageString.getBytes();
+            byte[] messageBytes = (generalREMOVEDMessage + c.getFileID() + " " + c.getChunkNumber() + " " + "\r\n" + "\r\n").getBytes();
 
             System.out.println("Sending Message warning removal of chunk " + c.getChunkID());
             Peer.getMC().sendMessage(messageBytes);
