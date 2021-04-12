@@ -18,7 +18,7 @@ public class CheckReplicationDegree implements Callable {
         this.targetChunk = targetChunk;
 
         this.delay = 1;
-        this.numberOfTries = 0;
+        this.numberOfTries = 1;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class CheckReplicationDegree implements Callable {
             Peer.getMDB().sendMessage(tryAgainMessage);
 
             this.delay *= 2;
-            if (++this.numberOfTries < 5) {
+            if (++this.numberOfTries <= 5) {
                 Peer.futures.add(Peer.getExec().schedule(this, this.delay, TimeUnit.SECONDS));
                 return true;
             }

@@ -137,7 +137,7 @@ public class Peer implements RemoteInterface {
         MDB.sendMessage(fullMessage);
 
         System.out.println("Entering Check Rep Degree -> Chunk nr. " + chunk.getChunkNumber());
-        return Peer.getExec().schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
+        return exec.schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
     }
 
     public void restore(String filepath) {
@@ -162,7 +162,7 @@ public class Peer implements RemoteInterface {
             MC.sendMessage(messageBytes);
         }
 
-        Restore.t = Peer.getExec().scheduleWithFixedDelay(() -> Restore.constructRestoredFileFromRestoredChunks(numberOfChunksToFind, filepath, fileObject.getFileID()), 100, 100, TimeUnit.MILLISECONDS);
+        Restore.t = exec.scheduleWithFixedDelay(() -> Restore.constructRestoredFileFromRestoredChunks(numberOfChunksToFind, filepath, fileObject.getFileID()), 100, 100, TimeUnit.MILLISECONDS);
         FileStorage.saveToDisk();
     }
 
@@ -171,17 +171,42 @@ public class Peer implements RemoteInterface {
 
         FileObject fileObject = new FileObject(filepath);
 
-        String messageString = protocolVersion  + " DELETE " + peerID + " " + fileObject.getFileID() + " " + "\r\n" + "\r\n";
-        byte[] messageBytes = messageString.getBytes();
+        for (int i = 1, timeInterval = 1 ; i <= 5 ; i++, timeInterval *= 2){
+            int finalI = i;
+            futures.add(exec.schedule(() -> {
+                String messageString = protocolVersion  + " DELETE " + peerID + " " + fileObject.getFileID() + " " + "\r\n" + "\r\n";
+                byte[] messageBytes = messageString.getBytes();
+                System.out.println("Sending Message to MC: Try " + finalI);
+                MC.sendMessage(messageBytes);
+            }, timeInterval, TimeUnit.SECONDS));
+        }
 
-        fileStorage.removeInitiatedFile(fileObject);
+        final Set<ScheduledFuture<?>> processedFutures = new HashSet<>();
+        Set<ScheduledFuture<?>> futuresToProcess;
+        do{
+            futuresToProcess = new HashSet<>(futures);
+            futuresToProcess.removeAll(processedFutures);
+            futuresToProcess.forEach(future -> {
+                processedFutures.add(future);
+                try {
+                    future.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            });
+        }while(!futuresToProcess.isEmpty());
 
-        System.out.println("Sending Message to MC");
-        MC.sendMessage(messageBytes);
-        FileStorage.saveToDisk();
+        if (protocolVersion.equals("1.1")){
+
+        }
+        else {
+            System.out.println("Successfully deleted file!");
+            fileStorage.removeInitiatedFile(fileObject);
+            FileStorage.saveToDisk();
+        }
     }
 
-    public void reclaim(long spaceReclaim) { // spaceReclaim -> KB
+    public void reclaim(long spaceReclaim) {
         System.out.println("RECLAIM SERVICE -> DISK SPACE RECLAIM = " + spaceReclaim);
         if (Reclaim.checkIfNewMaxSpaceIsEnough(spaceReclaim)) {
             System.out.println("No need to delete chunks. Returning.");
@@ -191,7 +216,7 @@ public class Peer implements RemoteInterface {
         String generalREMOVEDMessage = protocolVersion  + " REMOVED " + peerID + " ";
         Reclaim.deleteBackups(spaceReclaim, generalREMOVEDMessage);
 
-        // FileStorage.saveToDisk();
+        FileStorage.saveToDisk();
     }
 
     public String state() {

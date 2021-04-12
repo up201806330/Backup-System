@@ -1,4 +1,4 @@
-import java.io.File;
+import java.util.ArrayList;
 
 public class Delete {
     private static final FileStorage fileStorage = FileStorage.instance;
@@ -10,20 +10,13 @@ public class Delete {
 
         System.out.println("Processing DELETE Packet");
 
-        for (Chunk chunk : fileStorage.storedChunks) {
-            String fileID = chunk.getFileID();
-
-            if (fileID.equals(fileIdToDelete)) {
-
-                // Initiator deletes entry that file was initiated
-                deleteFileParser(fileID);
-
-                // Backing peer deletes entry from stored chunks
-                fileStorage.removeChunkFromStoredChunkFiles(chunk);
-            }
+        ArrayList<Chunk> filesChunks = fileStorage.findChunkByFileID(fileIdToDelete);
+        for (Chunk chunk : filesChunks){
+            deleteFileParser(chunk.getFileID());
+            fileStorage.removeChunkFromStoredChunkFiles(chunk);
         }
 
-        FileStorage.saveToDisk();
+        if (filesChunks.size() > 0) FileStorage.saveToDisk();
     }
 
     private static void deleteFileParser(String fileID) {

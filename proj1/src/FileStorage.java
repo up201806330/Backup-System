@@ -1,6 +1,7 @@
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -250,6 +251,19 @@ public class FileStorage implements Serializable {
             if (c.equals(chunk)) return Optional.of(c);
         }
         return Optional.empty();
+    }
+
+    /**
+     * Gets all backed up chunks belonging to give fileID
+     * @param fileID
+     * @return
+     */
+    public ArrayList<Chunk> findChunkByFileID(String fileID){
+        ArrayList<Chunk> result = new ArrayList<>();
+        for (Chunk c : storedChunks){
+            if (c.getFileID().equals(fileID)) result.add(c);
+        }
+        return result;
     }
 
     /**
