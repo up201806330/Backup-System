@@ -46,7 +46,6 @@ public class Channel implements Runnable {
     }
 
     private void processPacket(DatagramPacket receivedPacket) {
-
         int size = receivedPacket.getLength();
         byte[] data = Arrays.copyOf(receivedPacket.getData(), size);
 
@@ -81,12 +80,12 @@ public class Channel implements Runnable {
                 Peer.getExec().execute(() ->Delete.processDELETE(fileID));
                 break;
             case "GETCHUNK":
-                Peer.getExec().execute(() ->Restore.processPacketGETCHUNK(splitHeader));
+                Peer.getExec().execute(() ->Restore.processGETCHUNK(splitHeader));
                 break;
             case "CHUNK":
                 byte[] content = Arrays.copyOfRange(data, i + 4, data.length);
                 newChunk.setContent(content);
-                Peer.getExec().execute(() ->Restore.processPacketCHUNK(newChunk, splitHeader));
+                Peer.getExec().execute(() ->Restore.processCHUNK(newChunk, splitHeader));
                 break;
             case "REMOVED":
                 Peer.getExec().execute(() ->Reclaim.processREMOVED(splitHeader));

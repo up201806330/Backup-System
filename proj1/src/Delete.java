@@ -17,8 +17,10 @@ public class Delete {
         }
 
         if (filesChunks.size() > 0) {
-            byte[] deletedMessage = ("1.1 DELETED " + Peer.getId() + " " + fileIdToDelete + " " + "\r\n" + "\r\n").getBytes();
-            Peer.getMC().sendMessage(deletedMessage);
+            if (Peer.protocolVersion.equals("1.1")){
+                byte[] deletedMessage = ("1.1 DELETED " + Peer.getId() + " " + fileIdToDelete + " " + "\r\n" + "\r\n").getBytes();
+                Peer.getMC().sendMessage(deletedMessage);
+            }
             FileStorage.saveToDisk();
         }
     }

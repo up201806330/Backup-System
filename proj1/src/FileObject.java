@@ -86,7 +86,7 @@ public class FileObject implements Serializable{
                     hexString.append('0');
                 hexString.append(hex);
             }
-            return hexString.toString();
+            return hexString.toString().toUpperCase();
 
         } catch (Exception e) {
             e.printStackTrace();

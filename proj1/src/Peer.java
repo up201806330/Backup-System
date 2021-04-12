@@ -188,7 +188,7 @@ public class Peer implements RemoteInterface {
             int finalI = i;
             futures.add(exec.schedule(() -> {
                 byte[] messageBytes = ("1.0 DELETE " + peerID + " " + fileObject.getFileID() + " " + "\r\n" + "\r\n").getBytes();
-                System.out.println("Sending Message to MC: Try " + finalI);
+                System.out.println("Sending Delete: Try " + finalI);
                 MC.sendMessage(messageBytes);
             }, timeInterval, TimeUnit.SECONDS));
         }

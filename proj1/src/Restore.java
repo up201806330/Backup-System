@@ -14,7 +14,7 @@ public class Restore {
     public static final Set<Integer> chunksAlreadySent = new HashSet<>();
     public static ScheduledFuture<?> t;
 
-    public static void processPacketGETCHUNK(String[] splitHeader) {
+    public static void processGETCHUNK(String[] splitHeader) {
         if (Peer.getId() == Integer.parseInt(splitHeader[2])) {
             return ;
         }
@@ -48,7 +48,7 @@ public class Restore {
         Peer.getMDR().sendMessage(chunkMessage);
     }
 
-    public static void processPacketCHUNK(Chunk newChunk, String[] splitHeader) {
+    public static void processCHUNK(Chunk newChunk, String[] splitHeader) {
         if (!chunksAlreadySent.add(Integer.parseInt(splitHeader[4])) || // If chunk was already sent by someone else
                 Peer.getId() == Integer.parseInt(splitHeader[2]) ||     // Or this peer sent this message
                 !isRestoreTarget) {                                     // Or this peer isn't the one who requested the RESTORE
