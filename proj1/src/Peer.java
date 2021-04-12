@@ -102,7 +102,13 @@ public class Peer implements RemoteInterface {
 
         System.out.println("\n---- BACKUP SERVICE ---- FILE PATH = " + filepath + " | REPLICATION DEGREEE = " + replicationDegree);
 
-        FileObject fileObject = new FileObject(filepath, replicationDegree);
+        FileObject fileObject;
+        try{
+            fileObject = new FileObject(filepath, replicationDegree);
+        } catch (IOException e){
+            e.printStackTrace();
+            return;
+        }
         if (fileObject.getFile().length() > 64000000){
             throw new Exception("File size bigger than 64GB ; Aborting...");
         }

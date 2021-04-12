@@ -344,12 +344,12 @@ public class FileStorage implements Serializable {
      * Space used up by the service on this peer
      * @return
      */
-    public long getCurrentlyKBytesUsedSpace() {
+    public long getCurrentlyBytesUsedSpace() {
         long currentSpace = 0; // in KBytes
 
         for (Chunk c : storedChunks) {
             // chunk content length is in bytes.  B/1000 = KB
-            currentSpace += (c.getContent().length) / 1000.0;
+            currentSpace += (c.getContent().length);
         }
 
         return currentSpace;
@@ -429,9 +429,12 @@ public class FileStorage implements Serializable {
     public String toString() {
         StringBuilder result = new StringBuilder();
 
-        result.append("Capacity: ").
-                append(getCurrentlyKBytesUsedSpace()).append("KB / ").
-                append(maximumSpaceAvailable).append("KB\n");
+        var usedCapacity = getCurrentlyBytesUsedSpace();
+
+        result.append("Capacity: ");
+        if (usedCapacity < 1000) result.append(getCurrentlyBytesUsedSpace()).append("B / ");
+        else                     result.append(getCurrentlyBytesUsedSpace() / 1000.0).append("KB / ");
+        result.append(maximumSpaceAvailable).append("KB\n");
 
         result.append("BACKED UP FILES: ");
         if (initiatedFiles.size() > 0){

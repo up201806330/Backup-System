@@ -13,7 +13,7 @@ public class Backup {
         System.out.println("Processing PUTCHUNK Packet ->" + chunk.getChunkNumber());
 
         // Check to make sure backup will not exceed that max amount of storage allowed
-        if ((chunk.getContent().length / 1000.0) + fileStorage.getCurrentlyKBytesUsedSpace() > fileStorage.getMaximumSpaceAvailable()) {
+        if ((chunk.getContent().length + fileStorage.getCurrentlyBytesUsedSpace() / 1000.0) > fileStorage.getMaximumSpaceAvailable()) {
             System.out.println("This Backup would exceed maximum allowed storage capacity");
             return;
         }

@@ -62,7 +62,7 @@ public class Channel implements Runnable {
 
         String command = splitHeader[1];
         int senderID = Integer.parseInt(splitHeader[2]);
-        String fileID = splitHeader.length >= 4 ? splitHeader[3] : "";
+        String fileID = (splitHeader.length >= 4 ? splitHeader[3] : "").toUpperCase();
         int chunkNr = splitHeader.length >= 5 ? Integer.parseInt(splitHeader[4]) : 0;
         int desiredRepDegree = splitHeader.length == 6 ? Integer.parseInt(splitHeader[5]) : -1;
 

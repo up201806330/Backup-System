@@ -55,6 +55,6 @@ public class Reclaim {
 
     public static boolean checkIfNewMaxSpaceIsEnough(long newMaxUsedSpaceKB) {
         fileStorage.setMaximumSpaceAvailable(newMaxUsedSpaceKB);
-        return fileStorage.getCurrentlyKBytesUsedSpace() <= fileStorage.getMaximumSpaceAvailable();
+        return (fileStorage.getCurrentlyBytesUsedSpace() / 1000.0) <= fileStorage.getMaximumSpaceAvailable();
     }
 }

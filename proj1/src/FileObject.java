@@ -17,7 +17,7 @@ public class FileObject implements Serializable{
 
     public FileObject() { }
 
-    public FileObject(String filePath, int replicationDegree) {
+    public FileObject(String filePath, int replicationDegree) throws IOException {
         this.file = new File(filePath);
         this.filePath = filePath;
         this.fileID = getFileIdHashed();
@@ -41,30 +41,25 @@ public class FileObject implements Serializable{
         return result;
     }
 
-    private LinkedHashSet<Chunk> parseChunks() {
+    private LinkedHashSet<Chunk> parseChunks() throws IOException {
         byte[] chunkBuffer = new byte[MAX_CHUNK_SIZE];
         int currentChunkNumber = -1;
 
         LinkedHashSet<Chunk> allChunks = new LinkedHashSet<>();
 
-        try {
-            FileInputStream fis = new FileInputStream(file);
+        FileInputStream fis = new FileInputStream(file);
 
-            int size;
-            while( (size = fis.read(chunkBuffer)) > 0) {
-                Chunk createdChunk = new Chunk(fileID, ++currentChunkNumber, replicationDegree, Arrays.copyOf(chunkBuffer, size));
-                allChunks.add(createdChunk);
+        int size;
+        while( (size = fis.read(chunkBuffer)) > 0) {
+            Chunk createdChunk = new Chunk(fileID, ++currentChunkNumber, replicationDegree, Arrays.copyOf(chunkBuffer, size));
+            allChunks.add(createdChunk);
 
-                chunkBuffer = new byte[MAX_CHUNK_SIZE];
-            }
+            chunkBuffer = new byte[MAX_CHUNK_SIZE];
+        }
 
-            if (hasExtraEmptyChunk) {
-                Chunk emptyChunk = new Chunk(fileID, ++currentChunkNumber, replicationDegree);
-                allChunks.add(emptyChunk);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (hasExtraEmptyChunk) {
+            Chunk emptyChunk = new Chunk(fileID, ++currentChunkNumber, replicationDegree);
+            allChunks.add(emptyChunk);
         }
 
         return allChunks;
@@ -109,7 +104,6 @@ public class FileObject implements Serializable{
     }
 
     private boolean checkForEmptyEndingChunk() {
-        System.out.println(this.file.length());
         return ((this.file.length() % MAX_CHUNK_SIZE) == 0);
     }
 
