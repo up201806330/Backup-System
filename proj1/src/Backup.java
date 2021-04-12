@@ -7,7 +7,7 @@ public class Backup {
 
     public static synchronized void processPUTCHUNK(Chunk chunk, String[] splitHeader) {
         if (Peer.getId() == Integer.parseInt(splitHeader[2]) || fileStorage.isChunksInitiator(chunk)) {
-            return ;
+            return;
         }
 
         System.out.println("Processing PUTCHUNK Packet ->" + chunk.getChunkNumber());
