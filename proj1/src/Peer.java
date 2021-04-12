@@ -53,6 +53,14 @@ public class Peer implements RemoteInterface {
         // Schedule saving to file at 5 seconds rate
         exec.scheduleAtFixedRate(FileStorage::saveToDisk, 0, 5, TimeUnit.SECONDS);
 
+        // Sending ONLINE message, from delete enhancement after some time
+        if (protocolVersion.equals("1.1")){
+            exec.schedule(() -> {
+                byte[] fullMessage = ("1.1 ONLINE " + peerID + " " + "\r\n" + "\r\n").getBytes();
+                MC.sendMessage(fullMessage);
+            }, 1, TimeUnit.SECONDS);
+        }
+
         System.out.println("Peer ready");
     }
 
@@ -76,8 +84,14 @@ public class Peer implements RemoteInterface {
         exec.execute(MDR);
     }
 
-    public static String getServiceDirectory() {
-        return serviceDirectory;
+    public static void processONLINE(int senderID) {
+        if (Peer.protocolVersion.equals("1.1")){
+            if (Peer.getId() == senderID){
+                return;
+            }
+            System.out.println("Processing ONLINE");
+            Delete.deleteDeadChunks(senderID);
+        }
     }
 
     public void backup(String filepath, int replicationDegree) throws Exception {
@@ -125,7 +139,7 @@ public class Peer implements RemoteInterface {
     }
 
     public static ScheduledFuture<?> initiatePUTCHUNK(String fileID, Chunk chunk) {
-        String dataHeader = protocolVersion + " PUTCHUNK " + peerID + " " + fileID + " " + chunk.getChunkNumber() + " " + chunk.getDesiredReplicationDegree() + " " + "\r\n" + "\r\n";
+        String dataHeader = "1.0 PUTCHUNK " + peerID + " " + fileID + " " + chunk.getChunkNumber() + " " + chunk.getDesiredReplicationDegree() + " " + "\r\n" + "\r\n";
         // System.out.println(dataHeader);
 
         byte[] content = chunk.getContent();
@@ -156,7 +170,7 @@ public class Peer implements RemoteInterface {
         int numberOfChunksToFind = ((int)fileSize / FileObject.MAX_CHUNK_SIZE) + 1;
 
         for (int i = 0; i < numberOfChunksToFind; i++) {
-            byte[] messageBytes = (protocolVersion + " GETCHUNK " + peerID + " " + fileObject.getFileID() + " " + i + " " + "\r\n" + "\r\n").getBytes();
+            byte[] messageBytes = ("1.0 GETCHUNK " + peerID + " " + fileObject.getFileID() + " " + i + " " + "\r\n" + "\r\n").getBytes();
 
             MC.sendMessage(messageBytes);
         }
@@ -173,7 +187,7 @@ public class Peer implements RemoteInterface {
         for (int i = 1, timeInterval = 1 ; i <= 5 ; i++, timeInterval *= 2){
             int finalI = i;
             futures.add(exec.schedule(() -> {
-                byte[] messageBytes = (protocolVersion  + " DELETE " + peerID + " " + fileObject.getFileID() + " " + "\r\n" + "\r\n").getBytes();
+                byte[] messageBytes = ("1.0 DELETE " + peerID + " " + fileObject.getFileID() + " " + "\r\n" + "\r\n").getBytes();
                 System.out.println("Sending Message to MC: Try " + finalI);
                 MC.sendMessage(messageBytes);
             }, timeInterval, TimeUnit.SECONDS));
@@ -195,7 +209,13 @@ public class Peer implements RemoteInterface {
         }while(!futuresToProcess.isEmpty());
 
         if (protocolVersion.equals("1.1")){
-
+            var peersAtFault = fileStorage.getBackedPeersByFileObject(fileObject.getFileID());
+            if (peersAtFault.size() > 0){
+                for (int peerID : peersAtFault){
+                    fileStorage.addPeerWithDeadChunks(peerID, filepath);
+                }
+            }
+            else System.out.println("Successfully deleted file!");
         }
         else {
             System.out.println("Successfully deleted file!");
@@ -211,7 +231,7 @@ public class Peer implements RemoteInterface {
             return;
         }
 
-        String generalREMOVEDMessage = protocolVersion  + " REMOVED " + peerID + " ";
+        String generalREMOVEDMessage = "1.0 REMOVED " + peerID + " ";
         Reclaim.deleteBackups(spaceReclaim, generalREMOVEDMessage);
 
         FileStorage.saveToDisk();
@@ -219,6 +239,10 @@ public class Peer implements RemoteInterface {
 
     public String state() {
         return fileStorage.toString();
+    }
+
+    public static String getServiceDirectory() {
+        return serviceDirectory;
     }
 
     public static ScheduledThreadPoolExecutor getExec() {

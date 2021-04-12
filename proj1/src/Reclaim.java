@@ -24,21 +24,21 @@ public class Reclaim {
         }
     }
 
-    public static void processPacketREMOVED(String[] splitHeader) {
-        if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
+    public static void processREMOVED(String[] splitHeader) {
+        if (Peer.getId() == Integer.parseInt(splitHeader[2])) {
             return ;
         }
 
         System.out.println("Processing REMOVED Packet");
 
-        int peerId = Integer.parseInt(splitHeader[2]);
+        int peerID = Integer.parseInt(splitHeader[2]);
         String fileId = splitHeader[3];
         int chunkNr = Integer.parseInt(splitHeader[4]);
 
         // update own local count of the chunk
         Chunk chunkToSearch = new Chunk(fileId, chunkNr);
         fileStorage.decrementReplicationDegree(chunkToSearch);
-        fileStorage.removeBackedPeer(chunkToSearch, peerId);
+        fileStorage.removeBackedPeerFromChunk(chunkToSearch, peerID);
 
         // check if new count is lower than desired replication degree
         var chunkInThisPeerOpt = fileStorage.findChunk(chunkToSearch);

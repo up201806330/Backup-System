@@ -5,8 +5,8 @@ import java.util.concurrent.TimeUnit;
 public class Backup {
     private static final FileStorage fileStorage = FileStorage.instance;
 
-    public static synchronized void processPacketPUTCHUNK(Chunk chunk, String[] splitHeader) {
-        if ( Peer.getId() == Integer.parseInt(splitHeader[2]) || fileStorage.isChunksInitiator(chunk)) {
+    public static synchronized void processPUTCHUNK(Chunk chunk, String[] splitHeader) {
+        if (Peer.getId() == Integer.parseInt(splitHeader[2]) || fileStorage.isChunksInitiator(chunk)) {
             return ;
         }
 
@@ -18,11 +18,11 @@ public class Backup {
             return;
         }
 
-        byte[] storedMessage = (splitHeader[0] + " STORED " + Peer.getId() + " " + splitHeader[3] + " " + splitHeader[4] + " " + "\r\n" + "\r\n").getBytes();
+        byte[] storedMessage = ("1.0 STORED " + Peer.getId() + " " + splitHeader[3] + " " + splitHeader[4] + " " + "\r\n" + "\r\n").getBytes();
 
         int rand = new Random().nextInt(401);
         var storedSuccessfullyFuture = Peer.getExec().schedule(
-                () -> sendSTOREDMessage(storedMessage, chunk), rand, TimeUnit.MILLISECONDS);
+                () -> sendSTORED(storedMessage, chunk), rand, TimeUnit.MILLISECONDS);
         try {
             storedSuccessfullyFuture.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -32,7 +32,7 @@ public class Backup {
         FileStorage.saveToDisk();
     }
 
-    private static void sendSTOREDMessage(byte[] storedMessage, Chunk chunk) {
+    private static void sendSTORED(byte[] storedMessage, Chunk chunk) {
         if (Peer.protocolVersion.equals("1.1")){ // Versions after 1.0 try to avoid storing already replicated enough chunks
             if (FileStorage.instance.getPerceivedReplicationDegree(chunk) >= chunk.getDesiredReplicationDegree()){
                 System.out.println("Chunk was already backed up enough");
@@ -46,8 +46,8 @@ public class Backup {
         }
     }
 
-    public static void processPacketSTORED(Chunk chunk, String[] splitHeader) {
-        if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
+    public static void processSTORED(Chunk chunk, String[] splitHeader) {
+        if (Peer.getId() == Integer.parseInt(splitHeader[2])) {
             return;
         }
 

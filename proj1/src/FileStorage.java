@@ -2,6 +2,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,7 +41,7 @@ public class FileStorage implements Serializable {
     /**
      * Concurrent map that for each chunk of each initiated file, has a concurrent set of peers that have that chunk backed up
      */
-    public final ConcurrentHashMap<Chunk, ConcurrentHashMap.KeySetView<Object, Boolean>> chunksBackedPeers = new ConcurrentHashMap<Chunk, ConcurrentHashMap.KeySetView<Object, Boolean>>();
+    public final ConcurrentHashMap<Chunk, ConcurrentHashMap.KeySetView<Object, Boolean>> chunksBackedPeers = new ConcurrentHashMap<>();
 
     /**
      * Concurrent set of all chunks stored locally by peer
@@ -51,6 +52,11 @@ public class FileStorage implements Serializable {
      * Concurrent set of all chunks stored by the system, useful for the backup enhancement
      */
     public final Set<Chunk> allChunks = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Concurrent map that for each PeerID, has a concurrent set of filepaths of files initiated by this peer that should have been deleted already. Used by the delete enhancement
+     */
+    public final ConcurrentHashMap<Integer, ConcurrentHashMap.KeySetView<Object, Boolean>> peersWithDeadChunks = new ConcurrentHashMap<>();
 
     /**
      * Singleton constructor
@@ -168,6 +174,28 @@ public class FileStorage implements Serializable {
     }
 
     /**
+     * If this peer initiated fileObject, returns its set of backed up peers, else returns Optional.empty
+     * @param fileID
+     * @return
+     */
+    public Set<Integer> getBackedPeersByFileObject(String fileID){
+        Set<Integer> result = new HashSet<>();
+        var actualFileOptional = findInitiatedFile(fileID);
+        actualFileOptional.map(actualFile -> {
+            for (Chunk chunk : actualFile.getChunks()){
+                getBackedPeers(chunk).map(set -> {
+                    for (Object peer : set){
+                        result.add((Integer) peer);
+                    }
+                    return true;
+                });
+            }
+            return true;
+        });
+        return result;
+    }
+
+    /**
      * Called when a STORED message is received, updates the initiators knowledge of what peers are backing up its chunk
      * @param chunk
      * @param newBackingPeer
@@ -183,21 +211,34 @@ public class FileStorage implements Serializable {
     }
 
     /**
-     * If chunk was initiated by this peer, marks peerId as no longer backing it up
+     * If chunk was initiated by this peer, marks peerID as no longer backing it up
      * @param chunk
-     * @param peerId
+     * @param peerID
      */
-    public void removeBackedPeer(Chunk chunk, int peerId) {
-        getBackedPeers(chunk).map(set -> set.remove(peerId));
+    public void removeBackedPeerFromChunk(Chunk chunk, int peerID) {
+        getBackedPeers(chunk).map(set -> set.remove(peerID));
     }
 
     /**
-     * Marks peerId as backing up chunk
-     * @param chunk
-     * @param peerId
+     * If file given by fileID was initiated by this peer, marks peerID as no longer backing up all of its chunks
+     * @param fileID
+     * @param peerID
      */
-    public void addBackedPeer(Chunk chunk, int peerId) {
-        getBackedPeers(chunk).map(set -> set.add(peerId));
+    public void removeBackedPeerFromAllChunks(String fileID, int peerID) {
+        var actualFileObject = findInitiatedFile(fileID);
+        if (actualFileObject.isEmpty()) return;
+        for (Chunk chunk : actualFileObject.get().getChunks()){
+            getBackedPeers(chunk).map(set -> set.remove(peerID));
+        }
+    }
+
+    /**
+     * Marks peerID as backing up chunk
+     * @param chunk
+     * @param peerID
+     */
+    public void addBackedPeer(Chunk chunk, int peerID) {
+        getBackedPeers(chunk).map(set -> set.add(peerID));
     }
 
     /**
@@ -314,6 +355,20 @@ public class FileStorage implements Serializable {
         return currentSpace;
     }
 
+    /**
+     * Called by peers with delete enhancement, will store peerID that failed to delete filepath
+     * @param peerID
+     * @param filepath
+     */
+    public void addPeerWithDeadChunks(int peerID, String filepath){
+        if (!isFilesInitiator(new FileObject(filepath))) return;
+        var newFilepathSet = ConcurrentHashMap.newKeySet();
+        newFilepathSet.add(filepath);
+
+        Set<Object> previousFilepathSet = peersWithDeadChunks.putIfAbsent(peerID, newFilepathSet);
+        if (previousFilepathSet != null) previousFilepathSet.add(filepath);
+    }
+
     public void setMaximumSpaceAvailable(long maximumSpaceAvailable) {
         this.maximumSpaceAvailable = maximumSpaceAvailable;
     }
@@ -342,10 +397,6 @@ public class FileStorage implements Serializable {
         String fileName = "Chunk file nr. " + filepath.substring(filepath.length() - 1);
         if (file.delete()) System.out.println(fileName + " deleted with success");
         else System.out.println(fileName + " not deleted");
-    }
-
-    public Set<Chunk> getStoredChunks() {
-        return storedChunks;
     }
 
     public static void saveToDisk(){

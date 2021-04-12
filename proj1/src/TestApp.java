@@ -20,13 +20,13 @@ public class TestApp {
             // ---- Check for "exceptions" ----
 
             // Wrong number of args for Backup
-            if ( (operation.equalsIgnoreCase("BACKUP")) && args.length != 4) {
+            if ((operation.equalsIgnoreCase("BACKUP")) && args.length != 4) {
                 System.out.println("Usage: java TestApp <peer_ap> BACKUP <opnd_1> <replication_degree>");
                 return ;
             }
 
             // Wrong number of args for state
-            else if ( (operation.equalsIgnoreCase("STATE")) && args.length != 2 ) {
+            else if ((operation.equalsIgnoreCase("STATE")) && args.length != 2 ) {
                 System.out.println("Usage: java TestApp <peer_ap> STATE");
                 return ;
             }

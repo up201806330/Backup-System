@@ -15,8 +15,10 @@ This enhancement helps decrease the number of unnecessary backups, at the cost o
 Since every initiator stores the peers that are storing its backed up chunks,
 there is a possbility to verify what peers actually were able to delete these chunks,
 using a reply message.
-In our case, `1.1 DELETED <SenderID> <ChunkID>` serves as this verification.
+In our case, `1.1 DELETED <SenderID> <FileID>` serves as this verification.
+Because a `DELETE` message removes ALL chunks belonging to said file, the verification
+can also be on the basis of files and not chunk by chunk.
 
-Simultaneously, an updated version of peer would broadcast the chunks it currently has,
-so that all initiators can check if any of these are supposed to have been deleted,
-and promptly send a new `DELETE` message.
+The only way to remove these peers at fault's chunks is at the moment they initiate again.
+The upgraded peer will, as such, broadcast a `1.1 ONLINE <SenderID>` message so that any other peer that 
+knows this one is holding dead chunks, will initiate the `DELETE` protocol for it's file again.

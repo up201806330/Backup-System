@@ -58,7 +58,8 @@ public class Channel implements Runnable {
         String[] splitHeader = new String(header).trim().split(" ");
 
         String command = splitHeader[1];
-        String fileID = splitHeader[3];
+        int senderID = Integer.parseInt(splitHeader[2]);
+        String fileID = splitHeader.length >= 4 ? splitHeader[3] : "";
         int chunkNr = splitHeader.length >= 5 ? Integer.parseInt(splitHeader[4]) : 0;
         int desiredRepDegree = splitHeader.length == 6 ? Integer.parseInt(splitHeader[5]) : -1;
 
@@ -67,24 +68,30 @@ public class Channel implements Runnable {
             case "PUTCHUNK":
                 byte[] body = Arrays.copyOfRange(data, i + 4, data.length);
                 newChunk.setContent(body);
-                Peer.getExec().execute(() -> Backup.processPacketPUTCHUNK(newChunk, splitHeader));
+                Peer.getExec().execute(() -> Backup.processPUTCHUNK(newChunk, splitHeader));
                 break;
             case "STORED":
-                Backup.processPacketSTORED(newChunk, splitHeader);
+                Peer.getExec().execute(() ->Backup.processSTORED(newChunk, splitHeader));
                 break;
             case "DELETE":
-                Delete.processPacketDELETE(fileID);
+                Peer.getExec().execute(() ->Delete.processDELETE(fileID));
                 break;
             case "GETCHUNK":
-                Restore.processPacketGETCHUNK(splitHeader);
+                Peer.getExec().execute(() ->Restore.processPacketGETCHUNK(splitHeader));
                 break;
             case "CHUNK":
                 byte[] content = Arrays.copyOfRange(data, i + 4, data.length);
                 newChunk.setContent(content);
-                Restore.processPacketCHUNK(newChunk, splitHeader);
+                Peer.getExec().execute(() ->Restore.processPacketCHUNK(newChunk, splitHeader));
                 break;
             case "REMOVED":
-                Reclaim.processPacketREMOVED(splitHeader);
+                Peer.getExec().execute(() ->Reclaim.processREMOVED(splitHeader));
+                break;
+            case "DELETED": // From delete enhancement
+                Peer.getExec().execute(() -> Delete.processDELETED(senderID, fileID));
+                break;
+            case "ONLINE": // From delete enhancement
+                Peer.getExec().execute(() -> Peer.processONLINE(senderID));
                 break;
             default:
                 break;

@@ -15,7 +15,7 @@ public class Restore {
     public static ScheduledFuture<?> t;
 
     public static void processPacketGETCHUNK(String[] splitHeader) {
-        if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
+        if (Peer.getId() == Integer.parseInt(splitHeader[2])) {
             return ;
         }
 
