@@ -73,7 +73,7 @@ public class Peer implements RemoteInterface {
         accessPoint = args[2];
         serviceDirectory = "service-" + peerID;
 
-        exec = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(200);;
+        exec = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(400);;
 
         MC = new Channel(args[3], Integer.parseInt(args[4]), Channel.ChannelType.MC);
         MDB = new Channel(args[5], Integer.parseInt(args[6]), Channel.ChannelType.MDB);
@@ -112,7 +112,7 @@ public class Peer implements RemoteInterface {
         futures.clear();
         for (Chunk chunk : fileObject.getChunks()) {
             System.out.println("CHunk nr" + chunk.getChunkNumber());
-            futures.add(initiatePUTCHUNK(fileObject.getFileID(), chunk));
+            futures.add(initiatePUTCHUNK(fileObject.getFileID(), chunk, fileObject.getChunks().size()));
         }
 
         AtomicBoolean failed = new AtomicBoolean(false);
@@ -138,7 +138,7 @@ public class Peer implements RemoteInterface {
         else System.out.println("Back up failed");
     }
 
-    public static ScheduledFuture<?> initiatePUTCHUNK(String fileID, Chunk chunk) {
+    public static ScheduledFuture<?> initiatePUTCHUNK(String fileID, Chunk chunk, int nChunks) {
         String dataHeader = "1.0 PUTCHUNK " + peerID + " " + fileID + " " + chunk.getChunkNumber() + " " + chunk.getDesiredReplicationDegree() + " " + "\r\n" + "\r\n";
         // System.out.println(dataHeader);
 
@@ -151,7 +151,7 @@ public class Peer implements RemoteInterface {
         MDB.sendMessage(fullMessage);
 
         System.out.println("Entering Check Rep Degree -> Chunk nr. " + chunk.getChunkNumber());
-        return exec.schedule(new CheckReplicationDegree(fullMessage, chunk), 1, TimeUnit.SECONDS);
+        return exec.schedule(new CheckReplicationDegree(fullMessage, chunk, nChunks), 1, TimeUnit.SECONDS);
     }
 
     public void restore(String filepath) {

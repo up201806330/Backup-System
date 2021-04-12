@@ -49,7 +49,7 @@ public class Reclaim {
 
         if (fileStorage.getPerceivedReplicationDegree(chunkToSearch) < chunkInThisPeerOpt.get().getDesiredReplicationDegree()) {
             int rand = new Random().nextInt(401);
-            Peer.getExec().schedule(() -> Peer.initiatePUTCHUNK(fileId, chunkInThisPeerOpt.get()), rand, TimeUnit.MILLISECONDS);
+            Peer.getExec().schedule(() -> Peer.initiatePUTCHUNK(fileId, chunkInThisPeerOpt.get(), 1), rand, TimeUnit.MILLISECONDS);
         }
     }
 

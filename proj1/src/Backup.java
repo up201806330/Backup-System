@@ -25,11 +25,11 @@ public class Backup {
                 () -> sendSTORED(storedMessage, chunk), rand, TimeUnit.MILLISECONDS);
         try {
             storedSuccessfullyFuture.get();
+            FileStorage.saveToDisk();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             System.out.println("Error in thread in charge of storing");
         }
-        FileStorage.saveToDisk();
     }
 
     private static void sendSTORED(byte[] storedMessage, Chunk chunk) {

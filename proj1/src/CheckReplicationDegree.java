@@ -9,13 +9,15 @@ public class CheckReplicationDegree implements Callable {
 
     private final byte[] tryAgainMessage;
     private final Chunk targetChunk;
+    private final int nChunks;
 
     private int delay;
     private int numberOfTries;
 
-    public CheckReplicationDegree(byte[] tryAgainMessage, Chunk targetChunk) {
+    public CheckReplicationDegree(byte[] tryAgainMessage, Chunk targetChunk, int nChunks) {
         this.tryAgainMessage = tryAgainMessage;
         this.targetChunk = targetChunk;
+        this.nChunks = nChunks;
 
         this.delay = 1;
         this.numberOfTries = 1;
@@ -30,7 +32,7 @@ public class CheckReplicationDegree implements Callable {
         if (currentReplicationDegree < targetChunk.getDesiredReplicationDegree()) {
             Peer.getMDB().sendMessage(tryAgainMessage);
 
-            this.delay *= 2;
+            this.delay *= 2 * (nChunks <= 40 ? 1 : (nChunks - 40) / 2 + 1);
             if (++this.numberOfTries <= 5) {
                 Peer.futures.add(Peer.getExec().schedule(this, this.delay, TimeUnit.SECONDS));
                 return true;
