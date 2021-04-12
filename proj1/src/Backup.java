@@ -40,9 +40,10 @@ public class Backup {
             }
         }
 
-        fileStorage.storeChunk(chunk);
-        Peer.getMC().sendMessage(storedMessage);
-        System.out.println("Sending STORED ->" + chunk.getChunkNumber());
+        if (fileStorage.storeChunk(chunk)){
+            Peer.getMC().sendMessage(storedMessage);
+            System.out.println("Sending STORED ->" + chunk.getChunkNumber());
+        }
     }
 
     public static void processPacketSTORED(Chunk chunk, String[] splitHeader) {

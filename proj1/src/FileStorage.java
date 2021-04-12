@@ -70,11 +70,12 @@ public class FileStorage implements Serializable {
     }
 
     /**
-     * Tries to store new chunk as a file locally,
-     * @param chunk New chunk
+     * Tries to store new chunk as a file locally, incrementing rep degree either it is stored or not
+     * @param chunk
+     * @return
      */
-    public void storeChunk(Chunk chunk) {
-        addStoredChunk(chunk);
+    public boolean storeChunk(Chunk chunk) {
+        if(!addStoredChunk(chunk)) return false;
         incrementReplicationDegree(chunk);
 
         FileOutputStream fos;
@@ -82,8 +83,10 @@ public class FileStorage implements Serializable {
             fos = new FileOutputStream( chunksDir + "/" + chunk.getChunkID());
             fos.write(chunk.getContent());
             fos.close();
+            return true;
         } catch (IOException e) {
             System.out.println("Error writing chunk to file locally");
+            return false;
         }
     }
 
@@ -208,7 +211,7 @@ public class FileStorage implements Serializable {
      * Adds stored chunk to peers knowledge, taking into account the chunks perceived replication degree if its already in the system
      * @param chunk
      */
-    private void addStoredChunk(Chunk chunk){
+    private boolean addStoredChunk(Chunk chunk){
         if(allChunks.contains(chunk)){
             for (Chunk c : allChunks) {
                 if (c.equals(chunk)) {
@@ -216,7 +219,7 @@ public class FileStorage implements Serializable {
                 }
             }
         }
-        storedChunks.add(chunk);
+        return storedChunks.add(chunk);
     }
 
     /**
