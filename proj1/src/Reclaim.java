@@ -1,56 +1,31 @@
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Reclaim {
-
-    private static FileStorage fileStorage;
-
-    public static boolean checkIfNewMaxSpaceIsEnough(long newMaxUsedSpaceKB) {
-        fileStorage = FileStorage.instance;
-        if (fileStorage == null) System.out.println("--- FILE STORAGE IS NULL ?? ---");
-        // updates maximum storage capacity (KBytes)
-        fileStorage.setMaximumSpaceAvailable(newMaxUsedSpaceKB);
-        System.out.println("CurrentlyKBytes Used: " + fileStorage.getCurrentlyKBytesUsedSpace());
-        return fileStorage.getCurrentlyKBytesUsedSpace() <= fileStorage.getMaximumSpaceAvailable();
-    }
+    private static final FileStorage fileStorage = FileStorage.instance;
 
     public static void deleteBackups(long maxUsedSpaceKB, String generalREMOVEDMessage) {
-        System.out.println("Need to delete files!");
-        Set<Chunk> chunksDeleted = new HashSet<>();
+        var orderedChunks = new ArrayList<>(fileStorage.storedChunks);
+        orderedChunks.sort(new ChunkOrder());
 
         // pick what chunks to delete so as to obey the new max used space
         // check if without the deleted chunk it meets the space requirements
+        int i = 0;
         while (!checkIfNewMaxSpaceIsEnough(maxUsedSpaceKB)) {
-            int random = new Random().nextInt(fileStorage.getStoredChunks().size());
-            int i = 0;
-            for (Chunk c : fileStorage.getStoredChunks()) {
-                if (i == random) {
-                    chunksDeleted.add(c); // adding chunk object to deleted set
-                    System.out.println("ID to be deleted: " + c.getChunkID());
-                    if (fileStorage == null) System.out.println("--- FILE STORAGE IS NULL ??? ---");
-                    fileStorage.removeChunkFromStoredChunkFiles(c); // removing from fileStorage
-                    Delete.deleteFileViaName(c.getChunkID());
-                }
-                i++;
-            }
-        }
-
-        // for each chunk send message
-        for (Chunk c : chunksDeleted) {
-
+            Chunk c = orderedChunks.get(i);
+            fileStorage.removeChunkFromStoredChunkFiles(c);
+            fileStorage.deleteFileViaName(c.getChunkID());
             String messageString = generalREMOVEDMessage + c.getFileID() + " " + c.getChunkNumber() + " " + "\r\n" + "\r\n";
             byte[] messageBytes = messageString.getBytes();
 
             System.out.println("Sending Message warning removal of chunk " + c.getChunkID());
             Peer.getMC().sendMessage(messageBytes);
+
+            i++;
         }
     }
 
-
     public static void processPacketREMOVED(String[] splitHeader) {
-        fileStorage = FileStorage.instance;
         if ( Peer.getId() == Integer.parseInt(splitHeader[2]) ) {
             return ;
         }
@@ -77,10 +52,10 @@ public class Reclaim {
             int rand = new Random().nextInt(401);
             Peer.getExec().schedule(() -> Peer.initiatePUTCHUNK(fileId, chunkInThisPeerOpt.get()), rand, TimeUnit.MILLISECONDS);
         }
-
-        // if so, random delay (0-400ms) and then initiate Backup
-        // Abort sending the backup msg if it receives a PUTCHUNK packet
-        // while in the delay
     }
 
+    public static boolean checkIfNewMaxSpaceIsEnough(long newMaxUsedSpaceKB) {
+        fileStorage.setMaximumSpaceAvailable(newMaxUsedSpaceKB);
+        return fileStorage.getCurrentlyKBytesUsedSpace() <= fileStorage.getMaximumSpaceAvailable();
+    }
 }

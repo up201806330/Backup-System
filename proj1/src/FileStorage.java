@@ -72,10 +72,9 @@ public class FileStorage implements Serializable {
     /**
      * Tries to store new chunk as a file locally,
      * @param chunk New chunk
-     * @return True if chunk was stored successfully, false if it already existed / something went wrong
      */
-    public boolean storeChunk(Chunk chunk) {
-        var result = addStoredChunk(chunk);
+    public void storeChunk(Chunk chunk) {
+        addStoredChunk(chunk);
         incrementReplicationDegree(chunk);
 
         FileOutputStream fos;
@@ -83,10 +82,8 @@ public class FileStorage implements Serializable {
             fos = new FileOutputStream( chunksDir + "/" + chunk.getChunkID());
             fos.write(chunk.getContent());
             fos.close();
-            return result;
         } catch (IOException e) {
             System.out.println("Error writing chunk to file locally");
-            return false;
         }
     }
 
@@ -210,10 +207,8 @@ public class FileStorage implements Serializable {
     /**
      * Adds stored chunk to peers knowledge, taking into account the chunks perceived replication degree if its already in the system
      * @param chunk
-     * @return True if chunk was stored successfully, false if it already existed
      */
-    private boolean addStoredChunk(Chunk chunk){
-        var result = true;
+    private void addStoredChunk(Chunk chunk){
         if(allChunks.contains(chunk)){
             for (Chunk c : allChunks) {
                 if (c.equals(chunk)) {
@@ -221,8 +216,7 @@ public class FileStorage implements Serializable {
                 }
             }
         }
-        result = storedChunks.add(chunk);
-        return result;
+        storedChunks.add(chunk);
     }
 
     /**
@@ -321,6 +315,16 @@ public class FileStorage implements Serializable {
 
     public void removeChunkFromStoredChunkFiles(Chunk chunk) {
         storedChunks.remove(chunk);
+        deleteFileViaName(chunk.getChunkID());
+    }
+
+    public void deleteFileViaName(String filepath) {
+        String newPath = chunksDir + "/" + filepath;
+        File file = new File(newPath);
+
+        String fileName = "Chunk file nr. " + filepath.substring(filepath.length() - 1);
+        if (file.delete()) System.out.println(fileName + " deleted with success");
+        else System.out.println(fileName + " not deleted");
     }
 
     public Set<Chunk> getStoredChunks() {

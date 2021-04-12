@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Restore {
+    private static final FileStorage fileStorage = FileStorage.instance;
     public static boolean isRestoreTarget;
     public static final Set<Integer> chunksAlreadySent = new HashSet<>();
     public static ScheduledFuture<?> t;
@@ -23,7 +24,7 @@ public class Restore {
         chunksAlreadySent.clear();
 
         Chunk chunk = new Chunk(splitHeader[3], Integer.parseInt(splitHeader[4]));
-        FileStorage.instance.hasChunkBackedUp(chunk).map(c ->  {
+        fileStorage.hasChunkBackedUp(chunk).map(c ->  {
             byte[] chunkMessage = createCHUNK(splitHeader, c);
 
             int rand = new Random().nextInt(401);
@@ -58,7 +59,7 @@ public class Restore {
 
         FileOutputStream fos;
         try {
-            fos = new FileOutputStream(FileStorage.instance.cacheDir + "/" + splitHeader[3] + "-" + splitHeader[4], true);
+            fos = new FileOutputStream(fileStorage.cacheDir + "/" + splitHeader[3] + "-" + splitHeader[4], true);
             fos.write(newChunk.getContent());
             fos.close();
         } catch (IOException e) {
@@ -74,10 +75,10 @@ public class Restore {
 
         // constructs restored file
         try {
-            FileOutputStream fos = new FileOutputStream(FileStorage.instance.restoreDir + "/" + extractFileNameFromPath(filepath), true);
+            FileOutputStream fos = new FileOutputStream(fileStorage.restoreDir + "/" + extractFileNameFromPath(filepath), true);
             byte[] buf = new byte[FileObject.MAX_CHUNK_SIZE];
             for(int i = 0 ; i < numberOfChunksToFind ; i++){
-                InputStream fis = Files.newInputStream(Paths.get(FileStorage.instance.cacheDir + "/" + fileID + "-" + i), StandardOpenOption.DELETE_ON_CLOSE);
+                InputStream fis = Files.newInputStream(Paths.get(fileStorage.cacheDir + "/" + fileID + "-" + i), StandardOpenOption.DELETE_ON_CLOSE);
                 int b;
                 while ( (b = fis.read(buf)) >= 0)
                     fos.write(buf, 0, b);

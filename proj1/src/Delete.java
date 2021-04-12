@@ -1,10 +1,9 @@
 import java.io.File;
 
 public class Delete {
-    private static FileStorage fileStorage;
+    private static final FileStorage fileStorage = FileStorage.instance;
 
     public static void processPacketDELETE(String fileIdToDelete) {
-        fileStorage = FileStorage.instance;
         if (fileStorage.isFilesInitiator(FileObject.fromFileID(fileIdToDelete))){
             return;
         }
@@ -21,9 +20,6 @@ public class Delete {
 
                 // Backing peer deletes entry from stored chunks
                 fileStorage.removeChunkFromStoredChunkFiles(chunk);
-
-                // Backing peer deletes actual chunk file
-                deleteFileViaName(chunk.getChunkID());
             }
         }
 
@@ -33,21 +29,4 @@ public class Delete {
     private static void deleteFileParser(String fileID) {
         fileStorage.findInitiatedFile(fileID).ifPresent(fileStorage::removeInitiatedFile);
     }
-
-    public static void deleteFileViaName(String filepath) {
-        fileStorage = FileStorage.instance;
-        if (fileStorage==null) {
-            System.out.println("filestorage instance is null");
-        }
-        else if (fileStorage.chunksDir==null){
-            System.out.println("chunksDir value is null :(");
-        }
-        String newPath = fileStorage.chunksDir + "/" + filepath;
-        File file = new File(newPath);
-
-        String fileName = "Chunk file nr. " + filepath.substring(filepath.length() - 1);
-        if (file.delete()) System.out.println(fileName + " deleted with success");
-        else System.out.println(fileName + " not deleted");
-    }
-
 }

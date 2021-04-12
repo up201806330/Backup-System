@@ -30,7 +30,6 @@ public class Peer implements RemoteInterface {
 
     private static ScheduledThreadPoolExecutor exec;
     public static Set<ScheduledFuture<?>> futures = ConcurrentHashMap.newKeySet();
-//    private ScheduledExecutorService executor;
 
     public static void main(String[] args) throws IOException, AlreadyBoundException {
         if(args.length != 9) {
@@ -61,7 +60,7 @@ public class Peer implements RemoteInterface {
         if (Peer.instance != null) return;
         else Peer.instance = this;
 
-        this.protocolVersion = args[0];
+        protocolVersion = args[0];
         peerID = Integer.parseInt(args[1]);
         accessPoint = args[2];
         serviceDirectory = "service-" + peerID;
@@ -172,7 +171,7 @@ public class Peer implements RemoteInterface {
 
         FileObject fileObject = new FileObject(filepath);
 
-        String messageString = this.protocolVersion  + " DELETE " + peerID + " " + fileObject.getFileID() + " " + "\r\n" + "\r\n";
+        String messageString = protocolVersion  + " DELETE " + peerID + " " + fileObject.getFileID() + " " + "\r\n" + "\r\n";
         byte[] messageBytes = messageString.getBytes();
 
         fileStorage.removeInitiatedFile(fileObject);
@@ -184,13 +183,12 @@ public class Peer implements RemoteInterface {
 
     public void reclaim(long spaceReclaim) { // spaceReclaim -> KB
         System.out.println("RECLAIM SERVICE -> DISK SPACE RECLAIM = " + spaceReclaim);
-        if (fileStorage == null) System.out.println("--- FILE STORAGE IS NULL HERE ---");
         if (Reclaim.checkIfNewMaxSpaceIsEnough(spaceReclaim)) {
             System.out.println("No need to delete chunks. Returning.");
             return;
         }
 
-        String generalREMOVEDMessage = this.protocolVersion  + " REMOVED " + peerID + " ";
+        String generalREMOVEDMessage = protocolVersion  + " REMOVED " + peerID + " ";
         Reclaim.deleteBackups(spaceReclaim, generalREMOVEDMessage);
 
         // FileStorage.saveToDisk();

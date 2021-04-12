@@ -3,10 +3,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class Backup {
-    private static FileStorage fileStorage;
+    private static final FileStorage fileStorage = FileStorage.instance;
 
     public static synchronized void processPacketPUTCHUNK(Chunk chunk, String[] splitHeader) {
-        fileStorage = FileStorage.instance;
         if ( Peer.getId() == Integer.parseInt(splitHeader[2]) || fileStorage.isChunksInitiator(chunk)) {
             return ;
         }
@@ -35,7 +34,6 @@ public class Backup {
 
     private static void sendSTOREDMessage(byte[] storedMessage, Chunk chunk) {
         if (Peer.protocolVersion.equals("1.1")){ // Versions after 1.0 try to avoid storing already replicated enough chunks
-            System.out.println(FileStorage.instance.getPerceivedReplicationDegree(chunk) + " ; " + chunk.getDesiredReplicationDegree());
             if (FileStorage.instance.getPerceivedReplicationDegree(chunk) >= chunk.getDesiredReplicationDegree()){
                 System.out.println("Chunk was already backed up enough");
                 return;
